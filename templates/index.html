@@ -1,0 +1,133 @@
+{%extends "base.html" %}
+
+<!------Page Title------>
+{%block title%} AI Review Notes {%endblock%}
+<!------Page Title------>
+
+<!------Main Block------>
+{%block main%}
+
+<div class="container mt-5 p-5">
+  <div class="row">
+    <div class="col-md-4 shadow-lg">
+      <div class="card bg-black text-white">
+        <div class="card-body">
+          <h5 class="card-title">Xero Account Transactions</h5>
+          <p class="card-text">
+          <ul>
+            <li>
+              Please select <strong>2 years </strong> of account transactions from <strong>Xero </strong>.
+            </li>
+            <li>
+              Please select <strong>Date, Source, Description, Reference, Debit (GBP), Credit (GBP), Running Balance (GBP),
+              Gross (GBP), VAT (GBP) </strong> columns
+            </li>
+            <li>
+              Export as <strong>Excel</strong>(XLSX format).
+            </li>
+          </ul>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 shadow-lg">
+      <div class="card bg-black text-white">
+        <div class="card-body">
+          <h5 class="card-title">Xero Trial Balance</h5>
+          <p class="card-text">
+          <ul>
+            <li>
+              Please select Trial Balance comparing to the Last financial Year from <strong>Xero </strong>.
+            </li>
+            <li>
+              The nominals you would like to compare and export as <strong>Excel</strong>(XLSX format).
+            </li>
+            <li>
+              <strong>Remove </strong> any <strong>FX Columns </strong>present in the Excel file or any <strong>explaination at the bottom </strong> and <strong> Save the file </strong> .
+            </li>
+            
+          </ul>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 shadow-lg">
+      <div class="card bg-black text-white">
+        <div class="card-body">
+          <h5 class="card-title">IRIS Nominal Ledger</h5>
+          <p class="card-text">
+          <ul>
+            <li>
+              Export the Client's Nominal Ledger from Client<strong>on IRIS</strong>.
+            </li>
+            <li>
+              <strong>Export Format should be EXCEL if it is csv, make sure to convert it to EXCEL.</strong>
+            </li>
+            <li>
+              Software can take upto 45 minutes to process the files.
+              <br>
+            </li>
+            <br>
+          </ul>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!------Container for form------>
+<div class="container mb-5 p-5 w-50 bg-black text-white rounded-4 shadow-lg">
+
+  <!------Title of Form------>
+  <h1 class="text-center mb-4 display-4">AI Review Notes</h1>
+  <!------Title of Form------>
+
+
+  <!------Form------>
+  <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+
+    {{ form.csrf_token }}
+
+    <div class="mb-3">
+      <label for="xro_acc_trans" class="form-label fw-bold">Xero Account Transactions <span
+          class="text-danger">*</span></label>
+      <input type="file" class="form-control bg-dark text-white border-secondary" id="xro_acc_trans"
+        name="xro_acc_trans" required />
+    </div>
+
+    <div class="mb-3">
+      <label for="acc_xro_tb" class="form-label fw-bold">Xero Trial Balance <span class="text-danger">*</span> </label>
+      <input type="file" class="form-control bg-dark text-white border-secondary" id="acc_xro_tb" name="acc_xro_tb"
+        required />
+    </div>
+
+    <div class="mb-3">
+      <label for="iris_nl" class="form-label fw-bold">IRIS Nominal Ledger <span class="text-danger">*</span></label>
+      <input type="file" class="form-control bg-dark text-white border-secondary" id="iris_nl" name="iris_nl"
+        required />
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+      <input type="email" class="form-control border-secondary" id="email" placeholder="j.doe@email.com" name="email"
+        required />
+    </div>
+
+    <button type="submit" class="btn btn-outline-light w-100 fw-bold" id="submit_button">Submit</button>
+
+  </form>
+  <!------Form------>
+
+
+</div>
+<!------Container for form------>
+
+{% endblock %}
+<!------Main Block------>
+
+<!-------Block Reserved for customJs Files------->
+{%block customJs%}
+  <script src="..\static\js\index\index.js"> </script>
+{%endblock%}
+<!-------Block Reserved for customJs Files------->

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} Experiment Status {% endblock %}
+{% block main %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12 text-center">
+      <h1 class="display-5 mb-4">Experiment Status</h1>
+
+      <div data-task-state="{{ state }}" class="alert alert-{% if state == 'PENDING' %}warning{% elif state == 'SUCCESS' %}success{% elif state == 'FAILURE' %}danger{% else %}primary{% endif %} mt-4">
+        <p><strong>State:</strong> {{ state }}</p>
+        <p><strong>Status:</strong> {{ status }}</p>
+        {% if run_id %}
+          <p><strong>Run ID:</strong> <a href="{{ url_for('experiment_run', run_id=run_id) }}">{{ run_id }}</a></p>
+        {% endif %}
+      </div>
+
+      {% if error %}
+      <div class="alert alert-danger mt-4">
+        <h5 class="alert-heading">Error</h5>
+        <pre style="white-space: pre-wrap;">{{ error }}</pre>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block customJs %}
+  <script src="{{ url_for('static', filename='js/status/poll_reload.js') }}"></script>
+{% endblock %}

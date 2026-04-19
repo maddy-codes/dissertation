@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %} Experiment Run {% endblock %}
+{% block main %}
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="display-5 mb-2">Run {{ run.run_id }}</h1>
+      <p class="text-secondary mb-4">{{ run.run_name }}</p>
+
+      <div class="d-flex gap-2 mb-4">
+        <a class="btn btn-dark" href="{{ url_for('download_run_csv', run_id=run.run_id) }}">Download CSV</a>
+        <a class="btn btn-dark" href="{{ url_for('download_run_json', run_id=run.run_id) }}">Download JSON</a>
+      </div>
+
+      <div class="card shadow-lg">
+        <div class="card-body">
+          <h5 class="card-title">Generations</h5>
+          <div class="table-responsive">
+            <table class="table table-striped table-dark align-middle">
+              <thead>
+                <tr>
+                  <th>Example</th>
+                  <th>Model</th>
+                  <th>Technique</th>
+                  <th>Context</th>
+                  <th>Latency (s)</th>
+                  <th>Counterparty coverage</th>
+                  <th>Single paragraph</th>
+                  <th>Output (preview)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for g in generations %}
+                <tr>
+                  <td style="max-width: 220px; word-break: break-all;">{{ g.example_id }}</td>
+                  <td>{{ g.model_id }}</td>
+                  <td>{{ g.technique }}</td>
+                  <td>{{ g.context_mode }}</td>
+                  <td>{{ "%.2f"|format(g.latency_s) }}</td>
+                  <td>
+                    {% if g.score_json.grounding.counterparty_coverage is not none %}
+                      {{ "%.2f"|format(g.score_json.grounding.counterparty_coverage) }}
+                    {% else %}
+                      n/a
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if g.score_json.format.single_paragraph is not none %}
+                      {{ "yes" if g.score_json.format.single_paragraph else "no" }}
+                    {% else %}
+                      n/a
+                    {% endif %}
+                  </td>
+                  <td style="max-width: 420px;">
+                    {{ (g.output_text or "")[:240] }}{% if (g.output_text or "")|length > 240 %}...{% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

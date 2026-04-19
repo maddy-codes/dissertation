@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %} Experiments {% endblock %}
+{% block main %}
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="display-5 mb-3">Experiments</h1>
+      <p class="lead">Run multi-model comparisons and context-degradation sweeps on your JSON corpus.</p>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-lg-6">
+      <div class="card bg-black text-white shadow-lg">
+        <div class="card-body">
+          <h5 class="card-title">Start Experiment</h5>
+
+          <form action="{{ url_for('start_experiment') }}" method="post">
+            {{ form.csrf_token }}
+
+            <div class="mb-3">
+              <label class="form-label fw-bold" for="run_name">Run name</label>
+              {{ form.run_name(class_="form-control") }}
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <label class="form-label fw-bold" for="dataset_limit">Examples (limit)</label>
+                {{ form.dataset_limit(class_="form-control") }}
+              </div>
+              <div class="col">
+                <label class="form-label fw-bold" for="dataset_offset">Offset</label>
+                {{ form.dataset_offset(class_="form-control") }}
+              </div>
+            </div>
+
+            <div class="mb-3 mt-3">
+              <label class="form-label fw-bold" for="examples_prefix">Blob prefix override (optional)</label>
+              {{ form.examples_prefix(class_="form-control") }}
+              <div class="form-text text-secondary">
+                Leave empty to use <code>EXAMPLES_PREFIX</code>. Use for slicing folders within the container.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Models</label>
+              {% for value, label in model_choices %}
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="models" id="m_{{ loop.index }}" value="{{ value }}" checked>
+                <label class="form-check-label" for="m_{{ loop.index }}">{{ label }}</label>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Techniques</label>
+              {% for value, label in technique_choices %}
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="techniques" id="t_{{ loop.index }}" value="{{ value }}" checked>
+                <label class="form-check-label" for="t_{{ loop.index }}">{{ label }}</label>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Context modes</label>
+              {% for value, label in context_choices %}
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="context_modes" id="c_{{ loop.index }}" value="{{ value }}" {% if value in default_context_modes %}checked{% endif %}>
+                <label class="form-check-label" for="c_{{ loop.index }}">{{ label }}</label>
+              </div>
+              {% endfor %}
+              <div class="form-text text-secondary">
+                Selecting <code>raw</code> triggers the degradation sweep (<code>raw_25</code>, <code>raw_50</code>, <code>raw_100</code>).
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <label class="form-label fw-bold" for="few_shot_k">Few-shot K</label>
+                {{ form.few_shot_k(class_="form-control") }}
+              </div>
+              <div class="col">
+                <label class="form-label fw-bold" for="prompt_search_trials">Prompt trials</label>
+                {{ form.prompt_search_trials(class_="form-control") }}
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-outline-light w-100 fw-bold mt-4">Start</button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 mt-4 mt-lg-0">
+      <div class="card shadow-lg">
+        <div class="card-body">
+          <h5 class="card-title">Recent Runs</h5>
+          {% if runs %}
+            <ul class="list-group">
+              {% for r in runs %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.92);">
+                  <div>
+                    <div class="fw-bold">{{ r.run_name }}</div>
+                    <div class="text-secondary" style="font-size: 0.9em">{{ r.run_id }}</div>
+                  </div>
+                  <a class="btn btn-sm btn-dark" href="{{ url_for('experiment_run', run_id=r.run_id) }}">View</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-secondary">No runs yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

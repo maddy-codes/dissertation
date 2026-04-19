@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-------Header------->
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-------------Fonts------------->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <!-------------Fonts------------->
+
+  <!-------------Bootstrap Files------------->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+    integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <!-------------Bootstrap Files------------->
+
+  <!-------------FavIcon Setting------------->
+  <link rel="icon" href="{{ url_for('static',filename='images/logo-only.png') }}" />
+  <!-------------Bootstrap Files------------->
+
+  <!-------------Custom CSS------------->
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/styles.css') }}" />
+  <!-------------Custom CSS------------->
+
+  <!-------------Block reserved for page related Custom Css------------->
+  {%block customCss%} {%endblock%}
+  <!-------------Block reserved for page related Custom Css------------->
+
+
+  <!-------------Page Title------------->
+  <title>{%block title%} {%endblock%}</title>
+  <!-------------Page Title------------->
+
+</head>
+<!-------Header------->
+
+<!-------Body------->
+
+<body>
+
+  <!-------------Navigaton Bar------------->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-black p-3">
+    <div class="container">
+      <a class="navbar-brand display-1" href="/" style="font-size: 1.5em">Phipps Henson McAllister</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-------------Page Links------------->
+      <div class="collapse navbar-collapse" id="navbarText">
+
+        <!-------------Add Page in this list------------->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="font-size: 1.2em">
+
+          <li class="nav-item ms-2">
+            <a class="nav-link" aria-current="page" href="/">Home</a>
+          </li>
+
+          <li class="nav-item ms-2">
+            <a class="nav-link" aria-current="page" href="/experiments">Experiments</a>
+          </li>
+          
+          <li class="nav-item ms-2">
+            <a class="nav-link" aria-current="page" href="https://utilities.phm-accountants.co.uk/" target="_blank">Utilities</a>
+          </li>
+          
+          <li class="nav-item ms-2">
+            <a class="nav-link" aria-current="page" href="https://portal.phm-accountants.co.uk/" target="_blank">PHM Portal</a>
+          </li>
+
+        </ul>
+        <!-------------Add Page in this list------------->
+      </div>
+      <!-------------Page Links------------->
+    </div>
+  </nav>
+  <!-------------Navigaton Bar------------->
+
+  <!-------------Block Reserved main page content------------->
+  <main class="app-main">{%block main%} {% endblock %}</main>
+  <!-------------Block Reserved main page content------------->
+
+  <!-------------Footer------------->
+  <footer class="footer fixed-bottom bg-black text-white mt-4 py-3 px-6 text-center footer-border">© Phipps Henson McAllister</footer>
+  <!-------------Footer------------->
+
+</body>
+<!-------Body------->
+
+<!-------Block Reserved for customJs Files------->
+{%block customJs%}{%endblock%}
+<!-------Block Reserved for customJs Files------->
+
+
+</html>

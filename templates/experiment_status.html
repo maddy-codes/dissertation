@@ -1,28 +1,75 @@
 {% extends "base.html" %}
 {% block title %} Experiment Status {% endblock %}
 {% block main %}
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-12 text-center">
-      <h1 class="display-5 mb-4">Experiment Status</h1>
 
-      <div data-task-state="{{ state }}" class="alert alert-{% if state == 'PENDING' %}warning{% elif state == 'SUCCESS' %}success{% elif state == 'FAILURE' %}danger{% else %}primary{% endif %} mt-4">
-        <p><strong>State:</strong> {{ state }}</p>
-        <p><strong>Status:</strong> {{ status }}</p>
-        {% if run_id %}
-          <p><strong>Run ID:</strong> <a href="{{ url_for('experiment_run', run_id=run_id) }}">{{ run_id }}</a></p>
+<div class="flex flex-col items-center justify-center py-20 w-full max-w-2xl mx-auto text-center relative">
+    
+    <!-- Abstract gradient texture for depth -->
+    <div class="absolute inset-0 bg-surface-container-highest rounded-full blur-[120px] opacity-10 pointer-events-none"></div>
+
+    <span class="material-symbols-outlined text-6xl text-primary/20 mb-6 relative z-10">hourglass_top</span>
+    <h1 class="text-4xl md:text-5xl font-headline font-bold text-primary tracking-[-0.02em] leading-tight mb-2 relative z-10">Experiment Status</h1>
+    <p class="text-on-surface-variant text-base mb-10 relative z-10 font-light">Monitoring algorithmic analysis and dataset sweeps.</p>
+
+    <div class="w-full bg-surface-container-low rounded-xl p-8 shadow-[0_20px_40px_rgba(0,0,0,0.6)] border border-outline-variant/10 relative z-10">
+        
+        {% set state_color = '' %}
+        {% set state_icon = '' %}
+        {% if state == 'PENDING' %}
+            {% set state_color = 'text-secondary' %}
+            {% set state_icon = 'pending' %}
+        {% elif state == 'SUCCESS' %}
+            {% set state_color = 'text-green-500' %}
+            {% set state_icon = 'task_alt' %}
+        {% elif state == 'FAILURE' %}
+            {% set state_color = 'text-error' %}
+            {% set state_icon = 'error' %}
+        {% else %}
+            {% set state_color = 'text-primary' %}
+            {% set state_icon = 'info' %}
         {% endif %}
-      </div>
 
-      {% if error %}
-      <div class="alert alert-danger mt-4">
-        <h5 class="alert-heading">Error</h5>
-        <pre style="white-space: pre-wrap;">{{ error }}</pre>
-      </div>
-      {% endif %}
+        <div data-task-state="{{ state }}" class="flex flex-col items-center mb-6">
+            <span class="material-symbols-outlined text-5xl {{ state_color }} mb-4 animate-pulse">{{ state_icon }}</span>
+            <div class="flex items-center gap-3 mb-2">
+                <span class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline">State</span>
+                <span class="px-3 py-1 bg-surface-container-highest rounded-sm font-mono text-sm {{ state_color }} font-bold tracking-widest">{{ state }}</span>
+            </div>
+            <p class="text-primary font-medium mt-2 text-lg">{{ status }}</p>
+            
+            {% if run_id %}
+            <div class="mt-6 pt-6 border-t border-outline-variant/30 w-full">
+                <p class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary mb-2">Run Associated</p>
+                <a href="{{ url_for('experiment_run', run_id=run_id) }}" class="inline-flex items-center gap-2 bg-surface text-primary border border-primary/20 hover:border-primary hover:bg-surface-bright px-6 py-3 rounded-lg font-mono text-sm transition-all hover:shadow-lg">
+                    {{ run_id }} <span class="material-symbols-outlined text-sm">open_in_new</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if error %}
+        <div class="mt-6 text-left bg-error-container/10 border border-error/50 rounded-lg p-6 w-full">
+            <div class="flex items-center gap-2 text-error mb-4">
+                <span class="material-symbols-outlined text-xl">warning</span>
+                <h5 class="font-headline font-bold text-lg tracking-tight">System Error</h5>
+            </div>
+            <pre class="whitespace-pre-wrap font-mono text-xs text-error-container leading-relaxed overflow-x-auto p-4 bg-error-container/5 rounded">{{ error }}</pre>
+        </div>
+        {% endif %}
     </div>
-  </div>
+
+    <!-- Processing loader visual indicating backend activity -> only visible if pending -->
+    {% if state == 'PENDING' %}
+    <div class="mt-12 flex items-center justify-center gap-2 relative z-10 w-full">
+        <div class="w-1.5 h-1.5 bg-secondary rounded-full animate-ping"></div>
+        <div class="w-1.5 h-1.5 bg-secondary rounded-full animate-ping" style="animation-delay: 0.2s"></div>
+        <div class="w-1.5 h-1.5 bg-secondary rounded-full animate-ping" style="animation-delay: 0.4s"></div>
+        <span class="text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-secondary ml-3 blink">Syncing</span>
+    </div>
+    {% endif %}
+
 </div>
+
 {% endblock %}
 
 {% block customJs %}

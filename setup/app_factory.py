@@ -4,10 +4,10 @@ from typing import Any
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from celery import Celery, Task
+from flask_login import LoginManager
 import dotenv
 
 dotenv.load_dotenv()
-
 
 def create_app() -> Flask:
     """Create and configure the Flask application."""
@@ -32,17 +32,29 @@ def create_app() -> Flask:
         "task_ignore_result": False,
     }
     
-    # config if the app is running local redis
-    # app.config["CELERY"] = {
-    #     "broker_url": "redis://localhost:6379/0",
-    #     "result_backend": "redis://localhost:6379/0",
-    #     "task_ignore_result": False,
-    # }
+    # Configure SQLAlchemy
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     
+    from setup.models import db
+    db.init_app(app)
+
+    # Configure Login Manager
+    login_manager = LoginManager()
+    login_manager.login_view = "auth.login"
+    login_manager.init_app(app)
+
+    from setup.models import User
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+    
+    with app.app_context():
+        db.create_all()
+
     csrf = CSRFProtect(app)
 
     return app
-
 
 def create_celery_app(app: Flask) -> Celery:
     """Initialize and configure the Celery application."""

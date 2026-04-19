@@ -40,6 +40,7 @@ class XeroClient:
         refresh_token: str,
         token_cache_path: Optional[str] = None,
         session: Optional[requests.Session] = None,
+        user=None,
     ) -> None:
         self._client_id = client_id
         self._client_secret = client_secret
@@ -47,8 +48,17 @@ class XeroClient:
         self._token_cache_path = token_cache_path
         self._session = session or requests.Session()
         self._token: Optional[XeroToken] = None
+        self.user = user
 
-        if self._token_cache_path:
+        if self.user:
+            cached = self.user.get_xero_token()
+            if cached and cached.get("access_token") and cached.get("refresh_token") and cached.get("expires_at"):
+                self._token = XeroToken(
+                    access_token=cached["access_token"],
+                    refresh_token=cached["refresh_token"],
+                    expires_at=float(cached["expires_at"]),
+                )
+        elif self._token_cache_path:
             cached = self._load_cached_token()
             if cached:
                 self._token = cached
@@ -91,6 +101,17 @@ class XeroClient:
             return None
 
     def _save_cached_token(self) -> None:
+        if self.user and self._token:
+            from setup.models import db
+            self.user.set_xero_token({
+                "access_token": self._token.access_token,
+                "refresh_token": self._token.refresh_token,
+                "expires_at": self._token.expires_at,
+            })
+            db.session.add(self.user)
+            db.session.commit()
+            return
+            
         if not self._token_cache_path or not self._token:
             return
         try:
@@ -204,6 +225,30 @@ class XeroClient:
         )
         if resp.status_code >= 400:
             raise RuntimeError(f"Xero balance sheet failed: {resp.status_code} {resp.text}")
+        return resp.json()
+
+    def get_trial_balance(self, tenant_id: str, report_date: date) -> dict[str, Any]:
+        url = f"{XERO_ACCOUNTING_BASE}/Reports/TrialBalance"
+        resp = self._session.get(
+            url,
+            headers=self._headers(tenant_id),
+            params={"date": report_date.isoformat()},
+            timeout=60,
+        )
+        if resp.status_code >= 400:
+            raise RuntimeError(f"Xero trial balance failed: {resp.status_code} {resp.text}")
+        return resp.json()
+
+    def get_profit_and_loss(self, tenant_id: str, start_date: date, end_date: date) -> dict[str, Any]:
+        url = f"{XERO_ACCOUNTING_BASE}/Reports/ProfitAndLoss"
+        resp = self._session.get(
+            url,
+            headers=self._headers(tenant_id),
+            params={"fromDate": start_date.isoformat(), "toDate": end_date.isoformat()},
+            timeout=60,
+        )
+        if resp.status_code >= 400:
+            raise RuntimeError(f"Xero P&L failed: {resp.status_code} {resp.text}")
         return resp.json()
 
 

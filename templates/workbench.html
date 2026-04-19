@@ -1,0 +1,467 @@
+{% extends "base.html" %}
+{% block title %} Workbench | AI Review Notes {% endblock %}
+
+{% block main %}
+<div class="w-full">
+
+    <!-- ══════════════════════════════════════════════
+         PAGE HEADER – Editorial, asymmetric
+    ══════════════════════════════════════════════ -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-outline-variant/20">
+        <div class="flex items-start gap-4">
+            <a href="{{ url_for('upload') }}"
+               class="mt-1 text-on-surface-variant hover:text-primary transition-all duration-200 p-2 rounded-full hover:bg-surface-container-high">
+                <span class="material-symbols-outlined text-lg leading-none">arrow_back</span>
+            </a>
+            <div>
+                <span class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary">Collaborative Workspace</span>
+                <h1 class="mt-1 text-3xl font-headline font-bold text-primary tracking-[-0.02em] leading-tight">
+                    Analysis Workbench
+                </h1>
+                <p class="mt-1 text-on-surface-variant text-sm">
+                    Client session: <code class="text-xs font-mono bg-surface-container px-2 py-0.5 rounded text-secondary">{{ tenant_id }}</code>
+                </p>
+            </div>
+        </div>
+
+        <!-- Step pills -->
+        <div class="flex items-center gap-2 pl-14 md:pl-0">
+            <div id="pill-1" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-primary text-on-primary transition-all duration-300">1 · Init</div>
+            <span class="text-outline-variant/40 text-xs">—</span>
+            <div id="pill-2" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container text-outline border border-outline-variant/30 transition-all duration-300">2 · Review</div>
+            <span class="text-outline-variant/40 text-xs">—</span>
+            <div id="pill-3" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container text-outline border border-outline-variant/30 transition-all duration-300">3 · Scope</div>
+            <span class="text-outline-variant/40 text-xs">—</span>
+            <div id="pill-4" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container text-outline border border-outline-variant/30 transition-all duration-300">4 · Finalize</div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         MAIN GRID – Thinking Console + Workspace
+    ══════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6 items-start">
+
+        <!-- LEFT: Thinking Console -->
+        <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+            <div class="flex items-center justify-between px-5 py-4 bg-surface-container-low border-b border-outline-variant/20">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary text-base">memory</span>
+                    <span class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary">Thinking Console</span>
+                </div>
+                <div class="flex items-center gap-2" id="agent-badge">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-60"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+                    </span>
+                    <span id="agent-status-text" class="text-[0.6rem] uppercase tracking-widest font-bold text-secondary">Live</span>
+                </div>
+            </div>
+            <div id="thought-stream"
+                 class="flex flex-col gap-3 p-5 overflow-y-auto font-mono text-xs"
+                 style="min-height: 420px; max-height: 520px;">
+                <!-- injected by JS -->
+            </div>
+        </div>
+
+        <!-- RIGHT: Stage Viewport -->
+        <div class="relative rounded-lg overflow-hidden bg-surface-container shadow-[0_20px_40px_rgba(0,0,0,0.5)] min-h-[520px] flex flex-col">
+
+            <!-- Subtle radial gradient for "studio lighting" effect (DESIGN.md) -->
+            <div class="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/[0.03] rounded-full blur-[80px] pointer-events-none"></div>
+
+            <!-- ── STAGE 1: INITIALISING ── -->
+            <div id="stage-init" class="absolute inset-0 flex flex-col items-center justify-center z-10 bg-surface-container transition-opacity duration-700">
+                <span class="material-symbols-outlined text-5xl text-outline mb-5" style="animation: spin 3s linear infinite;">sync</span>
+                <h2 class="text-xl font-headline font-semibold text-primary mb-2">Synchronising Ledger Data</h2>
+                <p class="text-on-surface-variant text-sm text-center max-w-xs">Establishing secure read channel and running initial GL analysis…</p>
+                <style>@keyframes spin { to { transform: rotate(360deg); }}</style>
+            </div>
+
+            <!-- ── STAGE 2: IDENTIFIED FLAGS ── -->
+            <div id="stage-flags" class="hidden flex-col h-full p-8 opacity-0 transition-opacity duration-700 flex-1">
+                <div class="mb-6">
+                    <span class="inline-block bg-error-container/20 text-error border border-error/30 rounded px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.15em] mb-3">Attention Required</span>
+                    <h2 class="text-2xl font-headline font-bold text-primary tracking-[-0.02em]">Identified Flags</h2>
+                    <p class="text-on-surface-variant text-sm mt-1.5 max-w-xl leading-relaxed">
+                        The agent has detected anomalies in the ledger requiring human verification before scope is finalized.
+                        Resolve <span class="text-primary font-semibold">both items</span> to continue.
+                    </p>
+                </div>
+
+                <!-- Flag cards — card layout instead of broken table -->
+                <div class="flex flex-col gap-4 flex-1" id="flag-cards">
+
+                    <div class="flag-card bg-surface-container-low rounded-lg p-5 border border-outline-variant/20 hover:border-outline-variant/50 transition-all duration-200">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-secondary bg-surface-container-highest px-2 py-0.5 rounded">Subscriptions</span>
+                                </div>
+                                <p class="text-primary font-semibold text-sm mb-1">Adobe Creative Cloud</p>
+                                <p class="text-on-surface-variant text-xs leading-relaxed">Consistent monthly hit; matches known vendor list. Pattern confidence: <span class="text-primary font-bold">94%</span></p>
+                            </div>
+                            <div class="flag-actions flex gap-2 shrink-0">
+                                <button class="flag-btn approve px-4 py-2 bg-surface-container-highest border border-outline-variant/50 text-primary rounded text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-200">Approve</button>
+                                <button class="flag-btn reject px-4 py-2 bg-surface-container-highest border border-error/40 text-error rounded text-xs font-bold uppercase tracking-widest hover:bg-error hover:text-on-primary hover:border-error transition-all duration-200">Reject</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flag-card bg-surface-container-low rounded-lg p-5 border border-outline-variant/20 hover:border-outline-variant/50 transition-all duration-200">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-error bg-error-container/20 border border-error/20 px-2 py-0.5 rounded">Large Payment</span>
+                                </div>
+                                <p class="text-primary font-semibold text-sm mb-1">£12,450 → <span class="font-mono">Build-It Ltd</span></p>
+                                <p class="text-on-surface-variant text-xs leading-relaxed">Outlier identified. Spend is <span class="text-error font-bold">400% higher</span> than average monthly run rate for this category.</p>
+                            </div>
+                            <div class="flag-actions flex gap-2 shrink-0">
+                                <button class="flag-btn approve px-4 py-2 bg-surface-container-highest border border-outline-variant/50 text-primary rounded text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-200">Approve</button>
+                                <button class="flag-btn query px-4 py-2 bg-surface-container-highest border border-secondary/40 text-secondary rounded text-xs font-bold uppercase tracking-widest hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-all duration-200">Query</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="btn-to-coa"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-surface-container-high border border-outline-variant/40 text-outline rounded font-label font-bold uppercase tracking-[0.1em] text-xs cursor-not-allowed opacity-50 transition-all duration-200"
+                        disabled>
+                        Proceed to Chart of Accounts
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── STAGE 3: CHART OF ACCOUNTS ── -->
+            <div id="stage-coa" class="hidden flex-col h-full p-8 opacity-0 transition-opacity duration-700">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                    <div>
+                        <span class="inline-block bg-surface-container-highest text-secondary rounded px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.15em] mb-3">Scope Definition</span>
+                        <h2 class="text-2xl font-headline font-bold text-primary tracking-[-0.02em]">Chart of Accounts</h2>
+                        <p class="text-on-surface-variant text-sm mt-1.5 leading-relaxed">Select the nominals for deep-dive analysis. The agent's recommendations are pre-applied.</p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button id="btn-materiality" class="px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-outline-variant rounded transition-all duration-200">Materiality Filter</button>
+                        <button id="btn-approve-all" class="px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-outline-variant rounded transition-all duration-200">Approve All</button>
+                    </div>
+                </div>
+
+                <!-- CoA rows as cards for clarity -->
+                <div class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1" style="max-height: 320px;">
+
+                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
+                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
+                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">4000</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-primary text-sm font-medium">Sales Revenue</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">Income</p>
+                        </div>
+                        <span class="font-mono text-sm text-primary shrink-0">£450,200</span>
+                        <div class="text-right shrink-0 w-48">
+                            <span class="text-error text-xs font-bold">Analyze</span>
+                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">High volume of small entries.</p>
+                        </div>
+                    </div>
+
+                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
+                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
+                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">7100</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-primary text-sm font-medium">Rent &amp; Rates</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">Expense</p>
+                        </div>
+                        <span class="font-mono text-sm text-primary shrink-0">£24,000</span>
+                        <div class="text-right shrink-0 w-48">
+                            <span class="text-secondary text-xs font-bold">Skip</span>
+                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Fixed costs; no anomalies.</p>
+                        </div>
+                    </div>
+
+                    <div class="coa-row flex items-center gap-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200 opacity-50">
+                        <input type="checkbox" class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
+                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">7500</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-primary text-sm font-medium">Office Stationery</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">Expense</p>
+                        </div>
+                        <span class="font-mono text-sm text-primary shrink-0">£450</span>
+                        <div class="text-right shrink-0 w-48">
+                            <span class="text-secondary text-xs font-bold">Skip</span>
+                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Below materiality threshold.</p>
+                        </div>
+                    </div>
+
+                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
+                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
+                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">8200</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-primary text-sm font-medium">Legal &amp; Professional</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">Expense · Mandatory Comment Account</p>
+                        </div>
+                        <span class="font-mono text-sm text-primary shrink-0">£15,000</span>
+                        <div class="text-right shrink-0 w-48">
+                            <span class="text-error text-xs font-bold">Analyze</span>
+                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Multiple new vendors identified.</p>
+                        </div>
+                    </div>
+
+                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
+                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
+                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">8300</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-primary text-sm font-medium">Directors' Remuneration</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">Expense · Mandatory Comment Account</p>
+                        </div>
+                        <span class="font-mono text-sm text-primary shrink-0">£72,000</span>
+                        <div class="text-right shrink-0 w-48">
+                            <span class="text-error text-xs font-bold">Analyze</span>
+                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Compare vs P&amp;L before remuneration.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="btn-to-final"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded font-label font-bold uppercase tracking-[0.1em] text-xs hover:bg-surface-bright hover:text-primary border border-transparent hover:border-outline-variant shadow-lg transition-all duration-200">
+                        Confirm Scope
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── STAGE 4: FINALIZE ── -->
+            <div id="stage-final" class="hidden flex-col h-full p-8 opacity-0 transition-opacity duration-700 items-center justify-center">
+                
+                <!-- Thinking Recap -->
+                <div class="w-full max-w-lg mx-auto">
+                    <div class="text-center mb-8">
+                        <span class="material-symbols-outlined text-5xl text-green-400 mb-4 block">verified</span>
+                        <h2 class="text-2xl font-headline font-bold text-primary tracking-[-0.02em]">Synthesis Ready</h2>
+                        <p class="text-on-surface-variant text-sm mt-2 leading-relaxed">Scope confirmed. Review the agent's summary below then dispatch the full analysis.</p>
+                    </div>
+
+                    <!-- Recap block (DESIGN.md "Stat Block" concept) -->
+                    <div class="bg-surface-container-lowest rounded-lg p-6 mb-8 border border-outline-variant/20 shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
+                        <span class="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-secondary block mb-4">Final Thinking Summary</span>
+                        <ul class="space-y-3">
+                            <li class="flex gap-3 text-xs font-mono">
+                                <span class="text-primary shrink-0 font-bold">></span>
+                                <span class="text-on-surface-variant">Scope: Limited to <span class="text-primary font-bold">4 / 5</span> nominal codes based on your input.</span>
+                            </li>
+                            <li class="flex gap-3 text-xs font-mono">
+                                <span class="text-primary shrink-0 font-bold">></span>
+                                <span class="text-on-surface-variant">Materiality: Transactions under <span class="text-primary font-bold">£500</span> have been excluded.</span>
+                            </li>
+                            <li class="flex gap-3 text-xs font-mono">
+                                <span class="text-primary shrink-0 font-bold">></span>
+                                <span class="text-on-surface-variant">Logic: Large outliers and new vendors reconciled prior to synthesis.</span>
+                            </li>
+                            <li class="flex gap-3 text-xs font-mono">
+                                <span class="text-green-400 shrink-0 font-bold">></span>
+                                <span class="text-on-surface-variant">Confidence: <span class="text-green-400 font-bold">98%</span> — 2 items moved to Needs Clarification.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Final dispatch form -->
+                    <form action="{{ url_for('upload') }}" method="post" class="flex flex-col gap-6">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="email" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1">
+                                Dispatch Destination <span class="text-error">*</span>
+                            </label>
+                            <div class="flex items-center border-b border-outline-variant/50 focus-within:border-primary transition-colors duration-200 py-2 group">
+                                <span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors mr-3 text-lg ml-2">mail</span>
+                                <input type="email" id="email" name="email" required
+                                    placeholder="partner@institution.com"
+                                    class="w-full bg-transparent border-none focus:ring-0 p-0 text-primary placeholder:text-outline-variant font-body text-sm"/>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm shadow-xl hover:bg-surface-bright hover:text-primary hover:border-outline-variant border border-transparent hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2">
+                            Confirm &amp; Finalize Generation
+                            <span class="material-symbols-outlined text-sm">send</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div><!-- end right -->
+    </div><!-- end grid -->
+</div>
+{% endblock %}
+
+{% block customJs %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // ─────────────────────────────────────
+    // Elements
+    // ─────────────────────────────────────
+    const stageInit  = document.getElementById("stage-init");
+    const stageFlags = document.getElementById("stage-flags");
+    const stageCoa   = document.getElementById("stage-coa");
+    const stageFinal = document.getElementById("stage-final");
+
+    const pills      = [1,2,3,4].map(n => document.getElementById(`pill-${n}`));
+    const stream     = document.getElementById("thought-stream");
+    const statusText = document.getElementById("agent-status-text");
+    const agentDot   = document.querySelector("#agent-badge .relative.inline-flex");
+
+    const btnToCoa   = document.getElementById("btn-to-coa");
+    const btnToFinal = document.getElementById("btn-to-final");
+    const btnApprove = document.getElementById("btn-approve-all");
+    const btnMat     = document.getElementById("btn-materiality");
+
+    // ─────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────
+    const activePill = (n) => {
+        const base = "px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] transition-all duration-300";
+        pills.forEach((p, i) => {
+            if (i + 1 === n)      p.className = `${base} bg-primary text-on-primary shadow-[0_0_12px_rgba(255,255,255,0.15)]`;
+            else if (i + 1 < n)   p.className = `${base} bg-surface-container-high text-primary`;
+            else                   p.className = `${base} bg-surface-container text-outline border border-outline-variant/30`;
+        });
+    };
+
+    const addThought = (tag, text, tagColor = "text-secondary") => {
+        const d = document.createElement("div");
+        d.className = "flex gap-2 bg-surface-container-highest/30 px-3 py-2.5 rounded border border-outline-variant/10";
+        d.style.animation = "fadeInUp 0.4s ease-out";
+        d.innerHTML = `<span class="font-bold shrink-0 ${tagColor}">[${tag}]</span><span class="text-on-surface-variant/80 leading-relaxed">${text}</span>`;
+        stream.appendChild(d);
+        stream.scrollTop = stream.scrollHeight;
+    };
+
+    const transitionTo = (hideEl, showEl, delay = 0) => {
+        hideEl.style.opacity = "0";
+        setTimeout(() => {
+            hideEl.classList.add("hidden");
+            showEl.classList.remove("hidden");
+            showEl.classList.add("flex");
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => { showEl.style.opacity = "1"; });
+            });
+        }, delay);
+    };
+
+    const setStatus = (label, colorClass = "text-secondary") => {
+        statusText.textContent = label;
+        statusText.className = `text-[0.6rem] uppercase tracking-widest font-bold ${colorClass}`;
+    };
+
+    // ─────────────────────────────────────
+    // Phase 1 – Live Thought Stream
+    // ─────────────────────────────────────
+    activePill(1);
+
+    const thoughts = [
+        [1000,  "Logic",              "Establishing read channel to General Ledger…",        "text-blue-400"],
+        [2200,  "Pattern Recognition","Scanning recurring monthly outflows across Q4…",      "text-secondary"],
+        [3600,  "Insight",            "Found 14 active subscriptions. 3 flagged: price drift detected.", "text-yellow-400"],
+        [5200,  "Threshold Check",    "Filtering payments above £5,000. 22 large payments found.", "text-error"],
+        [6800,  "Materiality",        "Applying 10% variance threshold per firm standard.",  "text-secondary"],
+        [7800,  "System",             "Initial scan complete. Awaiting human verification.", "text-primary"],
+    ];
+
+    thoughts.forEach(([delay, tag, text, color]) => {
+        setTimeout(() => addThought(tag, text, color), delay);
+    });
+
+    // After all thoughts, fade in Stage 2
+    setTimeout(() => {
+        setStatus("Paused", "text-yellow-400");
+        agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-yellow-400";
+        activePill(2);
+        transitionTo(stageInit, stageFlags, 600);
+    }, 9000);
+
+    // ─────────────────────────────────────
+    // Phase 2 – Flags
+    // ─────────────────────────────────────
+    let resolvedCount = 0;
+
+    document.querySelectorAll(".flag-card").forEach(card => {
+        card.querySelectorAll(".flag-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const actions = this.closest(".flag-actions");
+                const action  = this.classList.contains("approve") ? "Approved" :
+                                this.classList.contains("reject")  ? "Rejected" : "Queried";
+
+                actions.innerHTML = `<span class="text-[0.6rem] uppercase tracking-widest font-bold ${
+                    action === "Approved" ? "text-primary" : action === "Queried" ? "text-secondary" : "text-error"
+                }">${action}</span>`;
+
+                const name = card.querySelector("p.text-primary.font-semibold").textContent;
+                addThought("Action", `"${name}" → ${action} by operator.`,
+                    action === "Approved" ? "text-green-400" : action === "Queried" ? "text-yellow-400" : "text-error");
+
+                resolvedCount++;
+                if (resolvedCount >= 2) {
+                    btnToCoa.disabled = false;
+                    btnToCoa.className = btnToCoa.className
+                        .replace("cursor-not-allowed opacity-50 text-outline border-outline-variant/40", "")
+                        + " cursor-pointer text-primary border-primary hover:bg-primary hover:text-on-primary";
+                    addThought("System", "All flags resolved. Scope mapping is now unlocked.", "text-green-400");
+                }
+            });
+        });
+    });
+
+    btnToCoa.addEventListener("click", () => {
+        if (btnToCoa.disabled) return;
+        activePill(3);
+        setStatus("Mapping CoA", "text-secondary");
+        transitionTo(stageFlags, stageCoa, 600);
+        addThought("System", "Rendering Chart of Accounts with agent suggestions pre-applied.", "text-primary");
+    });
+
+    // ─────────────────────────────────────
+    // Phase 3 – CoA
+    // ─────────────────────────────────────
+    btnApprove.addEventListener("click", () => {
+        document.querySelectorAll(".coa-check").forEach(cb => { cb.checked = true; });
+        document.querySelectorAll(".coa-row").forEach(r => r.classList.remove("opacity-50"));
+        addThought("Action", "User approved total agent-recommended scope.", "text-green-400");
+        btnApprove.textContent = "All Approved";
+        btnApprove.classList.add("text-primary", "border-primary/40");
+    });
+
+    btnMat.addEventListener("click", () => {
+        document.querySelectorAll(".coa-check").forEach((cb, i) => {
+            // Uncheck the £450 stationery row (index 2)
+            if (i === 2) cb.checked = false;
+        });
+        document.querySelectorAll(".coa-row").forEach((r, i) => {
+            if (i === 2) r.classList.add("opacity-40");
+        });
+        addThought("Action", "Materiality filter applied. Sub-threshold nominals deselected.", "text-yellow-400");
+    });
+
+    btnToFinal.addEventListener("click", () => {
+        activePill(4);
+        setStatus("Complete", "text-green-400");
+        agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-400";
+        transitionTo(stageCoa, stageFinal, 600);
+        addThought("System", "Workbench configuration committed. Ready for dispatch.", "text-green-400");
+    });
+
+    // CSS keyframe
+    const style = document.createElement("style");
+    style.textContent = `
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0);   }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+{% endblock %}

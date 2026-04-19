@@ -6,6 +6,7 @@ from wtforms import StringField, IntegerField
 from wtforms.validators import DataRequired, NumberRange
 from celery import shared_task
 from celery.result import AsyncResult
+from flask_login import login_required, current_user
 from strings.paths import NL_PATH, TB_PATH, TRANS_PATH, FILE_PATH_OUT
 from strings.assistant import (
     API_VERSION,
@@ -30,10 +31,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 app = create_app()
 celery_app = create_celery_app(app)
 
+from routes.auth_routes import auth_bp
+app.register_blueprint(auth_bp)
 
 class UploadForm(FlaskForm):
     pass
-
 
 class ExperimentForm(FlaskForm):
     run_name = StringField("Run name", validators=[DataRequired()])
@@ -51,48 +53,63 @@ class ExperimentForm(FlaskForm):
         "Prompt trials", default=8, validators=[DataRequired(), NumberRange(min=1, max=50)]
     )
 
-
 @shared_task(ignore_result=False)
 def async_run_all(
-    iris_nl_path: str, acc_xro_tb_path: str, xro_acc_trans_path: str, email: str
+    tenant_id: str, email: str, user_id: int
 ) -> Dict[str, Any]:
-    """Asynchronous task to run the main process using the provided file paths."""
+    """Asynchronous task to run the main process using APIs."""
+    # Temporarily import models and API within task to avoid circularity issues
+    from setup.models import User
+    from integrations.xero_api import XeroClient
+    from setup.app_factory import create_app
+    from helpers.xero_api_parser import fetch_and_format_xero_data
+    from datetime import date
+    
+    app_context = create_app().app_context()
+    app_context.push()
     try:
-        with open(iris_nl_path, "rb") as iris_nl, open(
-            acc_xro_tb_path, "rb"
-        ) as acc_xro_tb, open(xro_acc_trans_path, "rb") as xro_acc_trans:
-            result = run_all(
-                os.environ.get("AZURE_OPENAI_API_KEY"),
-                os.environ.get("AZURE_OPENAI_ENDPOINT"),
-                iris_nl,
-                acc_xro_tb,
-                xro_acc_trans,
-                FILE_PATH_OUT,
-                API_VERSION,
-                ASSISTANT_ID,
-                DEPLOYED_MODEL_NAME,
-                MAX_BATCH_SIZE,
-                xero_info_to_message,
-                xero_iris_mapper,
-                client_initialisation,
-                retrieve_assistant,
-                make_thread,
-                run_thread,
-                save_systematic_output,
-                email,
-            )
-        return {"status": "Task completed", "result": result}
+        user = User.query.get(user_id)
+        token_data = user.get_xero_token()
+        if not token_data:
+            return {"status": "Error", "message": "No Xero token associated with user"}
+        xero_client = XeroClient(
+            client_id=os.environ.get("XERO_CLIENT_ID"),
+            client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+            refresh_token=token_data.get("refresh_token"),
+            user=user
+        )
+        
+        # Fetching data using API directly
+        report_date = date.today()
+        messages, mp_df = fetch_and_format_xero_data(xero_client, tenant_id, report_date)
+        
+        result = run_all(
+            os.environ.get("AZURE_OPENAI_API_KEY"),
+            os.environ.get("AZURE_OPENAI_ENDPOINT"),
+            FILE_PATH_OUT,
+            API_VERSION,
+            ASSISTANT_ID,
+            DEPLOYED_MODEL_NAME,
+            MAX_BATCH_SIZE,
+            messages,
+            mp_df,
+            client_initialisation,
+            retrieve_assistant,
+            make_thread,
+            run_thread,
+            save_systematic_output,
+            email,
+        )
+        
+        return {"status": "Task completed", "result": "API Integration running in background."}
     except Exception as e:
         return {"status": "Error", "message": str(e)}
     finally:
-        os.remove(iris_nl_path)
-        os.remove(acc_xro_tb_path)
-        os.remove(xro_acc_trans_path)
-
+        app_context.pop()
 
 @shared_task(ignore_result=False)
 def async_run_experiment(run_def_payload: dict) -> Dict[str, Any]:
-    """Background task to run multi-model experiments."""
+    # (Leaving experiment task exactly as is)
     try:
         from experiments.config import load_config
         from experiments.example_loader import (
@@ -171,7 +188,6 @@ def async_run_experiment(run_def_payload: dict) -> Dict[str, Any]:
     except Exception as e:
         return {"status": "Error", "message": str(e)}
 
-
 def _available_models():
     models = []
 
@@ -232,39 +248,56 @@ def _available_models():
 
     return models
 
-
 @app.route("/", methods=["GET", "POST"])
+@login_required
 def upload():
-    """Route to handle file uploads and initiate the processing task."""
+    """Route to handle initiating the processing task using Xero integration."""
     form = UploadForm()
+    
+    connections = []
+    has_xero_token = current_user.get_xero_token() is not None
+    
+    if has_xero_token:
+        try:
+            from integrations.xero_api import XeroClient
+            xero_client = XeroClient(
+                client_id=os.environ.get("XERO_CLIENT_ID"),
+                client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+                refresh_token=current_user.get_xero_token().get("refresh_token"),
+                user=current_user
+            )
+            connections = xero_client.list_connections()
+        except Exception as e:
+            flash(f"Could not load Xero connections: {str(e)}")
+            has_xero_token = False
+            
     if request.method == "POST" and form.validate_on_submit():
-        required_files = ["xro_acc_trans", "acc_xro_tb", "iris_nl"]
-        if not all(file in request.files for file in required_files):
-            flash("All files are required")
-            return redirect(request.url)
-
-        files = {file: request.files[file] for file in required_files}
-        if any(file.filename == "" for file in files.values()):
-            flash("All files must be selected")
-            return redirect(request.url)
-
+        tenant_id = request.form.get("tenant_id")
         email = request.form.get("email")
-        file_paths = {
-            name: save_uploaded_file(file, app.config["UPLOAD_FOLDER"])
-            for name, file in files.items()
-        }
-
-        flash(f"Files uploaded successfully. Confirmation sent to {email}")
+        
+        if not tenant_id:
+            flash("Please select a Xero tenant.")
+            return redirect(request.url)
+            
+        flash(f"API Extraction started for tenant. Confirmation sent to {email}")
 
         task = async_run_all.delay(
-            file_paths["iris_nl"], file_paths["acc_xro_tb"], file_paths["xro_acc_trans"], email
+            tenant_id, email, current_user.id
         )
 
-        # Send to result page
         return redirect(url_for("task_status", task_id=task.id))
 
-    return render_template("index.html", form=form)
+    return render_template("index.html", form=form, connections=connections, has_xero_token=has_xero_token)
 
+
+@app.route("/workbench", methods=["POST"])
+@login_required
+def workbench():
+    tenant_id = request.form.get("tenant_id")
+    if not tenant_id:
+        flash("Please select a Xero tenant before accessing the workbench.")
+        return redirect(url_for("upload"))
+    return render_template("workbench.html", tenant_id=tenant_id)
 
 @app.route("/result/<task_id>")
 def task_status(task_id: str):

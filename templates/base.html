@@ -1,109 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<!-------Header------->
-
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-------------Fonts------------->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  />
-  <!-------------Fonts------------->
-
-  <!-------------Bootstrap Files------------->
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-    integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-  <!-------------Bootstrap Files------------->
-
-  <!-------------FavIcon Setting------------->
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>{%block title%} AI Review Notes {%endblock%}</title>
+  
   <link rel="icon" href="{{ url_for('static',filename='images/logo-only.png') }}" />
-  <!-------------Bootstrap Files------------->
 
-  <!-------------Custom CSS------------->
-  <link rel="stylesheet" href="{{ url_for('static',filename='css/styles.css') }}" />
-  <!-------------Custom CSS------------->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  
+  <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#1f1f1f",
+                        "on-secondary": "#1a1c1c",
+                        "secondary-fixed-dim": "#ababab",
+                        "inverse-primary": "#5d5f5f",
+                        "on-secondary-fixed-variant": "#3a3c3c",
+                        "on-surface-variant": "#c6c6c6",
+                        "surface-tint": "#c6c6c7",
+                        "outline": "#919191",
+                        "primary-fixed-dim": "#454747",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#474747",
+                        "on-tertiary-fixed": "#ffffff",
+                        "on-error": "#690005",
+                        "surface-container-low": "#1b1b1b",
+                        "surface-container-high": "#2a2a2a",
+                        "outline-variant": "#474747",
+                        "surface-container-highest": "#353535",
+                        "background": "#131313",
+                        "tertiary-fixed": "#5e5e5e",
+                        "on-primary-fixed": "#ffffff",
+                        "primary-fixed": "#5d5f5f",
+                        "on-tertiary-container": "#000000",
+                        "on-tertiary": "#1b1b1b",
+                        "surface-variant": "#353535",
+                        "inverse-surface": "#e2e2e2",
+                        "secondary-container": "#464747",
+                        "surface-dim": "#131313",
+                        "surface-bright": "#393939",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-background": "#e2e2e2",
+                        "surface": "#131313",
+                        "on-surface": "#e2e2e2",
+                        "on-primary-fixed-variant": "#e2e2e2",
+                        "primary-container": "#d4d4d4",
+                        "on-secondary-container": "#e3e2e2",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#c6c6c6",
+                        "inverse-on-surface": "#303030",
+                        "error-container": "#93000a",
+                        "secondary": "#c6c6c6",
+                        "primary": "#ffffff",
+                        "tertiary-container": "#919191",
+                        "on-primary": "#1a1c1c",
+                        "tertiary": "#e2e2e2",
+                        "on-primary-container": "#000000",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary-fixed-variant": "#e2e2e2"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+  </script>
+  <style>
+      body { font-family: 'Inter', sans-serif; min-height: max(884px, 100dvh); }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  </style>
 
-  <!-------------Block reserved for page related Custom Css------------->
   {%block customCss%} {%endblock%}
-  <!-------------Block reserved for page related Custom Css------------->
-
-
-  <!-------------Page Title------------->
-  <title>{%block title%} {%endblock%}</title>
-  <!-------------Page Title------------->
-
 </head>
-<!-------Header------->
 
-<!-------Body------->
-
-<body>
-
-  <!-------------Navigaton Bar------------->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-black p-3">
-    <div class="container">
-      <a class="navbar-brand display-1" href="/" style="font-size: 1.5em">Phipps Henson McAllister</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
-        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-------------Page Links------------->
-      <div class="collapse navbar-collapse" id="navbarText">
-
-        <!-------------Add Page in this list------------->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="font-size: 1.2em">
-
-          <li class="nav-item ms-2">
-            <a class="nav-link" aria-current="page" href="/">Home</a>
-          </li>
-
-          <li class="nav-item ms-2">
-            <a class="nav-link" aria-current="page" href="/experiments">Experiments</a>
-          </li>
-          
-          <li class="nav-item ms-2">
-            <a class="nav-link" aria-current="page" href="https://utilities.phm-accountants.co.uk/" target="_blank">Utilities</a>
-          </li>
-          
-          <li class="nav-item ms-2">
-            <a class="nav-link" aria-current="page" href="https://portal.phm-accountants.co.uk/" target="_blank">PHM Portal</a>
-          </li>
-
-        </ul>
-        <!-------------Add Page in this list------------->
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased">
+  <!-- TopAppBar -->
+  <header class="fixed top-0 w-full z-50 bg-neutral-950/60 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+    <div class="flex justify-between items-center px-8 py-4 max-w-full mx-auto">
+      <div class="flex items-center gap-3 text-white">
+        <!-- Logo / Brand -->
+        <a href="/" class="flex flex-row items-center gap-3 text-decoration-none">
+          <span class="material-symbols-outlined text-2xl text-white">account_balance</span>
+          <span class="text-lg font-black uppercase tracking-[0.1em] text-white">Phipps Henson McAllister</span>
+        </a>
       </div>
-      <!-------------Page Links------------->
+      
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-6 font-['Inter'] tracking-[-0.02em] font-light">
+        <a class="text-neutral-500 hover:text-white hover:bg-white/5 transition-all duration-200 px-3 py-2 rounded" href="/">Home</a>
+        <a class="text-neutral-500 hover:text-white hover:bg-white/5 transition-all duration-200 px-3 py-2 rounded" href="/experiments">Experiments</a>
+        <a class="text-neutral-500 hover:text-white hover:bg-white/5 transition-all duration-200 px-3 py-2 rounded" href="https://utilities.phm-accountants.co.uk/" target="_blank">Utilities</a>
+      </nav>
+      
+      <a href="https://portal.phm-accountants.co.uk/" target="_blank" class="text-white font-['Inter'] tracking-[-0.02em] font-light hover:bg-white/5 transition-all duration-200 px-4 py-2 rounded border border-outline-variant hidden md:block">
+          PHM Portal
+      </a>
+      
+      <!-- Mobile Menu Button -->
+      <button class="md:hidden text-white p-2">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
     </div>
-  </nav>
-  <!-------------Navigaton Bar------------->
+  </header>
 
-  <!-------------Block Reserved main page content------------->
-  <main class="app-main">{%block main%} {% endblock %}</main>
-  <!-------------Block Reserved main page content------------->
+  <!-- Main Content Canvas -->
+  <main class="flex-grow pt-28 pb-20 px-6 max-w-7xl mx-auto w-full flex flex-col gap-8">
+    {%block main%} {% endblock %}
+  </main>
 
-  <!-------------Footer------------->
-  <footer class="footer fixed-bottom bg-black text-white mt-4 py-3 px-6 text-center footer-border">© Phipps Henson McAllister</footer>
-  <!-------------Footer------------->
+  <!-- Footer -->
+  <footer class="w-full py-12 mt-auto bg-neutral-950 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center font-['Inter'] text-[0.6875rem] uppercase tracking-[0.1em]">
+      <p class="text-neutral-500 mb-4 md:mb-0">© 2024 PHIPPS HENSON MCALLISTER. PRECISION ETCHED.</p>
+      <div class="flex gap-6">
+        <a class="text-neutral-600 hover:text-white transition-colors opacity-80 hover:opacity-100" href="#">Privacy</a>
+        <a class="text-neutral-600 hover:text-white transition-colors opacity-80 hover:opacity-100" href="#">Terms</a>
+        <a class="text-neutral-600 hover:text-white transition-colors opacity-80 hover:opacity-100" href="#">Contact</a>
+      </div>
+    </div>
+  </footer>
 
+  {%block customJs%}{%endblock%}
 </body>
-<!-------Body------->
-
-<!-------Block Reserved for customJs Files------->
-{%block customJs%}{%endblock%}
-<!-------Block Reserved for customJs Files------->
-
-
 </html>

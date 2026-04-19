@@ -1,133 +1,175 @@
 {%extends "base.html" %}
 
 <!------Page Title------>
-{%block title%} AI Review Notes {%endblock%}
-<!------Page Title------>
+{%block title%} Dashboard | AI Review Notes {%endblock%}
 
 <!------Main Block------>
 {%block main%}
 
-<div class="container mt-5 p-5">
-  <div class="row">
-    <div class="col-md-4 shadow-lg">
-      <div class="card bg-black text-white">
-        <div class="card-body">
-          <h5 class="card-title">Xero Account Transactions</h5>
-          <p class="card-text">
-          <ul>
-            <li>
-              Please select <strong>2 years </strong> of account transactions from <strong>Xero </strong>.
-            </li>
-            <li>
-              Please select <strong>Date, Source, Description, Reference, Debit (GBP), Credit (GBP), Running Balance (GBP),
-              Gross (GBP), VAT (GBP) </strong> columns
-            </li>
-            <li>
-              Export as <strong>Excel</strong>(XLSX format).
-            </li>
-          </ul>
-          </p>
-        </div>
-      </div>
+<!-- Dashboard Header -->
+<div class="flex justify-between items-end mb-8 border-b border-outline-variant/30 pb-6">
+    <div>
+        <span class="font-label text-secondary tracking-widest text-[10px] uppercase font-bold">Portal Access</span>
+        <h2 class="text-4xl font-headline font-bold text-primary tracking-[-0.02em] mt-1">Command Centre</h2>
+        <p class="text-on-surface-variant text-sm mt-2">Manage integrations, verify tenant access, and execute AI note generation.</p>
     </div>
-    <div class="col-md-4 shadow-lg">
-      <div class="card bg-black text-white">
-        <div class="card-body">
-          <h5 class="card-title">Xero Trial Balance</h5>
-          <p class="card-text">
-          <ul>
-            <li>
-              Please select Trial Balance comparing to the Last financial Year from <strong>Xero </strong>.
-            </li>
-            <li>
-              The nominals you would like to compare and export as <strong>Excel</strong>(XLSX format).
-            </li>
-            <li>
-              <strong>Remove </strong> any <strong>FX Columns </strong>present in the Excel file or any <strong>explaination at the bottom </strong> and <strong> Save the file </strong> .
-            </li>
+    <div class="hidden md:flex gap-4">
+        <a class="px-5 py-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary border border-outline-variant hover:bg-surface-bright hover:text-primary rounded transition-all" href="{{ url_for('experiments_home') }}">
+            Experiment Lab
+        </a>
+        <a class="px-5 py-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-error border border-error/50 hover:bg-error/10 hover:border-error rounded transition-all" href="{{ url_for('auth.logout') }}">
+            Logout
+        </a>
+    </div>
+</div>
+
+<!-- Flashed Messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="mb-8 space-y-2">
+    {% for message in messages %}
+        <div class="bg-surface-container-high border-l-4 border-primary text-primary px-4 py-3 rounded-r text-sm font-body shadow-lg">
+            {{ message }}
+        </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Dashboard Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: System Status & Overviews (Spans 4 columns) -->
+    <div class="lg:col-span-4 flex flex-col gap-6">
+
+        <!-- Connection Status Widget -->
+        <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-6 shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
+            <h3 class="text-xs font-bold uppercase tracking-[0.1em] text-outline mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[1rem]">link</span> Connection Status
+            </h3>
             
-          </ul>
-          </p>
+            <div class="flex items-center justify-between p-4 bg-surface-container rounded border border-outline-variant/10">
+                <div class="flex items-center gap-3">
+                    <img alt="Xero" class="w-6 h-6 {% if not has_xero_token %}grayscale opacity-50{% endif %}" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
+                    <div>
+                        <p class="text-sm font-medium text-primary">Xero Accounting</p>
+                        <p class="text-[10px] uppercase tracking-widest outline-variant mt-0.5 {% if has_xero_token %}text-green-500{% else %}text-error{% endif %}">
+                            {% if has_xero_token %}Connected{% else %}Disconnected{% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    {% if has_xero_token %}
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-20"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500/80"></span>
+                        </span>
+                    {% else %}
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-error/50"></span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if connections %}
+            <div class="mt-4 flex items-center justify-between text-xs text-on-surface-variant font-mono">
+                <span>Active Tenants:</span>
+                <span class="text-primary font-bold px-2 py-0.5 bg-surface-container-high rounded">{{ connections|length }}</span>
+            </div>
+            {% endif %}
         </div>
-      </div>
-    </div>
-    <div class="col-md-4 shadow-lg">
-      <div class="card bg-black text-white">
-        <div class="card-body">
-          <h5 class="card-title">IRIS Nominal Ledger</h5>
-          <p class="card-text">
-          <ul>
-            <li>
-              Export the Client's Nominal Ledger from Client<strong>on IRIS</strong>.
-            </li>
-            <li>
-              <strong>Export Format should be EXCEL if it is csv, make sure to convert it to EXCEL.</strong>
-            </li>
-            <li>
-              Software can take upto 45 minutes to process the files.
-              <br>
-            </li>
-            <br>
-          </ul>
-          </p>
+
+        <!-- Capability Overview Widget -->
+        <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-6 shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
+            <h3 class="text-xs font-bold uppercase tracking-[0.1em] text-outline mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[1rem]">dashboard_customize</span> Quick Tools
+            </h3>
+            <ul class="space-y-2">
+                <li>
+                    <a href="{{ url_for('experiments_home') }}" class="group flex items-center justify-between p-3 rounded hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant/30">
+                        <div class="flex items-center gap-3 text-secondary group-hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-[1.1rem]">science</span>
+                            <span class="text-sm font-medium">Experiment Workspace</span>
+                        </div>
+                        <span class="material-symbols-outlined text-[1.1rem] text-outline opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform">arrow_forward</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="group flex items-center justify-between p-3 rounded hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant/30">
+                        <div class="flex items-center gap-3 text-secondary group-hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-[1.1rem]">analytics</span>
+                            <span class="text-sm font-medium">Historical Reports</span>
+                        </div>
+                        <span class="material-symbols-outlined text-[1.1rem] text-outline opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform">arrow_forward</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Right Column: Generation Console (Spans 8 columns) -->
+    <div class="lg:col-span-8 flex flex-col h-full">
+        <div class="bg-surface-container-low rounded-lg p-8 h-full shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col justify-center">
+            
+            <!-- Abstract background element -->
+            <div class="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] bg-surface-container-high rounded-full blur-[100px] opacity-40 pointer-events-none"></div>
+
+            {% if not has_xero_token %}
+                <div class="text-center py-10 relative z-10 max-w-sm mx-auto">
+                    <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mx-auto mb-6 shadow-inner border border-outline-variant/10">
+                        <span class="material-symbols-outlined text-outline text-3xl">key_off</span>
+                    </div>
+                    <h4 class="text-2xl font-headline text-primary mb-3 font-semibold tracking-tight">Authentication Required</h4>
+                    <p class="text-on-surface-variant text-sm mb-8">Establish a secure conduit with Xero to unlock generative reporting capabilities and tenant selection.</p>
+                    <a href="{{ url_for('auth.xero_login') }}" class="inline-flex items-center justify-center gap-3 bg-primary text-on-primary font-label font-bold uppercase tracking-[0.1em] text-[0.6875rem] px-8 py-4 rounded shadow-xl hover:shadow-2xl hover:scale-102 hover:bg-surface-bright hover:text-primary transition-all group border border-transparent hover:border-outline">
+                        <img alt="Xero" class="w-5 h-5 transition-all group-hover:brightness-0 group-hover:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
+                        Initialize Xero Link
+                    </a>
+                </div>
+            {% else %}
+                <div class="relative z-10 w-full max-w-xl mx-auto">
+                    <div class="mb-8 text-center md:text-left">
+                        <h4 class="text-2xl font-headline text-primary font-bold tracking-tight">Review Generation Console</h4>
+                        <p class="text-on-surface-variant mt-2 text-sm max-w-sm">Configure parameters for automated financial critique and analysis.</p>
+                    </div>
+
+                    <form action="{{ url_for('workbench') }}" method="post" class="space-y-8 bg-surface-container p-8 rounded-lg shadow-inner border border-outline-variant/10">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <!-- Tenant Selection -->
+                        <div class="flex flex-col gap-2">
+                            <label for="tenant_id" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1">Target Tenant <span class="text-error">*</span></label>
+                            {% if connections %}
+                                <div class="relative">
+                                    <select class="w-full bg-surface-container-highest border border-outline-variant/30 text-primary py-3 pl-4 pr-10 rounded focus:outline-none focus:border-primary transition-colors text-sm appearance-none cursor-pointer" id="tenant_id" name="tenant_id" required>
+                                        <option value="" disabled selected>-- Select an Institutional Client --</option>
+                                        {% for conn in connections %}
+                                            <option value="{{ conn.tenantId }}">{{ conn.tenantName }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-sm">expand_more</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="bg-error-container/20 text-error-container border border-error/50 px-4 py-3 rounded text-sm font-body">
+                                    No active mandates discovered. Re-synchronize Xero.
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Main Action -->
+                        <button type="submit" class="w-full py-4 mt-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm hover:scale-102 hover:bg-surface-bright hover:shadow-2xl hover:text-primary transition-all duration-300 flex justify-center items-center gap-3 border border-transparent hover:border-outline-variant" id="submit_button">
+                            Initiate Workbench
+                            <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
-
-<!------Container for form------>
-<div class="container mb-5 p-5 w-50 bg-black text-white rounded-4 shadow-lg">
-
-  <!------Title of Form------>
-  <h1 class="text-center mb-4 display-4">AI Review Notes</h1>
-  <!------Title of Form------>
-
-
-  <!------Form------>
-  <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-
-    {{ form.csrf_token }}
-
-    <div class="mb-3">
-      <label for="xro_acc_trans" class="form-label fw-bold">Xero Account Transactions <span
-          class="text-danger">*</span></label>
-      <input type="file" class="form-control bg-dark text-white border-secondary" id="xro_acc_trans"
-        name="xro_acc_trans" required />
-    </div>
-
-    <div class="mb-3">
-      <label for="acc_xro_tb" class="form-label fw-bold">Xero Trial Balance <span class="text-danger">*</span> </label>
-      <input type="file" class="form-control bg-dark text-white border-secondary" id="acc_xro_tb" name="acc_xro_tb"
-        required />
-    </div>
-
-    <div class="mb-3">
-      <label for="iris_nl" class="form-label fw-bold">IRIS Nominal Ledger <span class="text-danger">*</span></label>
-      <input type="file" class="form-control bg-dark text-white border-secondary" id="iris_nl" name="iris_nl"
-        required />
-    </div>
-
-    <div class="mb-3">
-      <label for="email" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
-      <input type="email" class="form-control border-secondary" id="email" placeholder="j.doe@email.com" name="email"
-        required />
-    </div>
-
-    <button type="submit" class="btn btn-outline-light w-100 fw-bold" id="submit_button">Submit</button>
-
-  </form>
-  <!------Form------>
-
-
-</div>
-<!------Container for form------>
-
 {% endblock %}
-<!------Main Block------>
 
-<!-------Block Reserved for customJs Files------->
 {%block customJs%}
-  <script src="..\static\js\index\index.js"> </script>
+  <script src="{{ url_for('static', filename='js/index/index.js') }}"> </script>
 {%endblock%}
-<!-------Block Reserved for customJs Files------->

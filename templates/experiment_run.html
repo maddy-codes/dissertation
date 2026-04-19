@@ -2,69 +2,97 @@
 {% block title %} Experiment Run {% endblock %}
 {% block main %}
 
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-12">
-      <h1 class="display-5 mb-2">Run {{ run.run_id }}</h1>
-      <p class="text-secondary mb-4">{{ run.run_name }}</p>
-
-      <div class="d-flex gap-2 mb-4">
-        <a class="btn btn-dark" href="{{ url_for('download_run_csv', run_id=run.run_id) }}">Download CSV</a>
-        <a class="btn btn-dark" href="{{ url_for('download_run_json', run_id=run.run_id) }}">Download JSON</a>
-      </div>
-
-      <div class="card shadow-lg">
-        <div class="card-body">
-          <h5 class="card-title">Generations</h5>
-          <div class="table-responsive">
-            <table class="table table-striped table-dark align-middle">
-              <thead>
-                <tr>
-                  <th>Example</th>
-                  <th>Model</th>
-                  <th>Technique</th>
-                  <th>Context</th>
-                  <th>Latency (s)</th>
-                  <th>Counterparty coverage</th>
-                  <th>Single paragraph</th>
-                  <th>Output (preview)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for g in generations %}
-                <tr>
-                  <td style="max-width: 220px; word-break: break-all;">{{ g.example_id }}</td>
-                  <td>{{ g.model_id }}</td>
-                  <td>{{ g.technique }}</td>
-                  <td>{{ g.context_mode }}</td>
-                  <td>{{ "%.2f"|format(g.latency_s) }}</td>
-                  <td>
-                    {% if g.score_json.grounding.counterparty_coverage is not none %}
-                      {{ "%.2f"|format(g.score_json.grounding.counterparty_coverage) }}
-                    {% else %}
-                      n/a
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if g.score_json.format.single_paragraph is not none %}
-                      {{ "yes" if g.score_json.format.single_paragraph else "no" }}
-                    {% else %}
-                      n/a
-                    {% endif %}
-                  </td>
-                  <td style="max-width: 420px;">
-                    {{ (g.output_text or "")[:240] }}{% if (g.output_text or "")|length > 240 %}...{% endif %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
+<div class="mb-4">
+    <div class="flex items-center gap-3 mb-2">
+        <a href="{{ url_for('experiments_home') }}" class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-all">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+        </a>
+        <h1 class="text-[2.25rem] font-headline font-semibold text-primary tracking-[-0.02em] leading-tight">Run Analysis</h1>
     </div>
-  </div>
+    <div class="flex flex-col md:flex-row md:items-center gap-4 ml-12">
+        <span class="bg-surface-container border border-outline-variant/30 text-outline px-3 py-1 rounded font-mono text-xs">{{ run.run_id }}</span>
+        <p class="text-on-surface-variant text-base font-headline font-medium">{{ run.run_name }}</p>
+    </div>
+</div>
+
+<div class="flex flex-wrap gap-4 mb-8 ml-12">
+    <a href="{{ url_for('download_run_csv', run_id=run.run_id) }}" class="inline-flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/50 hover:bg-surface-bright hover:border-outline text-primary font-label uppercase tracking-widest text-[0.6875rem] px-5 py-3 rounded-lg transition-all shadow hover:shadow-md">
+        <span class="material-symbols-outlined text-sm">table_chart</span> Download CSV
+    </a>
+    <a href="{{ url_for('download_run_json', run_id=run.run_id) }}" class="inline-flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/50 hover:bg-surface-bright hover:border-outline text-primary font-label uppercase tracking-widest text-[0.6875rem] px-5 py-3 rounded-lg transition-all shadow hover:shadow-md">
+        <span class="material-symbols-outlined text-sm">data_object</span> Download JSON
+    </a>
+</div>
+
+<div class="w-full">
+    <div class="bg-surface-container-low rounded-lg shadow-[0_20px_40px_rgba(0,0,0,0.6)] border border-outline-variant/10 overflow-hidden">
+        <div class="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-lowest/50">
+            <h5 class="font-headline font-bold text-lg text-primary tracking-tight">Generation Results</h5>
+            <span class="text-outline text-xs uppercase tracking-widest font-bold">{{ generations|length }} Records</span>
+        </div>
+        
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-surface-container-high text-[0.6875rem] uppercase tracking-widest text-on-surface-variant font-bold border-b border-outline-variant/50">
+                    <tr>
+                        <th class="px-6 py-4">Example</th>
+                        <th class="px-6 py-4">Model</th>
+                        <th class="px-6 py-4">Technique</th>
+                        <th class="px-6 py-4">Context</th>
+                        <th class="px-6 py-4">Latency (s)</th>
+                        <th class="px-6 py-4">Score (Coverage)</th>
+                        <th class="px-6 py-4">Score (1-Para)</th>
+                        <th class="px-6 py-4">Output (preview)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 font-body">
+                    {% for g in generations %}
+                    <tr class="hover:bg-surface-container/50 transition-colors bg-surface-container-lowest/20">
+                        <td class="px-6 py-4 font-mono text-outline text-xs truncate max-w-[200px]" title="{{ g.example_id }}">
+                            {{ g.example_id }}
+                        </td>
+                        <td class="px-6 py-4 text-primary font-medium">
+                            <span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded text-xs">{{ g.model_id }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-on-surface-variant">
+                            {{ g.technique }}
+                        </td>
+                        <td class="px-6 py-4 text-on-surface-variant font-mono text-[10px] uppercase tracking-wide">
+                            {{ g.context_mode }}
+                        </td>
+                        <td class="px-6 py-4 text-secondary font-mono">
+                            {{ "%.2f"|format(g.latency_s) }}s
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if g.score_json.grounding.counterparty_coverage is not none %}
+                                {% set cov = g.score_json.grounding.counterparty_coverage|float %}
+                                <span class="{% if cov > 0.8 %}text-green-400{% elif cov > 0.5 %}text-secondary{% else %}text-error{% endif %} font-bold">
+                                    {{ "%.2f"|format(cov) }}
+                                </span>
+                            {% else %}
+                                <span class="text-outline">n/a</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-on-surface-variant">
+                            {% if g.score_json.format.single_paragraph is not none %}
+                                {% if g.score_json.format.single_paragraph %}
+                                    <span class="material-symbols-outlined text-green-400 text-base align-middle">check_circle</span>
+                                {% else %}
+                                    <span class="material-symbols-outlined text-error text-base align-middle">cancel</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-outline">n/a</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-on-surface-variant text-xs truncate max-w-[350px] font-serif italic opacity-80" title="{{ g.output_text }}">
+                            {{ (g.output_text or "")[:120] }}{% if (g.output_text or "")|length > 120 %}...{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

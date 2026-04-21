@@ -32,7 +32,7 @@ def run_all(
     make_thread,
     run_thread,
     save_systematic_output,
-    recipient_email,
+    emit_event=None,
 ):
 
     all_responses = []
@@ -45,20 +45,30 @@ def run_all(
     )
 
     for message in messages:
+        if emit_event:
+            emit_event("account_start", account=message["name"], message=f"Analysing {message['name']}...")
+            
         # Making thread from messages
         thread = make_thread(
             client=client, message=message["message"], MAX_BATCH_SIZE=MAX_BATCH_SIZE
         )
         # running thread
         try:
-            print("*******************", message["name"], "*******************")
+            if emit_event:
+                emit_event("account_progress", account=message["name"], message="Generating narrative synthesis...")
+                
             response = run_thread(
                 client=client, thread=thread, ASSISTANT_ID=ASSISTANT_ID
             )
             mp_df.loc[mp_df["xero_names"] == message["name"], "ai_summary"] = response
 
             all_responses.append(response)
+            if emit_event:
+                emit_event("account_complete", account=message["name"], synthesis=response)
+                
         except Exception as e:
+            if emit_event:
+                emit_event("account_error", account=message["name"], logic=str(e))
             print("*******************", message["name"], "*******************")
             print("FAILED TO PROCESS", e)
             response = "FAILED TO PROCESS"
@@ -67,29 +77,7 @@ def run_all(
 
     mp_df.to_csv(FILE_PATH_OUT)
 
-    # email meta data
-    subject = "Report for the Generated Reviews | PHM Accountants"
-    file_path = FILE_PATH_OUT
-    body = f"""Hello,
-    
-Please find the attached report for the generated reviews. 
 
-The report contains the generated reviews for the accounts in the trial balance, based directly on live Xero APIs. 
-
-The link to the generated reviews is as follows: https://ai.phm-accountants.co.uk/result/
-
-Regards,
-Technical Team,
-PHM Accountants
-    
-    """
-    recipient_list = [
-        {"address": f"{recipient_email}", "displayName": "PHM Accountant"},
-    ]
-    sender_address = "donotreply@e444ea86-37e7-4a7d-857b-261cf490d7ce.azurecomm.net"
-
-    # send email
-    send_email(subject, file_path, body, recipient_list, sender_address)
 
     # save outputs to file
     save_systematic_output(lines=all_responses, name=FILE_PATH_OUT)

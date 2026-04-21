@@ -157,11 +157,38 @@
                             {% endif %}
                         </div>
 
+                        <!-- Date Configuration -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="flex flex-col gap-2">
+                                <label for="current_year_end" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline ml-1">Analysing Year End <span class="text-error">*</span></label>
+                                <input type="date" id="current_year_end" name="current_year_end" required 
+                                       class="w-full bg-surface-container-highest border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-primary transition-colors text-sm color-scheme-dark">
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label for="comparison_year_end" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline ml-1">Comparison Year End</label>
+                                <input type="date" id="comparison_year_end" name="comparison_year_end" 
+                                       class="w-full bg-surface-container-highest border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-primary transition-colors text-sm color-scheme-dark">
+                            </div>
+                        </div>
+
+                        <style>
+                            input[type="date"]::-webkit-calendar-picker-indicator {
+                                filter: invert(1);
+                                opacity: 0.6;
+                            }
+                        </style>
+
                         <!-- Main Action -->
-                        <button type="submit" class="w-full py-4 mt-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm hover:scale-102 hover:bg-surface-bright hover:shadow-2xl hover:text-primary transition-all duration-300 flex justify-center items-center gap-3 border border-transparent hover:border-outline-variant" id="submit_button">
+                        <button type="submit" class="w-full py-4 mt-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm hover:scale-[1.02] hover:bg-surface-bright hover:shadow-2xl hover:text-primary transition-all duration-300 flex justify-center items-center gap-3 border border-transparent hover:border-outline-variant" id="submit_button">
                             Initiate Workbench
                             <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                         </button>
+                        
+                        <!-- Connect another client -->
+                        <a href="/login?next=/" class="w-full py-3 mt-3 bg-transparent text-secondary rounded-lg font-label font-bold tracking-[0.05em] text-xs hover:text-primary transition-colors flex justify-center items-center gap-2 border border-outline-variant/30 hover:border-outline-variant hover:bg-surface-container">
+                            <span class="material-symbols-outlined text-[1rem]">add_circle</span>
+                            Connect Another Xero Client
+                        </a>
                     </form>
                 </div>
             {% endif %}

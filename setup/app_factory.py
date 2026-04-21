@@ -3,7 +3,6 @@ import secrets
 from typing import Any
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
-from celery import Celery, Task
 from flask_login import LoginManager
 import dotenv
 
@@ -26,12 +25,6 @@ def create_app() -> Flask:
     )
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-    app.config["CELERY"] = {
-        "broker_url": f'rediss://{os.environ.get("AZURE_REDIS_PASSWORD")}@phmai.redis.cache.windows.net:6380/0?ssl_cert_reqs=CERT_NONE',
-        "result_backend": f'rediss://{os.environ.get("AZURE_REDIS_PASSWORD")}@phmai.redis.cache.windows.net:6380/0?ssl_cert_reqs=CERT_NONE',
-        "task_ignore_result": False,
-    }
-    
     # Configure SQLAlchemy
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -56,18 +49,3 @@ def create_app() -> Flask:
 
     return app
 
-def create_celery_app(app: Flask) -> Celery:
-    """Initialize and configure the Celery application."""
-
-    class FlaskTask(Task):
-        def __call__(self, *args: Any, **kwargs: Any) -> Any:
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery_app = Celery(app.name)
-    celery_app.config_from_object(app.config["CELERY"])
-    celery_app.Task = FlaskTask
-    celery_app.set_default()
-    app.extensions["celery"] = celery_app
-
-    return celery_app

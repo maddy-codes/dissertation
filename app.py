@@ -1,11 +1,13 @@
 import os
+import json
+import logging
+import threading
+import uuid
 from typing import Dict, Any
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField
 from wtforms.validators import DataRequired, NumberRange
-from celery import shared_task
-from celery.result import AsyncResult
 from flask_login import login_required, current_user
 from strings.paths import NL_PATH, TB_PATH, TRANS_PATH, FILE_PATH_OUT
 from strings.assistant import (
@@ -20,7 +22,7 @@ from setup.assistant_initialiser import client_initialisation, retrieve_assistan
 from helpers.runners import make_thread, run_thread
 from helpers.utility import save_systematic_output, save_uploaded_file
 from main import run_all
-from setup.app_factory import create_app, create_celery_app
+from setup.app_factory import create_app
 import dotenv
 
 dotenv.load_dotenv()
@@ -29,7 +31,6 @@ dotenv.load_dotenv()
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 app = create_app()
-celery_app = create_celery_app(app)
 
 from routes.auth_routes import auth_bp
 app.register_blueprint(auth_bp)
@@ -53,61 +54,72 @@ class ExperimentForm(FlaskForm):
         "Prompt trials", default=8, validators=[DataRequired(), NumberRange(min=1, max=50)]
     )
 
-@shared_task(ignore_result=False)
-def async_run_all(
-    tenant_id: str, email: str, user_id: int
-) -> Dict[str, Any]:
-    """Asynchronous task to run the main process using APIs."""
-    # Temporarily import models and API within task to avoid circularity issues
+def run_analysis_thread(tenant_id: str, user_id: int, selected_nominal_codes: list = None, run_id: str = None, current_year_end: str = None, comparison_year_end: str = None):
+    """Background task to run the main process using APIs, logging to an event stream."""
+    import time
     from setup.models import User
     from integrations.xero_api import XeroClient
-    from setup.app_factory import create_app
-    from helpers.xero_api_parser import fetch_and_format_xero_data
     from datetime import date
-    
-    app_context = create_app().app_context()
-    app_context.push()
-    try:
-        user = User.query.get(user_id)
-        token_data = user.get_xero_token()
-        if not token_data:
-            return {"status": "Error", "message": "No Xero token associated with user"}
-        xero_client = XeroClient(
-            client_id=os.environ.get("XERO_CLIENT_ID"),
-            client_secret=os.environ.get("XERO_CLIENT_SECRET"),
-            refresh_token=token_data.get("refresh_token"),
-            user=user
-        )
-        
-        # Fetching data using API directly
-        report_date = date.today()
-        messages, mp_df = fetch_and_format_xero_data(xero_client, tenant_id, report_date)
-        
-        result = run_all(
-            os.environ.get("AZURE_OPENAI_API_KEY"),
-            os.environ.get("AZURE_OPENAI_ENDPOINT"),
-            FILE_PATH_OUT,
-            API_VERSION,
-            ASSISTANT_ID,
-            DEPLOYED_MODEL_NAME,
-            MAX_BATCH_SIZE,
-            messages,
-            mp_df,
-            client_initialisation,
-            retrieve_assistant,
-            make_thread,
-            run_thread,
-            save_systematic_output,
-            email,
-        )
-        
-        return {"status": "Task completed", "result": "API Integration running in background."}
-    except Exception as e:
-        return {"status": "Error", "message": str(e)}
-    finally:
-        app_context.pop()
 
-@shared_task(ignore_result=False)
+    
+    # Setup Event Log
+    log_file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{run_id}.jsonl")
+    def emit_event(event_type, **kwargs):
+        event = {"type": event_type, "timestamp": time.time()}
+        event.update(kwargs)
+        with open(log_file_path, "a") as f:
+            f.write(json.dumps(event) + "\n")
+
+    emit_event("start", message="Analysis initialising...")
+
+    with app.app_context():
+        try:
+            user = User.query.get(user_id)
+            token_data = user.get_xero_token()
+            if not token_data:
+                emit_event("error", logic="No Xero token associated with user")
+                return
+            xero_client = XeroClient(
+                client_id=os.environ.get("XERO_CLIENT_ID"),
+                client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+                refresh_token=token_data.get("refresh_token"),
+                user=user
+            )
+            
+            emit_event("progress", message="Fetching Trial Balance and executing Xero mappings...")
+            report_date = date.fromisoformat(current_year_end) if current_year_end else date.today()
+            comparison_date = date.fromisoformat(comparison_year_end) if comparison_year_end else None
+            
+            from helpers.xero_api_parser import fetch_and_format_xero_data
+            messages, mp_df = fetch_and_format_xero_data(xero_client, tenant_id, report_date, comparison_date=comparison_date)
+            
+            if selected_nominal_codes is not None:
+                messages = [m for m in messages if m["name"] in selected_nominal_codes]
+                
+            emit_event("progress", message=f"Mapped {len(messages)} focus targets. Initiating synthesis...")
+            
+            run_all(
+                os.environ.get("AZURE_OPENAI_API_KEY"),
+                os.environ.get("AZURE_OPENAI_ENDPOINT"),
+                FILE_PATH_OUT,
+                API_VERSION,
+                ASSISTANT_ID,
+                DEPLOYED_MODEL_NAME,
+                MAX_BATCH_SIZE,
+                messages,
+                mp_df,
+                client_initialisation,
+                retrieve_assistant,
+                make_thread,
+                run_thread,
+                save_systematic_output,
+                emit_event
+            )
+            
+            emit_event("complete", message="Core analysis successfully completed.", result_file=FILE_PATH_OUT)
+        except Exception as e:
+            emit_event("error", logic=str(e))
+
 def async_run_experiment(run_def_payload: dict) -> Dict[str, Any]:
     # (Leaving experiment task exactly as is)
     try:
@@ -273,19 +285,25 @@ def upload():
             
     if request.method == "POST" and form.validate_on_submit():
         tenant_id = request.form.get("tenant_id")
-        email = request.form.get("email")
+        current_year_end = request.form.get("current_year_end")
+        comparison_year_end = request.form.get("comparison_year_end")
         
         if not tenant_id:
             flash("Please select a Xero tenant.")
             return redirect(request.url)
             
-        flash(f"API Extraction started for tenant. Confirmation sent to {email}")
+        flash(f"API Extraction started for tenant.")
 
-        task = async_run_all.delay(
-            tenant_id, email, current_user.id
+        selected_nominal_codes = request.form.getlist("selected_nominal_codes")
+
+        run_id = str(uuid.uuid4())
+        thread = threading.Thread(
+            target=run_analysis_thread,
+            args=(tenant_id, current_user.id, selected_nominal_codes, run_id, current_year_end, comparison_year_end)
         )
+        thread.start()
 
-        return redirect(url_for("task_status", task_id=task.id))
+        return redirect(url_for("report_stream", run_id=run_id))
 
     return render_template("index.html", form=form, connections=connections, has_xero_token=has_xero_token)
 
@@ -294,42 +312,164 @@ def upload():
 @login_required
 def workbench():
     tenant_id = request.form.get("tenant_id")
+    current_year_end = request.form.get("current_year_end")
+    comparison_year_end = request.form.get("comparison_year_end")
+
     if not tenant_id:
         flash("Please select a Xero tenant before accessing the workbench.")
         return redirect(url_for("upload"))
-    return render_template("workbench.html", tenant_id=tenant_id)
-
-@app.route("/result/<task_id>")
-def task_status(task_id: str):
-    """Route to get the status of a background task."""
-    task = AsyncResult(task_id)
-    if task.state == "PENDING":
-        state = task.state
-        status = "Task is pending..."
-        result = None
-        error = None
-    elif task.state != "FAILURE":
-        state = task.state
-        status = task.info.get("status", "")
-        result = task.info.get("result") if "result" in task.info else None
-        error = None
-    else:
-        state = task.state
-        status = "Error occurred"
-        result = None
-        error = str(task.info)
-
-    return render_template(
-        "result.html", state=state, status=status, result=result, error=error
+        
+    return render_template("workbench.html", 
+        tenant_id=tenant_id, 
+        current_year_end=current_year_end, 
+        comparison_year_end=comparison_year_end
     )
 
 
+@app.route("/api/workbench/initialize/<tenant_id>", methods=["GET"])
+@login_required
+def init_workbench(tenant_id):
+    from integrations.xero_api import XeroClient
+    from datetime import date
+    import json
+    import os
+    from openai import AzureOpenAI
+    from strings.assistant import API_VERSION, DEPLOYED_MODEL_NAME
+    
+    token_data = current_user.get_xero_token()
+    if not token_data:
+        return jsonify({"status": "Error", "message": "No Xero token"}), 400
+        
+    try:
+        xero_client = XeroClient(
+            client_id=os.environ.get("XERO_CLIENT_ID"),
+            client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+            refresh_token=token_data.get("refresh_token"),
+            user=current_user
+        )
+        
+        try:
+            current_date_str = request.args.get('current_year_end')
+            if current_date_str:
+                report_date = date.fromisoformat(current_date_str)
+            else:
+                report_date = date.today()
+        except ValueError:
+            report_date = date.today()
+            
+        # Fetch Trial Balance directly
+        try:
+            tb_json = xero_client.get_trial_balance(tenant_id, report_date=report_date)
+        except Exception as e:
+            tb_json = {}
+            
+        def extract_tb_rows(rows, target_dict):
+            for r in rows:
+                if r.get("RowType") == "Row":
+                    cells = r.get("Cells", [])
+                    if cells and len(cells) > 0 and cells[0].get("Value") != "Total":
+                        target_dict[cells[0].get("Value")] = cells
+                elif "Rows" in r:
+                    extract_tb_rows(r["Rows"], target_dict)
+                    
+        tb_dict = {}
+        if tb_json.get("Reports"):
+            extract_tb_rows(tb_json["Reports"][0].get("Rows", []), tb_dict)
+            
+        summary_lines = []
+        for index, (acc_name, cells) in enumerate(tb_dict.items()):
+            if index > 30: # Limit to Top 30 accounts to keep token usage fast for the scanner
+                break
+            # Try to extract the balance value
+            balance = ""
+            if len(cells) > 1:
+                balance = cells[1].get("Value", "")
+            summary_lines.append(f"Account: {acc_name}, Balance: {balance}")
+            
+        context_str = "\n".join(summary_lines)
+        
+        client = AzureOpenAI(
+            api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
+            api_version=API_VERSION,
+            azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT")
+        )
+        
+        prompt = f"""
+You are an expert UK accounting AI assistant. Review this excerpt of Xero Trial Balance data:
+{context_str}
+
+Please generate a JSON response exactly matching this schema:
+{{
+  "flags": [
+    {{"category": "Subscriptions", "finding": "...", "logic": "..."}}
+  ],
+  "coa": [
+    {{"code": "4000", "name": "Sales Revenue", "exact_xero_name": "EXACT_STRING_FROM_INPUT", "type": "Income", "balance": "£100", "suggestion": "Analyze", "logic": "..."}}
+  ]
+}}
+Limit to max 2 critical flags (e.g. large payments, anomalies) and exactly 5 Chart of Account items to analyze (mark some as 'Skip' and some as 'Analyze' based on materiality). 
+CRITICAL: For every item in the `coa` array, `exact_xero_name` MUST be identical to the exact string provided after 'Account: ' in the input data. Make it realistic to a UK Accountant.
+        """
+        
+        response = client.chat.completions.create(
+            model=DEPLOYED_MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "You are a JSON-producing accounting assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1
+        )
+        
+        result_json_str = response.choices[0].message.content
+        result_data = json.loads(result_json_str)
+        return jsonify({"status": "Success", "data": result_data})
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"status": "Error", "message": str(e)}), 500
+
+
+@app.route("/report/<run_id>")
+def report_stream(run_id: str):
+    """Serve the realtime report dashboard."""
+    return render_template("report_stream.html", run_id=run_id)
+
+@app.route("/api/stream_report/<run_id>")
+def stream_report(run_id: str):
+    """SSE endpoint for live report streaming."""
+    import time
+    from flask import Response
+    
+    log_file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{run_id}.jsonl")
+    
+    def generate():
+        last_pos = 0
+        while True:
+            if os.path.exists(log_file_path):
+                with open(log_file_path, "r") as f:
+                    f.seek(last_pos)
+                    lines = f.readlines()
+                    last_pos = f.tell()
+                    
+                    for line in lines:
+                        if line.strip():
+                            yield f"data: {line}\n\n"
+                            try:
+                                data = json.loads(line)
+                                if data.get("type") in ["complete", "error"]:
+                                    return
+                            except Exception:
+                                pass
+            time.sleep(0.5)
+            
+    return Response(generate(), mimetype="text/event-stream")
+
 @app.route("/revoke/<task_id>")
 def revoke_task(task_id: str):
-    """Route to revoke a background task."""
-    task = AsyncResult(task_id)
-    task.revoke(terminate=True)
-    return jsonify({"task_id": task_id, "status": "Task revoked"})
+    """Deprecated: Celery has been removed."""
+    return jsonify({"task_id": task_id, "status": "Not supported in threading architecture"})
 
 
 @app.route("/experiments", methods=["GET"])
@@ -492,6 +632,49 @@ def download_run_json(run_id: str):
         mimetype="application/json",
         headers={"Content-Disposition": f"attachment; filename={run_id}.json"},
     )
+
+@app.route("/api/send_report/<run_id>", methods=["POST"])
+@login_required
+def send_report(run_id: str):
+    email = request.json.get("email")
+    if not email:
+        return jsonify({"status": "error", "message": "No email provided"}), 400
+        
+    try:
+        from helpers.email_service import send_email
+        from strings.paths import FILE_PATH_OUT
+        subject = "Report for the Generated Reviews | PHM Accountants"
+        body = f"""Hello,
+        
+Please find the attached report for the generated reviews. 
+
+The report contains the generated reviews for the accounts in the trial balance, based directly on live Xero APIs. 
+
+The link to the generated reviews is as follows: https://ai.phm-accountants.co.uk/result/
+
+Regards,
+Technical Team,
+PHM Accountants
+"""
+        recipient_list = [
+            {"address": f"{email}", "displayName": "PHM Accountant"},
+        ]
+        sender_address = "donotreply@e444ea86-37e7-4a7d-857b-261cf490d7ce.azurecomm.net"
+
+        # Usually you'd send FILE_PATH_OUT but to be robust to concurrent runs, we'll just send standard path for now
+        # send email via azure
+        from integrations.azure_email import send_email_with_attachment
+        send_email_with_attachment(
+            subject=subject,
+            body=body,
+            recipient_list=recipient_list,
+            sender_address=sender_address,
+            file_path=FILE_PATH_OUT,
+        )
+        return jsonify({"status": "success", "message": "Email sent successfully."})
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 if __name__ == "__main__":

@@ -1,0 +1,4 @@
+{"type": "start", "timestamp": 1776699187.050878, "message": "Analysis initialising..."}
+{"type": "progress", "timestamp": 1776699187.052812, "message": "Fetching Trial Balance and executing Xero mappings..."}
+{"type": "progress", "timestamp": 1776699188.076991, "message": "Mapped 0 focus targets. Initiating synthesis..."}
+{"type": "complete", "timestamp": 1776699197.35515, "message": "Core analysis successfully completed.", "result_file": "generated-reviews.csv"}

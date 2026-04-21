@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Report Generation - Phipps Henson McAllister{% endblock %}
+
+{% block content %}
+<!-- Include marked.js for parsing markdown in real-time -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* Editorial Markdown Styles based on Monolithic Ledger */
+    .prose-premium h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-on-surface); margin-bottom: 2rem; }
+    .prose-premium h2 { font-size: 1.5rem; font-weight: 600; color: var(--color-on-surface); margin-top: 3rem; margin-bottom: 1.5rem; }
+    .prose-premium h3 { font-size: 1.25rem; font-weight: 600; color: var(--color-on-surface); margin-top: 2rem; margin-bottom: 1rem; }
+    .prose-premium p { font-size: 1rem; line-height: 1.8; color: var(--color-on-surface-variant); margin-bottom: 1.5rem; }
+    /* Table Overflow Handling */
+    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 2rem; border-radius: 1rem; }
+    .prose-premium table { width: 100%; text-align: left; border-collapse: collapse; white-space: normal; }
+    .prose-premium th { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--color-on-surface); text-transform: uppercase; font-size: 0.6875rem; letter-spacing: 0.1em; padding: 1.5rem 1rem; background-color: var(--color-surface-container); border: none; }
+    .prose-premium td { padding: 1rem; color: var(--color-on-surface-variant); font-size: 0.875rem; border: none; }
+    .prose-premium tr:nth-child(odd) td { background-color: var(--color-surface-container-lowest); }
+    .prose-premium tr:nth-child(even) td { background-color: var(--color-surface-container); }
+    .prose-premium ul { list-style-type: none; padding-left: 0; margin-bottom: 2rem; }
+    .prose-premium ul li { position: relative; padding-left: 1.5rem; font-size: 1rem; line-height: 1.8; color: var(--color-on-surface-variant); margin-bottom: 2rem; }
+    .prose-premium ul li::before { content: "•"; position: absolute; left: 0; color: var(--color-primary); font-weight: bold; }
+    .prose-premium strong { color: var(--color-on-surface); font-weight: 600; }
+    
+    .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+</style>
+
+<div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-12 mt-8">
+    
+    <!-- LEFT SIDEBAR: Stream Log & Status -->
+    <div class="col-span-4 self-start sticky top-32">
+        <div class="flex items-center gap-3 mb-8">
+            <div id="status-indicator" class="relative inline-flex rounded-full h-2 w-2 bg-yellow-400 loading-pulse"></div>
+            <h2 id="status-text" class="text-on-surface text-sm font-label uppercase tracking-widest font-bold">Initializing Report...</h2>
+        </div>
+
+        <div class="bg-surface-container-low rounded-xl p-6 min-h-[400px] max-h-[70vh] overflow-y-auto">
+            <h3 class="text-xs uppercase tracking-widest text-outline font-bold mb-6">Activity Stream</h3>
+            <div id="activity-stream" class="space-y-4">
+                <!-- Log entries injected here -->
+            </div>
+        </div>
+        
+        <div id="action-area" class="mt-8 hidden bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+            <h3 class="text-on-surface font-headline font-bold mb-4">Report Secured. Proceed with distribution?</h3>
+            <form id="send-report-form" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="client_email" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline ml-1">Client Email Address <span class="text-error">*</span></label>
+                    <input type="email" id="client_email" name="client_email" required placeholder="client@example.com"
+                           class="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-primary transition-colors text-sm">
+                </div>
+                <button type="submit" id="send-report-btn" class="bg-primary text-on-primary px-6 py-3 rounded uppercase font-bold tracking-widest text-xs hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">mail</span> Send to Client Portal
+                </button>
+            </form>
+            
+            <a href="/" class="inline-flex w-full justify-center items-center gap-2 px-6 py-3 mt-4 bg-surface text-secondary border border-outline-variant/30 rounded font-label font-bold uppercase tracking-[0.1em] text-xs transition-all duration-200 hover:scale-[1.02] hover:bg-surface-container">
+                Return to Dashboard Menu
+                <span class="material-symbols-outlined text-sm">home</span>
+            </a>
+            <p id="email-status" class="text-[0.65rem] text-primary text-center mt-4 hidden font-bold"></p>
+        </div>
+    </div>
+
+    <!-- RIGHT SECTION: The Report Builder -->
+    <div class="col-span-8">
+        <div class="mb-12">
+            <h1 class="text-display-md text-on-surface font-semibold tracking-tight">AI Review Notes Synthesis</h1>
+            <p class="text-on-surface-variant mt-4 max-w-2xl text-sm leading-relaxed">
+                 You can safely close this browser tab and return later; the agent streams its work continuously. Progress is safely persisted to the ledger.
+            </p>
+        </div>
+
+        <div id="report-container" class="space-y-12">
+             <!-- Dynamically generated sections will appear here -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const runId = "{{ run_id }}";
+    const eventSource = new EventSource(`/api/stream_report/${runId}`);
+    
+    const activityStream = document.getElementById("activity-stream");
+    const reportContainer = document.getElementById("report-container");
+    const statusIndicator = document.getElementById("status-indicator");
+    const statusText = document.getElementById("status-text");
+    const actionArea = document.getElementById("action-area");
+    
+    // Auto-scroll helper for the log
+    function scrollToBottom() {
+        const parent = activityStream.parentElement;
+        parent.scrollTop = parent.scrollHeight;
+    }
+
+    function addLog(text, highlight=false) {
+        const el = document.createElement("div");
+        el.className = "flex gap-3 text-xs font-mono";
+        el.innerHTML = `
+            <span class="text-primary shrink-0">${highlight ? '▶' : '·'}</span>
+            <span class="${highlight ? 'text-on-surface font-semibold' : 'text-on-surface-variant'} leading-relaxed">${text}</span>
+        `;
+        activityStream.appendChild(el);
+        scrollToBottom();
+    }
+
+    eventSource.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            
+            if (data.type === "start") {
+                addLog(data.message);
+            } 
+            else if (data.type === "progress") {
+                addLog(data.message);
+            }
+            else if (data.type === "account_start") {
+                statusText.innerText = "Processing Data...";
+                addLog(`Began synthesis for ${data.account}`, true);
+                
+                // Mount a skeletal loading block in the report
+                const block = document.createElement("div");
+                block.id = `block-${data.account.replace(/\\s+/g, '-')}`;
+                block.className = "bg-surface-container-lowest p-8 rounded-xl transition-all duration-500 opacity-50";
+                block.innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+                        <h3 class="text-lg font-bold text-on-surface m-0 uppercase tracking-wide">${data.account}</h3>
+                    </div>
+                    <div class="space-y-3 prose-premium">
+                        <div class="h-4 bg-surface-container-high rounded w-3/4 loading-pulse"></div>
+                        <div class="h-4 bg-surface-container-high rounded w-full loading-pulse"></div>
+                        <div class="h-4 bg-surface-container-high rounded w-5/6 loading-pulse"></div>
+                    </div>
+                `;
+                reportContainer.appendChild(block);
+            }
+            else if (data.type === "account_complete") {
+                addLog(`Completed synthesis for ${data.account}`);
+                
+                const blockId = `block-${data.account.replace(/\\s+/g, '-')}`;
+                let block = document.getElementById(blockId);
+                
+                if (!block) {
+                    // In case we missed the start event on a hot reload
+                    block = document.createElement("div");
+                    block.id = blockId;
+                    block.className = "bg-surface-container-lowest p-8 rounded-xl transition-all duration-500";
+                    reportContainer.appendChild(block);
+                }
+                
+                block.classList.remove("opacity-50");
+                block.innerHTML = `
+                    <h3 class="text-xl font-bold text-on-surface mb-6 uppercase tracking-wide border-l-2 border-primary pl-4">${data.account}</h3>
+                    <div class="table-responsive prose-premium">
+                        ${marked.parse(data.synthesis)}
+                    </div>
+                `;
+            }
+            else if (data.type === "error") {
+                addLog(`ERROR: ${data.logic}`, true);
+                statusIndicator.className = "relative inline-flex rounded-full h-2 w-2 bg-error";
+                statusText.innerText = "System Error";
+                statusText.classList.add("text-error");
+                eventSource.close();
+            }
+            else if (data.type === "complete") {
+                addLog(data.message, true);
+                statusIndicator.classList.remove("loading-pulse", "bg-yellow-400");
+                statusIndicator.classList.add("bg-green-400");
+                statusText.innerText = "Analysis Complete";
+                statusText.classList.remove("text-on-surface");
+                statusText.classList.add("text-green-400");
+                actionArea.classList.remove("hidden");
+                eventSource.close();
+            }
+            
+        } catch (err) {
+            console.error("Error parsing SSE data", err);
+        }
+    };
+
+    eventSource.onerror = function() {
+        // SSE auto-reconnects on drop, but if we handle it explicitly we shouldn't necessarily close unless we know it's dead.
+        console.log("SSE disconnected or errored. Will attempt reconnect naturally.");
+    };
+
+    document.getElementById("send-report-btn").addEventListener("click", async () => {
+        const btn = document.getElementById("send-report-btn");
+        const status = document.getElementById("email-status");
+        const email = document.getElementById("recipient-email").value;
+        
+        if (!email) {
+            status.textContent = "Please provide an email.";
+            status.classList.remove("hidden");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Sending...";
+        
+        try {
+            const resp = await fetch(`/api/send_report/${runId}`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ email })
+            });
+            const data = await resp.json();
+            status.textContent = data.message;
+            status.classList.remove("hidden");
+            if(data.status === "success") {
+                 status.classList.add("text-green-400");
+                 status.classList.remove("text-error");
+            } else {
+                 status.classList.add("text-error");
+                 status.classList.remove("text-green-400");
+            }
+        } catch(e) {
+            status.textContent = "Error sending report.";
+            status.classList.remove("hidden");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Send Report Securely";
+        }
+    });
+
+</script>
+{% endblock %}

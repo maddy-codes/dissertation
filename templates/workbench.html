@@ -21,7 +21,7 @@
                 <p class="mt-1 text-on-surface-variant text-sm">
                     Client session: <code class="text-xs font-mono bg-surface-container px-2 py-0.5 rounded text-secondary">{{ tenant_id }}</code>
                 </p>
-            </div>
+            </div>  
         </div>
 
         <!-- Step pills -->
@@ -90,39 +90,7 @@
 
                 <!-- Flag cards — card layout instead of broken table -->
                 <div class="flex flex-col gap-4 flex-1" id="flag-cards">
-
-                    <div class="flag-card bg-surface-container-low rounded-lg p-5 border border-outline-variant/20 hover:border-outline-variant/50 transition-all duration-200">
-                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-secondary bg-surface-container-highest px-2 py-0.5 rounded">Subscriptions</span>
-                                </div>
-                                <p class="text-primary font-semibold text-sm mb-1">Adobe Creative Cloud</p>
-                                <p class="text-on-surface-variant text-xs leading-relaxed">Consistent monthly hit; matches known vendor list. Pattern confidence: <span class="text-primary font-bold">94%</span></p>
-                            </div>
-                            <div class="flag-actions flex gap-2 shrink-0">
-                                <button class="flag-btn approve px-4 py-2 bg-surface-container-highest border border-outline-variant/50 text-primary rounded text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-200">Approve</button>
-                                <button class="flag-btn reject px-4 py-2 bg-surface-container-highest border border-error/40 text-error rounded text-xs font-bold uppercase tracking-widest hover:bg-error hover:text-on-primary hover:border-error transition-all duration-200">Reject</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flag-card bg-surface-container-low rounded-lg p-5 border border-outline-variant/20 hover:border-outline-variant/50 transition-all duration-200">
-                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-error bg-error-container/20 border border-error/20 px-2 py-0.5 rounded">Large Payment</span>
-                                </div>
-                                <p class="text-primary font-semibold text-sm mb-1">£12,450 → <span class="font-mono">Build-It Ltd</span></p>
-                                <p class="text-on-surface-variant text-xs leading-relaxed">Outlier identified. Spend is <span class="text-error font-bold">400% higher</span> than average monthly run rate for this category.</p>
-                            </div>
-                            <div class="flag-actions flex gap-2 shrink-0">
-                                <button class="flag-btn approve px-4 py-2 bg-surface-container-highest border border-outline-variant/50 text-primary rounded text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-200">Approve</button>
-                                <button class="flag-btn query px-4 py-2 bg-surface-container-highest border border-secondary/40 text-secondary rounded text-xs font-bold uppercase tracking-widest hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-all duration-200">Query</button>
-                            </div>
-                        </div>
-                    </div>
-
+                    <!-- Javascript will inject real extracted anomalies here -->
                 </div>
 
                 <div class="mt-6 flex justify-end">
@@ -150,77 +118,8 @@
                 </div>
 
                 <!-- CoA rows as cards for clarity -->
-                <div class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1" style="max-height: 320px;">
-
-                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
-                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
-                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">4000</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-primary text-sm font-medium">Sales Revenue</p>
-                            <p class="text-on-surface-variant text-xs mt-0.5">Income</p>
-                        </div>
-                        <span class="font-mono text-sm text-primary shrink-0">£450,200</span>
-                        <div class="text-right shrink-0 w-48">
-                            <span class="text-error text-xs font-bold">Analyze</span>
-                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">High volume of small entries.</p>
-                        </div>
-                    </div>
-
-                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
-                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
-                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">7100</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-primary text-sm font-medium">Rent &amp; Rates</p>
-                            <p class="text-on-surface-variant text-xs mt-0.5">Expense</p>
-                        </div>
-                        <span class="font-mono text-sm text-primary shrink-0">£24,000</span>
-                        <div class="text-right shrink-0 w-48">
-                            <span class="text-secondary text-xs font-bold">Skip</span>
-                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Fixed costs; no anomalies.</p>
-                        </div>
-                    </div>
-
-                    <div class="coa-row flex items-center gap-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200 opacity-50">
-                        <input type="checkbox" class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
-                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">7500</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-primary text-sm font-medium">Office Stationery</p>
-                            <p class="text-on-surface-variant text-xs mt-0.5">Expense</p>
-                        </div>
-                        <span class="font-mono text-sm text-primary shrink-0">£450</span>
-                        <div class="text-right shrink-0 w-48">
-                            <span class="text-secondary text-xs font-bold">Skip</span>
-                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Below materiality threshold.</p>
-                        </div>
-                    </div>
-
-                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
-                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
-                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">8200</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-primary text-sm font-medium">Legal &amp; Professional</p>
-                            <p class="text-on-surface-variant text-xs mt-0.5">Expense · Mandatory Comment Account</p>
-                        </div>
-                        <span class="font-mono text-sm text-primary shrink-0">£15,000</span>
-                        <div class="text-right shrink-0 w-48">
-                            <span class="text-error text-xs font-bold">Analyze</span>
-                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Multiple new vendors identified.</p>
-                        </div>
-                    </div>
-
-                    <div class="coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200">
-                        <input type="checkbox" checked class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer">
-                        <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">8300</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-primary text-sm font-medium">Directors' Remuneration</p>
-                            <p class="text-on-surface-variant text-xs mt-0.5">Expense · Mandatory Comment Account</p>
-                        </div>
-                        <span class="font-mono text-sm text-primary shrink-0">£72,000</span>
-                        <div class="text-right shrink-0 w-48">
-                            <span class="text-error text-xs font-bold">Analyze</span>
-                            <p class="text-on-surface-variant text-[0.6rem] mt-0.5">Compare vs P&amp;L before remuneration.</p>
-                        </div>
-                    </div>
+                <div class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1" style="max-height: 320px;" id="coa-cards">
+                    <!-- Javascript will inject Chart of Accounts recommendations here -->
                 </div>
 
                 <div class="mt-6 flex justify-end">
@@ -249,7 +148,7 @@
                         <ul class="space-y-3">
                             <li class="flex gap-3 text-xs font-mono">
                                 <span class="text-primary shrink-0 font-bold">></span>
-                                <span class="text-on-surface-variant">Scope: Limited to <span class="text-primary font-bold">4 / 5</span> nominal codes based on your input.</span>
+                                <span class="text-on-surface-variant">Scope: Limited to <span class="text-primary font-bold"><span id="selected-count-msg">-</span></span> nominal codes based on your input.</span>
                             </li>
                             <li class="flex gap-3 text-xs font-mono">
                                 <span class="text-primary shrink-0 font-bold">></span>
@@ -267,20 +166,13 @@
                     </div>
 
                     <!-- Final dispatch form -->
-                    <form action="{{ url_for('upload') }}" method="post" class="flex flex-col gap-6">
+                    <form id="final-form" action="{{ url_for('upload') }}" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
+                        <input type="hidden" name="current_year_end" value="{{ current_year_end }}"/>
+                        <input type="hidden" name="comparison_year_end" value="{{ comparison_year_end }}"/>
 
                         <div class="flex flex-col gap-2">
-                            <label for="email" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1">
-                                Dispatch Destination <span class="text-error">*</span>
-                            </label>
-                            <div class="flex items-center border-b border-outline-variant/50 focus-within:border-primary transition-colors duration-200 py-2 group">
-                                <span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors mr-3 text-lg ml-2">mail</span>
-                                <input type="email" id="email" name="email" required
-                                    placeholder="partner@institution.com"
-                                    class="w-full bg-transparent border-none focus:ring-0 p-0 text-primary placeholder:text-outline-variant font-body text-sm"/>
-                            </div>
                         </div>
 
                         <button type="submit"
@@ -301,9 +193,6 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ─────────────────────────────────────
-    // Elements
-    // ─────────────────────────────────────
     const stageInit  = document.getElementById("stage-init");
     const stageFlags = document.getElementById("stage-flags");
     const stageCoa   = document.getElementById("stage-coa");
@@ -319,15 +208,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnApprove = document.getElementById("btn-approve-all");
     const btnMat     = document.getElementById("btn-materiality");
 
-    // ─────────────────────────────────────
-    // Helpers
-    // ─────────────────────────────────────
+    const flagCardsContainer = document.getElementById("flag-cards");
+    const coaCardsContainer  = document.getElementById("coa-cards");
+
+    let expectedFlagResolutions = 0;
+    let resolvedCount = 0;
+
     const activePill = (n) => {
         const base = "px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] transition-all duration-300";
         pills.forEach((p, i) => {
             if (i + 1 === n)      p.className = `${base} bg-primary text-on-primary shadow-[0_0_12px_rgba(255,255,255,0.15)]`;
             else if (i + 1 < n)   p.className = `${base} bg-surface-container-high text-primary`;
-            else                   p.className = `${base} bg-surface-container text-outline border border-outline-variant/30`;
+            else                  p.className = `${base} bg-surface-container text-outline border border-outline-variant/30`;
         });
     };
 
@@ -357,75 +249,136 @@ document.addEventListener("DOMContentLoaded", () => {
         statusText.className = `text-[0.6rem] uppercase tracking-widest font-bold ${colorClass}`;
     };
 
-    // ─────────────────────────────────────
-    // Phase 1 – Live Thought Stream
-    // ─────────────────────────────────────
+    // Phase 1 - Initialization Logic
     activePill(1);
+    addThought("Logic", "Establishing read channel to Xero Ledger...", "text-blue-400");
+    addThought("Network", "Executing live fetch to /api/workbench/initialize", "text-secondary");
 
-    const thoughts = [
-        [1000,  "Logic",              "Establishing read channel to General Ledger…",        "text-blue-400"],
-        [2200,  "Pattern Recognition","Scanning recurring monthly outflows across Q4…",      "text-secondary"],
-        [3600,  "Insight",            "Found 14 active subscriptions. 3 flagged: price drift detected.", "text-yellow-400"],
-        [5200,  "Threshold Check",    "Filtering payments above £5,000. 22 large payments found.", "text-error"],
-        [6800,  "Materiality",        "Applying 10% variance threshold per firm standard.",  "text-secondary"],
-        [7800,  "System",             "Initial scan complete. Awaiting human verification.", "text-primary"],
-    ];
+    const currentYearEnd = encodeURIComponent("{{ current_year_end }}");
+    const comparisonYearEnd = encodeURIComponent("{{ comparison_year_end }}");
 
-    thoughts.forEach(([delay, tag, text, color]) => {
-        setTimeout(() => addThought(tag, text, color), delay);
-    });
+    fetch(`/api/workbench/initialize/{{ tenant_id }}?current_year_end=${currentYearEnd}&comparison_year_end=${comparisonYearEnd}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status !== "Success") {
+                addThought("Error", data.message, "text-error");
+                return;
+            }
 
-    // After all thoughts, fade in Stage 2
-    setTimeout(() => {
-        setStatus("Paused", "text-yellow-400");
-        agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-yellow-400";
-        activePill(2);
-        transitionTo(stageInit, stageFlags, 600);
-    }, 9000);
+            const aiData = data.data;
 
-    // ─────────────────────────────────────
-    // Phase 2 – Flags
-    // ─────────────────────────────────────
-    let resolvedCount = 0;
-
-    document.querySelectorAll(".flag-card").forEach(card => {
-        card.querySelectorAll(".flag-btn").forEach(btn => {
-            btn.addEventListener("click", function () {
-                const actions = this.closest(".flag-actions");
-                const action  = this.classList.contains("approve") ? "Approved" :
-                                this.classList.contains("reject")  ? "Rejected" : "Queried";
-
-                actions.innerHTML = `<span class="text-[0.6rem] uppercase tracking-widest font-bold ${
-                    action === "Approved" ? "text-primary" : action === "Queried" ? "text-secondary" : "text-error"
-                }">${action}</span>`;
-
-                const name = card.querySelector("p.text-primary.font-semibold").textContent;
-                addThought("Action", `"${name}" → ${action} by operator.`,
-                    action === "Approved" ? "text-green-400" : action === "Queried" ? "text-yellow-400" : "text-error");
-
-                resolvedCount++;
-                if (resolvedCount >= 2) {
-                    btnToCoa.disabled = false;
-                    btnToCoa.className = btnToCoa.className
+            // Render Flags dynamically
+            expectedFlagResolutions = aiData.flags.length;
+            if (expectedFlagResolutions === 0) {
+                flagCardsContainer.innerHTML = `<p class="text-secondary text-sm">No critical flags detected by AI.</p>`;
+                btnToCoa.disabled = false;
+                btnToCoa.className = btnToCoa.className
                         .replace("cursor-not-allowed opacity-50 text-outline border-outline-variant/40", "")
                         + " cursor-pointer text-primary border-primary hover:bg-primary hover:text-on-primary";
-                    addThought("System", "All flags resolved. Scope mapping is now unlocked.", "text-green-400");
+            }
+
+            aiData.flags.forEach(flag => {
+                const el = document.createElement("div");
+                el.className = "flag-card bg-surface-container-low rounded-lg p-5 border border-outline-variant/20 hover:border-outline-variant/50 transition-all duration-200";
+                
+                let highlightClass = "text-error border-error/20 bg-error-container/20";
+                if (flag.category.toLowerCase().includes("subscription")) {
+                    highlightClass = "text-secondary bg-surface-container-highest border-transparent";
                 }
+
+                el.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded border ${highlightClass}">${flag.category}</span>
+                            </div>
+                            <p class="text-primary font-semibold text-sm mb-1">${flag.finding}</p>
+                            <p class="text-on-surface-variant text-xs leading-relaxed">${flag.logic}</p>
+                        </div>
+                        <div class="flag-actions flex gap-2 shrink-0">
+                            <button class="flag-btn approve px-4 py-2 bg-surface-container-highest border border-outline-variant/50 text-primary rounded text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-200">Approve</button>
+                            <button class="flag-btn query px-4 py-2 bg-surface-container-highest border border-secondary/40 text-secondary rounded text-xs font-bold uppercase tracking-widest hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-all duration-200">Query</button>
+                        </div>
+                    </div>
+                `;
+                flagCardsContainer.appendChild(el);
             });
+
+            // Bind events for dynamically created flags
+            document.querySelectorAll(".flag-card .flag-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const actions = this.closest(".flag-actions");
+                    const action  = this.classList.contains("approve") ? "Approved" :
+                                    this.classList.contains("reject")  ? "Rejected" : "Queried";
+
+                    const name = this.closest(".flag-card").querySelector("p.text-primary.font-semibold").textContent;
+
+                    actions.innerHTML = `<span class="text-[0.6rem] uppercase tracking-widest font-bold ${
+                        action === "Approved" ? "text-primary" : action === "Queried" ? "text-secondary" : "text-error"
+                    }">${action}</span>`;
+
+ 
+                    addThought("Action", `"${name}" → ${action} by operator.`,
+                        action === "Approved" ? "text-green-400" : action === "Queried" ? "text-yellow-400" : "text-error");
+
+                    resolvedCount++;
+                    if (resolvedCount >= expectedFlagResolutions) {
+                        btnToCoa.disabled = false;
+                        btnToCoa.classList.remove("cursor-not-allowed", "opacity-50", "text-outline", "border-outline-variant/40");
+                        btnToCoa.classList.add("cursor-pointer", "text-primary", "border-primary", "hover:bg-primary", "hover:text-on-primary");
+                        addThought("System", "All flags resolved. Scope mapping is now unlocked.", "text-green-400");
+                    }
+                });
+            });
+
+            // Render Chart of Accounts dynamically
+            aiData.coa.forEach(item => {
+                const el = document.createElement("div");
+                const shouldSkip = item.suggestion.toLowerCase().includes("skip");
+                const opClass = shouldSkip ? "opacity-50" : "";
+                const tagColor = shouldSkip ? "text-secondary" : "text-error";
+                // Adding a hidden input to pass the selected nominal code
+                el.className = `coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200 ${opClass}`;
+                el.innerHTML = `
+                    <input type="checkbox" name="selected_nominal_codes" value="${item.exact_xero_name || item.name}" ${shouldSkip ? "" : "checked"} class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer" form="final-form">
+                    <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">${item.code || ""}</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-primary text-sm font-medium">${item.name}</p>
+                        <p class="text-on-surface-variant text-xs mt-0.5">${item.type}</p>
+                    </div>
+                    <span class="font-mono text-sm text-primary shrink-0">${item.balance}</span>
+                    <div class="text-right shrink-0 w-48">
+                        <span class="${tagColor} text-xs font-bold">${item.suggestion}</span>
+                        <p class="text-on-surface-variant text-[0.6rem] mt-0.5">${item.logic}</p>
+                    </div>
+                `;
+                coaCardsContainer.appendChild(el);
+            });
+
+            addThought("Insight", `Scanner identified ${aiData.flags.length} anomaly flags and ${aiData.coa.length} CoA targets.`, "text-green-400");
+            addThought("System", "Initial scan complete. Awaiting human verification.", "text-primary");
+
+            // Transition
+            setTimeout(() => {
+                setStatus("Paused", "text-yellow-400");
+                agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-yellow-400";
+                activePill(2);
+                transitionTo(stageInit, stageFlags, 600);
+            }, 1000);
+
+        }).catch(err => {
+            console.error(err);
+            addThought("Error", "Failed to contact Azure AI scanner.", "text-error");
         });
-    });
 
     btnToCoa.addEventListener("click", () => {
         if (btnToCoa.disabled) return;
         activePill(3);
         setStatus("Mapping CoA", "text-secondary");
         transitionTo(stageFlags, stageCoa, 600);
-        addThought("System", "Rendering Chart of Accounts with agent suggestions pre-applied.", "text-primary");
+        addThought("System", "Rendering real Chart of Accounts mapped from Xero.", "text-primary");
     });
 
-    // ─────────────────────────────────────
-    // Phase 3 – CoA
-    // ─────────────────────────────────────
     btnApprove.addEventListener("click", () => {
         document.querySelectorAll(".coa-check").forEach(cb => { cb.checked = true; });
         document.querySelectorAll(".coa-row").forEach(r => r.classList.remove("opacity-50"));
@@ -435,14 +388,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     btnMat.addEventListener("click", () => {
-        document.querySelectorAll(".coa-check").forEach((cb, i) => {
-            // Uncheck the £450 stationery row (index 2)
-            if (i === 2) cb.checked = false;
-        });
-        document.querySelectorAll(".coa-row").forEach((r, i) => {
-            if (i === 2) r.classList.add("opacity-40");
-        });
-        addThought("Action", "Materiality filter applied. Sub-threshold nominals deselected.", "text-yellow-400");
+        // Find checked boxes with value < £500
+        addThought("Action", "Materiality filter feature triggered.", "text-yellow-400");
     });
 
     btnToFinal.addEventListener("click", () => {
@@ -450,10 +397,28 @@ document.addEventListener("DOMContentLoaded", () => {
         setStatus("Complete", "text-green-400");
         agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-400";
         transitionTo(stageCoa, stageFinal, 600);
-        addThought("System", "Workbench configuration committed. Ready for dispatch.", "text-green-400");
+        
+        // Count selected
+        const count = document.querySelectorAll(".coa-check:checked").length;
+        document.getElementById("selected-count-msg").innerText = count.toString();
+
+        addThought("System", "Workbench configuration committed. Form ready for background dispatch.", "text-green-400");
     });
 
-    // CSS keyframe
+    // Intercept form submission to inject the checked checkboxes 
+    // since they physically reside outside the <form> tree
+    const finalForm = document.getElementById("final-form");
+    finalForm.addEventListener("submit", (e) => {
+        const checkedList = document.querySelectorAll(".coa-check:checked");
+        checkedList.forEach((chk) => {
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = chk.name; // "selected_nominal_codes"
+            hidden.value = chk.value;
+            finalForm.appendChild(hidden);
+        });
+    });
+
     const style = document.createElement("style");
     style.textContent = `
         @keyframes fadeInUp {

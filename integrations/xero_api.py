@@ -11,10 +11,19 @@ from typing import Any, Dict, Optional
 import requests
 
 
+import threading
+
 XERO_TOKEN_URL = "https://identity.xero.com/connect/token"
 XERO_CONNECTIONS_URL = "https://api.xero.com/connections"
 XERO_ACCOUNTING_BASE = "https://api.xero.com/api.xro/2.0"
 
+_GLOBAL_ACCOUNTS_CACHE = {}
+_GLOBAL_ACCOUNTS_CACHE_TS = {}
+_ACCOUNTS_LOCK = threading.Lock()
+
+_GLOBAL_TX_CACHE = {}  # key: (tenant_id, start_date, end_date, type)
+_GLOBAL_TX_CACHE_TS = {}
+_TX_LOCK = threading.Lock()
 
 @dataclass
 class XeroToken:
@@ -49,6 +58,7 @@ class XeroClient:
         self._session = session or requests.Session()
         self._token: Optional[XeroToken] = None
         self.user = user
+        self._accounts_cache: Dict[str, Any] = {}
 
         if self.user:
             cached = self.user.get_xero_token()
@@ -177,43 +187,136 @@ class XeroClient:
         return resp.json()
 
     def get_accounts(self, tenant_id: str) -> dict[str, Any]:
-        url = f"{XERO_ACCOUNTING_BASE}/Accounts"
-        resp = self._session.get(url, headers=self._headers(tenant_id), timeout=60)
-        if resp.status_code >= 400:
-            raise RuntimeError(f"Xero accounts failed: {resp.status_code} {resp.text}")
-        return resp.json()
+        with _ACCOUNTS_LOCK:
+            now = time.time()
+            if tenant_id in _GLOBAL_ACCOUNTS_CACHE and (now - _GLOBAL_ACCOUNTS_CACHE_TS.get(tenant_id, 0)) < 300:
+                return _GLOBAL_ACCOUNTS_CACHE[tenant_id]
+                
+            url = f"{XERO_ACCOUNTING_BASE}/Accounts"
+            resp = self._session.get(url, headers=self._headers(tenant_id), timeout=60)
+            if resp.status_code >= 400:
+                raise RuntimeError(f"Xero accounts failed: {resp.status_code} {resp.text}")
+                
+            result = resp.json()
+            _GLOBAL_ACCOUNTS_CACHE[tenant_id] = result
+            _GLOBAL_ACCOUNTS_CACHE_TS[tenant_id] = now
+            return result
 
     def get_bank_transactions(
-        self, tenant_id: str, start_date: date, end_date: date, max_pages: int = 50
+        self, tenant_id: str, start_date: date = None, end_date: date = None, account_code: str = None, max_pages: int = 50
     ) -> dict[str, Any]:
-        url = f"{XERO_ACCOUNTING_BASE}/BankTransactions"
-        all_items: list[dict[str, Any]] = []
+        # Use cache for broad queries to enable instant lookup for subsequent parallel calls
+        cache_key = (tenant_id, str(start_date), str(end_date), "bank_tx")
+        
+        # Fast path if already cached
+        now = time.time()
+        if not account_code and cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
+            return _GLOBAL_TX_CACHE[cache_key]
 
-        # Xero supports a `where` parameter; use DateString or Date filter.
-        # Use YYYY-MM-DD format and Xero DateTime(YYYY,MM,DD) format.
-        where = (
-            f"Date >= DateTime({start_date.year},{start_date.month},{start_date.day})"
-            f" && Date < DateTime({end_date.year},{end_date.month},{end_date.day})"
-        )
+        with _TX_LOCK:
+            # Check again inside lock
+            now = time.time()
+            if not account_code and cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
+                return _GLOBAL_TX_CACHE[cache_key]
 
-        for page in range(1, max_pages + 1):
-            resp = self._session.get(
-                url,
-                headers=self._headers(tenant_id),
-                params={"where": where, "page": page},
-                timeout=60,
-            )
-            if resp.status_code >= 400:
-                raise RuntimeError(
-                    f"Xero bank transactions failed: {resp.status_code} {resp.text}"
+            url = f"{XERO_ACCOUNTING_BASE}/BankTransactions"
+            all_items: list[dict[str, Any]] = []
+
+            conditions = []
+            if start_date:
+                conditions.append(f"Date >= DateTime({start_date.year},{start_date.month},{start_date.day})")
+            if end_date:
+                conditions.append(f"Date < DateTime({end_date.year},{end_date.month},{end_date.day})")
+            if account_code:
+                conditions.append(f'BankAccount.Code == "{account_code}"')
+                
+            where = " && ".join(conditions) if conditions else None
+
+            for page in range(1, max_pages + 1):
+                params = {"page": page}
+                if where:
+                    params["where"] = where
+                    
+                resp = self._session.get(
+                    url,
+                    headers=self._headers(tenant_id),
+                    params=params,
+                    timeout=60,
                 )
-            data = resp.json()
-            items = data.get("BankTransactions") or []
-            if not isinstance(items, list) or not items:
-                break
-            all_items.extend(items)
+                if resp.status_code >= 400:
+                    raise RuntimeError(
+                        f"Xero bank transactions failed: {resp.status_code} {resp.text}"
+                    )
+                data = resp.json()
+                items = data.get("BankTransactions") or []
+                if not isinstance(items, list) or not items:
+                    break
+                all_items.extend(items)
 
-        return {"BankTransactions": all_items, "Pagination": {"where": where}}
+            result = {"BankTransactions": all_items, "Pagination": {"where": where}}
+            if not account_code:
+                _GLOBAL_TX_CACHE[cache_key] = result
+                _GLOBAL_TX_CACHE_TS[cache_key] = now
+                
+            return result
+
+    def get_invoices(
+        self, tenant_id: str, start_date: date = None, end_date: date = None, contact_id: str = None, statuses: list[str] = None, max_pages: int = 50
+    ) -> dict[str, Any]:
+        cache_key = (tenant_id, str(start_date), str(end_date), "invoices")
+        
+        # Fast path
+        now = time.time()
+        if not contact_id and cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
+            return _GLOBAL_TX_CACHE[cache_key]
+
+        with _TX_LOCK:
+            # Double check
+            now = time.time()
+            if not contact_id and cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
+                return _GLOBAL_TX_CACHE[cache_key]
+
+            url = f"{XERO_ACCOUNTING_BASE}/Invoices"
+            all_items: list[dict[str, Any]] = []
+
+            conditions = []
+            if start_date:
+                conditions.append(f"Date >= DateTime({start_date.year},{start_date.month},{start_date.day})")
+            if end_date:
+                conditions.append(f"Date < DateTime({end_date.year},{end_date.month},{end_date.day})")
+            if contact_id:
+                conditions.append(f'Contact.ContactID == Guid("{contact_id}")')
+            if statuses:
+                status_str = ",".join([f'"{s}"' for s in statuses])
+                conditions.append(f"Status == {status_str}")
+
+            where = " && ".join(conditions) if conditions else None
+
+            for page in range(1, max_pages + 1):
+                params = {"page": page}
+                if where:
+                    params["where"] = where
+
+                resp = self._session.get(
+                    url,
+                    headers=self._headers(tenant_id),
+                    params=params,
+                    timeout=60,
+                )
+                if resp.status_code >= 400:
+                    raise RuntimeError(f"Xero invoices failed: {resp.status_code} {resp.text}")
+                data = resp.json()
+                items = data.get("Invoices") or []
+                if not isinstance(items, list) or not items:
+                    break
+                all_items.extend(items)
+
+            result = {"Invoices": all_items}
+            if not contact_id:
+                _GLOBAL_TX_CACHE[cache_key] = result
+                _GLOBAL_TX_CACHE_TS[cache_key] = now
+                
+            return result
 
     def get_balance_sheet(self, tenant_id: str, report_date: date) -> dict[str, Any]:
         url = f"{XERO_ACCOUNTING_BASE}/Reports/BalanceSheet"
@@ -237,6 +340,22 @@ class XeroClient:
         )
         if resp.status_code >= 400:
             raise RuntimeError(f"Xero trial balance failed: {resp.status_code} {resp.text}")
+        return resp.json()
+
+    def get_detailed_transaction_report(
+        self, tenant_id: str, start_date: date, end_date: date, account_id: str = None
+    ) -> dict[str, Any]:
+        url = f"{XERO_ACCOUNTING_BASE}/Reports/DetailedTransactionReport"
+        params = {
+            "fromDate": start_date.isoformat(),
+            "toDate": end_date.isoformat(),
+        }
+        if account_id:
+            params["accountID"] = account_id
+
+        resp = self._session.get(url, headers=self._headers(tenant_id), params=params, timeout=60)
+        if resp.status_code >= 400:
+            raise RuntimeError(f"Xero detailed transaction report failed: {resp.status_code} {resp.text}")
         return resp.json()
 
     def get_profit_and_loss(self, tenant_id: str, start_date: date, end_date: date) -> dict[str, Any]:

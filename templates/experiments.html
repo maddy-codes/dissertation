@@ -1,139 +1,167 @@
 {% extends "base.html" %}
-{% block title %} Experiments {% endblock %}
+{% block title %} Experiments | PHM Portal {% endblock %}
 {% block main %}
 
-<div class="mb-4">
-    <h1 class="text-[2.25rem] font-headline font-semibold text-primary tracking-[-0.02em] leading-tight mb-2">Experiments</h1>
-    <p class="text-on-surface-variant text-base leading-relaxed">Run multi-model comparisons and context-degradation sweeps on your JSON corpus.</p>
+<!-- Page Header -->
+<div class="mb-10">
+    <nav class="flex mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+        <span class="text-secondary">Portal</span>
+        <span class="mx-2 text-outline-variant">/</span>
+        <span>Experiments</span>
+    </nav>
+    <h1 class="text-4xl font-extrabold text-primary tracking-tight mb-2">Experiment Lab</h1>
+    <p class="text-on-surface-variant text-base font-medium max-w-2xl leading-relaxed">Execute multi-model performance benchmarks and context-degradation sweeps on the institutional JSON corpus.</p>
 </div>
 
-<div class="flex flex-col lg:flex-row gap-8 w-full">
+<div class="flex flex-col lg:flex-row gap-gutter w-full items-stretch">
     <!-- Left Column: Start Experiment Form -->
-    <div class="flex-1 w-full relative">
-        <!-- Abstract gradient texture for depth -->
-        <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-surface-container-high rounded-full blur-[80px] opacity-40 pointer-events-none"></div>
-
-        <div class="bg-surface-container-lowest rounded-lg p-8 shadow-[0_20px_40px_rgba(0,0,0,0.6)] border border-outline-variant/10 relative z-10 w-full h-full">
-            <div class="flex items-center gap-3 mb-8 border-b border-outline-variant/30 pb-4">
+    <div class="flex-grow lg:w-3/5">
+        <div class="bg-white border border-outline-variant/30 rounded-sm p-10 shadow-sm relative overflow-hidden h-full">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-secondary-container"></div>
+            
+            <div class="flex items-center gap-4 mb-10 border-b border-outline-variant/20 pb-6">
                 <span class="material-symbols-outlined text-primary text-2xl">science</span>
-                <h2 class="text-xl font-headline font-bold text-primary tracking-tight">Start Experiment</h2>
+                <h2 class="text-xl font-extrabold text-primary tracking-tight">Initialize Sweep</h2>
             </div>
 
-            <form action="{{ url_for('start_experiment') }}" method="post" class="space-y-6">
+            <form action="{{ url_for('start_experiment') }}" method="post" class="space-y-8">
                 {{ form.csrf_token }}
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="run_name">Run name</label>
-                    {{ form.run_name(class_="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-secondary transition-colors font-body text-sm placeholder:text-outline-variant") }}
+                <div class="space-y-3">
+                    <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="run_name">
+                        <span class="w-1.5 h-1.5 bg-secondary-container rounded-full"></span>
+                        Identification Label
+                    </label>
+                    {{ form.run_name(class_="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all font-semibold text-sm placeholder:text-outline-variant/60") }}
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="dataset_limit">Examples (limit)</label>
-                        {{ form.dataset_limit(class_="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-secondary transition-colors font-body text-sm") }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="dataset_limit">
+                            <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                            Example Limit
+                        </label>
+                        {{ form.dataset_limit(class_="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all font-semibold text-sm") }}
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="dataset_offset">Offset</label>
-                        {{ form.dataset_offset(class_="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-secondary transition-colors font-body text-sm") }}
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="dataset_offset">
+                            <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                            Sequential Offset
+                        </label>
+                        {{ form.dataset_offset(class_="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all font-semibold text-sm") }}
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="examples_prefix">Blob prefix override (optional)</label>
-                    {{ form.examples_prefix(class_="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-secondary transition-colors font-body text-sm") }}
-                    <p class="text-on-surface-variant text-xs mt-1 border-l-2 border-primary/20 pl-2">
-                        Leave empty to use <code class="bg-surface-container px-1 py-0.5 rounded text-primary text-[10px]">EXAMPLES_PREFIX</code>. Use for slicing folders.
+                <div class="space-y-3">
+                    <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="examples_prefix">
+                        <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                        Blob Repository Override
+                    </label>
+                    {{ form.examples_prefix(class_="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all font-semibold text-sm placeholder:text-outline-variant/60") }}
+                    <p class="text-[10px] font-bold text-outline uppercase tracking-wider mt-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xs">info</span>
+                        Defaults to <code class="bg-surface-container-high px-1.5 py-0.5 rounded text-primary text-[10px]">EXAMPLES_PREFIX</code> if undefined.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-outline-variant/30">
-                    <div class="flex flex-col gap-3">
-                        <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-primary mb-1">Models</label>
-                        <div class="space-y-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 pt-8 border-t border-outline-variant/20">
+                    <div class="space-y-5">
+                        <label class="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Model Architecture</label>
+                        <div class="space-y-3">
                         {% for value, label in model_choices %}
-                            <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" name="models" id="m_{{ loop.index }}" value="{{ value }}" checked class="w-4 h-4 text-primary bg-surface-container border-outline-variant/50 rounded focus:ring-0 checked:bg-primary checked:border-primary cursor-pointer transition-colors">
-                                <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors font-body">{{ label }}</span>
+                            <label class="flex items-center gap-4 group cursor-pointer">
+                                <input type="checkbox" name="models" id="m_{{ loop.index }}" value="{{ value }}" checked class="w-5 h-5 text-primary bg-surface-container-low border-outline-variant/50 rounded-sm focus:ring-0 checked:bg-primary checked:border-primary cursor-pointer transition-all">
+                                <span class="text-sm font-semibold text-on-surface-variant group-hover:text-primary transition-colors">{{ label }}</span>
                             </label>
                         {% endfor %}
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-3">
-                        <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-primary mb-1">Techniques</label>
-                        <div class="space-y-2">
+                    <div class="space-y-5">
+                        <label class="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Analytic Techniques</label>
+                        <div class="space-y-3">
                         {% for value, label in technique_choices %}
-                            <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" name="techniques" id="t_{{ loop.index }}" value="{{ value }}" checked class="w-4 h-4 text-primary bg-surface-container border-outline-variant/50 rounded focus:ring-0 checked:bg-primary checked:border-primary cursor-pointer transition-colors">
-                                <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors font-body">{{ label }}</span>
+                            <label class="flex items-center gap-4 group cursor-pointer">
+                                <input type="checkbox" name="techniques" id="t_{{ loop.index }}" value="{{ value }}" checked class="w-5 h-5 text-primary bg-surface-container-low border-outline-variant/50 rounded-sm focus:ring-0 checked:bg-primary checked:border-primary cursor-pointer transition-all">
+                                <span class="text-sm font-semibold text-on-surface-variant group-hover:text-primary transition-colors">{{ label }}</span>
                             </label>
                         {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-3 pt-4 border-t border-outline-variant/30">
-                    <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-primary mb-1">Context modes</label>
-                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                <div class="space-y-6 pt-8 border-t border-outline-variant/20">
+                    <label class="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Contextual Constraints</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {% for value, label in context_choices %}
-                        <label class="flex items-center gap-3 group cursor-pointer bg-surface-container/50 p-2 rounded border border-outline-variant/10 hover:border-outline-variant/30 transition-all">
-                            <input type="checkbox" name="context_modes" id="c_{{ loop.index }}" value="{{ value }}" {% if value in default_context_modes %}checked{% endif %} class="w-4 h-4 text-primary bg-surface-container border-outline-variant/50 rounded focus:ring-0 checked:bg-primary checked:border-primary cursor-pointer transition-colors">
-                            <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors font-body truncate">{{ label }}</span>
+                        <label class="flex items-center gap-4 group cursor-pointer bg-surface-container-low/50 p-4 rounded-sm border border-outline-variant/10 hover:border-primary/30 transition-all">
+                            <input type="checkbox" name="context_modes" id="c_{{ loop.index }}" value="{{ value }}" {% if value in default_context_modes %}checked{% endif %} class="w-5 h-5 text-primary bg-white border-outline-variant/50 rounded-sm focus:ring-0 checked:bg-primary checked:border-primary cursor-pointer transition-all">
+                            <span class="text-[11px] font-bold text-on-surface-variant group-hover:text-primary transition-colors uppercase tracking-wider truncate">{{ label }}</span>
                         </label>
                     {% endfor %}
                     </div>
-                    <p class="text-on-surface-variant text-xs mt-1 border-l-2 border-primary/20 pl-2">
-                        Selecting <code>raw</code> triggers the degradation sweep (<code>raw_25</code>, <code>raw_50</code>, <code>raw_100</code>).
-                    </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="few_shot_k">Few-shot K</label>
-                        {{ form.few_shot_k(class_="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-secondary transition-colors font-body text-sm") }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="few_shot_k">
+                            <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                            Few-Shot K-Factor
+                        </label>
+                        {{ form.few_shot_k(class_="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all font-semibold text-sm") }}
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="prompt_search_trials">Prompt trials</label>
-                        {{ form.prompt_search_trials(class_="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-secondary transition-colors font-body text-sm") }}
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="prompt_search_trials">
+                            <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                            Iterative Trials
+                        </label>
+                        {{ form.prompt_search_trials(class_="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all font-semibold text-sm") }}
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-4 mt-6 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm shadow-xl hover:bg-surface-bright hover:shadow-2xl hover:text-primary border border-transparent hover:border-outline-variant transition-all duration-300 flex items-center justify-center gap-2 group">
-                    Initialize Sweep
-                    <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">rocket_launch</span>
-                </button>
+                <div class="pt-10 border-t border-outline-variant/20">
+                    <button type="submit" class="w-full py-5 bg-primary text-white rounded-sm font-extrabold tracking-[0.2em] uppercase text-xs hover:bg-primary-container hover:shadow-lg transition-all flex items-center justify-center gap-4 group">
+                        Initialize Benchmarking Suite
+                        <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">rocket_launch</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Right Column: Recent Runs -->
-    <div class="flex-1 w-full">
-        <div class="bg-surface-container-low rounded-lg p-8 h-full border border-outline-variant/10">
-            <div class="flex items-center justify-between mb-6 border-b border-outline-variant/30 pb-4">
-                <div class="flex items-center gap-3">
+    <div class="lg:w-2/5">
+        <div class="bg-white border border-outline-variant/30 rounded-sm p-10 shadow-sm h-full flex flex-col">
+            <div class="flex items-center justify-between mb-8 border-b border-outline-variant/20 pb-6">
+                <div class="flex items-center gap-4">
                     <span class="material-symbols-outlined text-secondary text-2xl">history</span>
-                    <h2 class="text-xl font-headline font-bold text-primary tracking-tight">Recent Runs</h2>
+                    <h2 class="text-xl font-extrabold text-primary tracking-tight">Audit History</h2>
                 </div>
             </div>
 
             {% if runs %}
-                <ul class="space-y-4">
+                <div class="space-y-4 overflow-y-auto pr-2 max-h-[800px]">
                 {% for r in runs %}
-                    <li class="bg-surface-container hover:bg-surface-container-high transition-colors p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-outline-variant/10 shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
-                        <div class="flex flex-col">
-                            <span class="font-headline font-bold text-primary text-base">{{ r.run_name }}</span>
-                            <span class="font-mono text-outline text-[10px] mt-1 bg-background px-2 py-0.5 rounded w-fit">{{ r.run_id }}</span>
+                    <div class="bg-surface-container-low/50 hover:bg-white hover:shadow-md transition-all p-6 rounded-sm border border-outline-variant/20 flex flex-col gap-4 group">
+                        <div class="flex justify-between items-start">
+                            <div class="flex flex-col">
+                                <span class="font-extrabold text-primary text-sm tracking-tight group-hover:text-secondary transition-colors">{{ r.run_name }}</span>
+                                <span class="text-[9px] font-black uppercase tracking-[0.2em] text-outline mt-1 font-mono">{{ r.run_id }}</span>
+                            </div>
                         </div>
-                        <a href="{{ url_for('experiment_run', run_id=r.run_id) }}" class="inline-flex items-center gap-2 bg-surface text-primary border border-outline-variant hover:bg-surface-bright px-4 py-2 rounded text-[0.6875rem] font-bold uppercase tracking-widest transition-all shadow shrink-0">
-                            View <span class="material-symbols-outlined text-sm">visibility</span>
-                        </a>
-                    </li>
+                        <div class="flex justify-end pt-2 border-t border-outline-variant/10">
+                            <a href="{{ url_for('experiment_run', run_id=r.run_id) }}" class="inline-flex items-center gap-3 text-primary text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-colors">
+                                View Intelligence Report
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </a>
+                        </div>
+                    </div>
                 {% endfor %}
-                </ul>
+                </div>
             {% else %}
-                <div class="flex flex-col items-center justify-center p-12 text-center border border-dashed border-outline-variant/30 rounded-lg bg-surface/50 mt-4">
-                    <span class="material-symbols-outlined text-outline text-4xl mb-3">inbox</span>
-                    <p class="text-on-surface-variant font-body">No runs initiated yet.</p>
+                <div class="flex-grow flex flex-col items-center justify-center p-12 text-center border border-dashed border-outline-variant/30 rounded-sm bg-surface-container-low/30">
+                    <span class="material-symbols-outlined text-outline-variant text-5xl mb-4">analytics</span>
+                    <p class="text-[11px] font-black uppercase tracking-[0.2em] text-outline">No Active Mandates Discovered</p>
                 </div>
             {% endif %}
         </div>

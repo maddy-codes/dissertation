@@ -1,109 +1,85 @@
-:root{
-  --bg0: #07090b;
-  --bg1: #0b0d10;
-  --panel: rgba(255,255,255,0.04);
-  --panel2: rgba(255,255,255,0.07);
-  --border: rgba(255,255,255,0.10);
-  --text: rgba(255,255,255,0.92);
-  --muted: rgba(255,255,255,0.65);
-  --accent: #4fd1c5; /* teal */
-  --accent2: #f59e0b; /* amber */
+/* 
+   Professional Financial Portal - Global Styles 
+   Aligned with .agents/rules/DESIGN.md
+*/
+
+:root {
+  --primary: #003065;
+  --secondary: #835400;
+  --secondary-container: #fcab27;
+  --surface: #f7f9ff;
+  --on-surface: #181c20;
+  --outline: #737781;
+  --outline-variant: #c3c6d1;
 }
 
-html, body{
+html, body {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-body{
-  font-family: "IBM Plex Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background:
-    radial-gradient(1200px 800px at 15% 10%, rgba(79,209,197,0.18), transparent 55%),
-    radial-gradient(900px 700px at 85% 25%, rgba(245,158,11,0.14), transparent 60%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
-  color: var(--text);
-  padding-bottom: 96px; /* room for fixed footer */
+body {
+  font-family: 'Work Sans', sans-serif;
+  background-color: var(--surface);
+  color: var(--on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, .display-1, .display-4, .display-5{
-  font-family: "Fraunces", ui-serif, Georgia, serif;
-  letter-spacing: -0.02em;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.01em;
 }
 
-.app-main{
-  padding: 24px 0 36px 0;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.footer-border{
-  border-top: 1px solid rgba(255,255,255,0.08);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Bootstrap surfaces */
-.navbar{
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+::-webkit-scrollbar-thumb {
+  background: var(--outline-variant);
+  border-radius: 4px;
 }
 
-.card{
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--text);
-  backdrop-filter: blur(10px);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline);
 }
 
-.card.bg-black{
-  background: rgba(0,0,0,0.65) !important;
-  border: 1px solid rgba(255,255,255,0.12);
+/* Transitions */
+.transition-all {
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.text-secondary{
-  color: var(--muted) !important;
+/* Base Utility Classes */
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.bg-primary { background-color: var(--primary); }
+.bg-surface { background-color: var(--surface); }
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.form-control, .form-select{
-  background: rgba(255,255,255,0.04) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  color: var(--text) !important;
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
 }
 
-.form-control::placeholder{
-  color: rgba(255,255,255,0.40) !important;
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.form-control:focus, .form-select:focus{
-  box-shadow: 0 0 0 0.2rem rgba(79,209,197,0.18) !important;
-  border-color: rgba(79,209,197,0.60) !important;
-}
-
-.btn-outline-light{
-  border-color: rgba(255,255,255,0.35) !important;
-}
-
-.btn-outline-light:hover{
-  background: rgba(79,209,197,0.14) !important;
-  border-color: rgba(79,209,197,0.70) !important;
-  color: var(--text) !important;
-}
-
-.btn-dark{
-  background: rgba(0,0,0,0.55) !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-}
-
-.btn-dark:hover{
-  border-color: rgba(79,209,197,0.55) !important;
-}
-
-.alert{
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-.table{
-  color: var(--text);
-}
-
-.table thead th{
-  color: rgba(255,255,255,0.80);
-}
-
-.table-striped>tbody>tr:nth-of-type(odd)>*{
-  --bs-table-bg-type: rgba(255,255,255,0.03);
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
 }

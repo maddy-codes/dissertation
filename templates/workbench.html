@@ -1,192 +1,272 @@
 {% extends "base.html" %}
-{% block title %} Workbench | AI Review Notes {% endblock %}
+{% block title %} Workbench | PHM Portal {% endblock %}
 
 {% block main %}
 <div class="w-full">
 
-    <!-- ══════════════════════════════════════════════
-         PAGE HEADER – Editorial, asymmetric
-    ══════════════════════════════════════════════ -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-outline-variant/20">
-        <div class="flex items-start gap-4">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-outline-variant/20">
+        <div class="flex items-start gap-5">
             <a href="{{ url_for('upload') }}"
-               class="mt-1 text-on-surface-variant hover:text-primary transition-all duration-200 p-2 rounded-full hover:bg-surface-container-high">
-                <span class="material-symbols-outlined text-lg leading-none">arrow_back</span>
+               class="mt-1 text-primary hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container transition-all">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
             </a>
             <div>
-                <span class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary">Collaborative Workspace</span>
-                <h1 class="mt-1 text-3xl font-headline font-bold text-primary tracking-[-0.02em] leading-tight">
-                    Analysis Workbench
-                </h1>
-                <p class="mt-1 text-on-surface-variant text-sm">
-                    Client session: <code class="text-xs font-mono bg-surface-container px-2 py-0.5 rounded text-secondary">{{ tenant_id }}</code>
+                <nav class="flex mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+                    <span class="text-secondary">Portal</span>
+                    <span class="mx-2 text-outline-variant">/</span>
+                    <span>Analysis Workbench</span>
+                </nav>
+                <h1 class="text-4xl font-extrabold text-primary tracking-tight">Analysis Workbench</h1>
+                <p class="mt-2 text-on-surface-variant text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">business</span>
+                    Institutional ID: <code class="text-xs font-mono bg-surface-container-high px-3 py-1 rounded-sm text-primary border border-outline-variant/20">{{ tenant_id }}</code>
                 </p>
             </div>  
         </div>
 
-        <!-- Step pills -->
+        <!-- Step indicators -->
         <div class="flex items-center gap-2 pl-14 md:pl-0">
-            <div id="pill-1" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-primary text-on-primary transition-all duration-300">1 · Init</div>
+            <div id="pill-1" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-primary text-white transition-all duration-300">1 · Init</div>
             <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-2" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container text-outline border border-outline-variant/30 transition-all duration-300">2 · Review</div>
+            <div id="pill-2" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">2 · Ledger</div>
             <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-3" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container text-outline border border-outline-variant/30 transition-all duration-300">3 · Scope</div>
+            <div id="pill-3" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">3 · Scope</div>
             <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-4" class="px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container text-outline border border-outline-variant/30 transition-all duration-300">4 · Finalize</div>
+            <div id="pill-4" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">4 · Analysis</div>
+            <span class="text-outline-variant/40 text-xs">—</span>
+            <div id="pill-5" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">5 · Finalize</div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         MAIN GRID – Thinking Console + Workspace
-    ══════════════════════════════════════════════ -->
-    <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6 items-start">
+    <!-- Main Workspace Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-gutter items-start">
 
-        <!-- LEFT: Thinking Console -->
-        <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-            <div class="flex items-center justify-between px-5 py-4 bg-surface-container-low border-b border-outline-variant/20">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-secondary text-base">memory</span>
-                    <span class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary">Thinking Console</span>
+        <!-- Thinking Console (Level 1 Card) -->
+        <div class="bg-white border border-outline-variant/30 rounded-sm overflow-hidden shadow-sm flex flex-col">
+            <div class="flex items-center justify-between px-6 py-5 bg-surface-container-low border-b border-outline-variant/20">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-xl">memory</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Intelligence Stream</span>
                 </div>
                 <div class="flex items-center gap-2" id="agent-badge">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-60"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
-                    </span>
-                    <span id="agent-status-text" class="text-[0.6rem] uppercase tracking-widest font-bold text-secondary">Live</span>
+                    <div class="h-2 w-2 rounded-full bg-secondary-container animate-pulse"></div>
+                    <span id="agent-status-text" class="text-[9px] font-black uppercase tracking-widest text-secondary">Live Scan</span>
                 </div>
             </div>
             <div id="thought-stream"
-                 class="flex flex-col gap-3 p-5 overflow-y-auto font-mono text-xs"
-                 style="min-height: 420px; max-height: 520px;">
+                 class="flex flex-col gap-4 p-6 overflow-y-auto custom-scrollbar bg-white"
+                 style="min-height: 480px; max-height: 580px;">
                 <!-- injected by JS -->
+            </div>
+            <div class="p-4 bg-surface-container-low border-t border-outline-variant/10 text-center">
+                <span class="text-[9px] font-black uppercase tracking-[0.3em] text-outline/40 italic">System Logic Engine Active</span>
             </div>
         </div>
 
-        <!-- RIGHT: Stage Viewport -->
-        <div class="relative rounded-lg overflow-hidden bg-surface-container shadow-[0_20px_40px_rgba(0,0,0,0.5)] min-h-[520px] flex flex-col">
+        <!-- Stage Viewport (Level 1 Card) -->
+        <div class="bg-white border border-outline-variant/30 rounded-sm shadow-sm min-h-[580px] flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-surface-container/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
 
-            <!-- Subtle radial gradient for "studio lighting" effect (DESIGN.md) -->
-            <div class="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/[0.03] rounded-full blur-[80px] pointer-events-none"></div>
-
-            <!-- ── STAGE 1: INITIALISING ── -->
-            <div id="stage-init" class="absolute inset-0 flex flex-col items-center justify-center z-10 bg-surface-container transition-opacity duration-700">
-                <span class="material-symbols-outlined text-5xl text-outline mb-5" style="animation: spin 3s linear infinite;">sync</span>
-                <h2 class="text-xl font-headline font-semibold text-primary mb-2">Synchronising Ledger Data</h2>
-                <p class="text-on-surface-variant text-sm text-center max-w-xs">Establishing secure read channel and running initial GL analysis…</p>
-                <style>@keyframes spin { to { transform: rotate(360deg); }}</style>
+            <!-- STAGE 1: INITIALISING -->
+            <div id="stage-init" class="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white transition-opacity duration-700">
+                <div class="w-24 h-24 rounded-full bg-surface-container-low border border-outline-variant/20 flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-4xl text-primary animate-spin-slow">sync</span>
+                </div>
+                <h2 class="text-2xl font-extrabold text-primary tracking-tight mb-3 uppercase">Synchronising Mandates</h2>
+                <p class="text-on-surface-variant text-base font-medium text-center max-w-sm leading-relaxed px-10">Establishing secure read channel and executing institutional ledger analysis.</p>
             </div>
 
-            <!-- ── STAGE 2: IDENTIFIED FLAGS ── -->
-            <div id="stage-flags" class="hidden flex-col h-full p-8 opacity-0 transition-opacity duration-700 flex-1">
-                <div class="mb-6">
-                    <span class="inline-block bg-error-container/20 text-error border border-error/30 rounded px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.15em] mb-3">Attention Required</span>
-                    <h2 class="text-2xl font-headline font-bold text-primary tracking-[-0.02em]">Identified Flags</h2>
-                    <p class="text-on-surface-variant text-sm mt-1.5 max-w-xl leading-relaxed">
-                        The agent has detected anomalies in the ledger requiring human verification before scope is finalized.
-                        Resolve <span class="text-primary font-semibold">both items</span> to continue.
-                    </p>
-                </div>
-
-                <!-- Flag cards — card layout instead of broken table -->
-                <div class="flex flex-col gap-4 flex-1" id="flag-cards">
-                    <!-- Javascript will inject real extracted anomalies here -->
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <button id="btn-to-coa"
-                        class="inline-flex items-center gap-2 px-6 py-3 bg-surface-container-high border border-outline-variant/40 text-outline rounded font-label font-bold uppercase tracking-[0.1em] text-xs cursor-not-allowed opacity-50 transition-all duration-200"
-                        disabled>
-                        Proceed to Chart of Accounts
-                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- ── STAGE 3: CHART OF ACCOUNTS ── -->
-            <div id="stage-coa" class="hidden flex-col h-full p-8 opacity-0 transition-opacity duration-700">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+            <!-- STAGE 2: TRIAL BALANCE + FLAGS -->
+            <div id="stage-tb" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 relative z-10">
+                <div class="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10 border-b border-outline-variant/10 pb-8">
                     <div>
-                        <span class="inline-block bg-surface-container-highest text-secondary rounded px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.15em] mb-3">Scope Definition</span>
-                        <h2 class="text-2xl font-headline font-bold text-primary tracking-[-0.02em]">Chart of Accounts</h2>
-                        <p class="text-on-surface-variant text-sm mt-1.5 leading-relaxed">Select the nominals for deep-dive analysis. The agent's recommendations are pre-applied.</p>
+                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Institutional Ledger</span>
+                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Current Trial Balance</h2>
+                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Review the raw financial position and resolve identified anomalies.</p>
                     </div>
-                    <div class="flex gap-2 shrink-0">
-                        <button id="btn-materiality" class="px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-outline-variant rounded transition-all duration-200">Materiality Filter</button>
-                        <button id="btn-approve-all" class="px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.15em] bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-outline-variant rounded transition-all duration-200">Approve All</button>
+                    <div class="shrink-0 bg-surface-container-low border border-outline-variant/20 px-6 py-4 rounded-sm text-center">
+                        <span class="block text-[9px] font-black uppercase tracking-widest text-outline mb-1">Required Actions</span>
+                        <span class="text-2xl font-black text-primary" id="pending-count">0</span>
                     </div>
                 </div>
 
-                <!-- CoA rows as cards for clarity -->
-                <div class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1" style="max-height: 320px;" id="coa-cards">
-                    <!-- Javascript will inject Chart of Accounts recommendations here -->
+                <!-- Flag Section (Hidden if none) -->
+                <div id="flag-section" class="mb-10">
+                    <div class="flex flex-col gap-4" id="flag-cards">
+                        <!-- Javascript will inject real extracted anomalies here -->
+                    </div>
                 </div>
 
-                <div class="mt-6 flex justify-end">
-                    <button id="btn-to-final"
-                        class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded font-label font-bold uppercase tracking-[0.1em] text-xs hover:bg-surface-bright hover:text-primary border border-transparent hover:border-outline-variant shadow-lg transition-all duration-200">
-                        Confirm Scope
-                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                <div class="flex flex-col border border-outline-variant/30 rounded-sm overflow-hidden bg-white shadow-sm flex-1">
+                    <div class="grid grid-cols-[80px_1fr_100px_100px_100px_100px] gap-4 bg-surface-container-low px-8 py-4 border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.2em] text-primary sticky top-0 z-20">
+                        <div>Code</div>
+                        <div>Account Name</div>
+                        <div class="text-right">Prior Yr</div>
+                        <div class="text-right">Debit</div>
+                        <div class="text-right">Credit</div>
+                        <div class="text-right">Net Balance</div>
+                    </div>
+                    <div class="flex flex-col overflow-y-auto custom-scrollbar" style="max-height: 480px;" id="tb-rows">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
+                    <button id="btn-to-coa"
+                        class="inline-flex items-center gap-4 px-10 py-5 bg-surface-container text-outline border border-outline-variant/30 rounded-sm font-black uppercase tracking-[0.2em] text-xs cursor-not-allowed opacity-50 transition-all duration-300"
+                        disabled>
+                        Proceed to Scope Definition
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
                     </button>
                 </div>
             </div>
 
-            <!-- ── STAGE 4: FINALIZE ── -->
-            <div id="stage-final" class="hidden flex-col h-full p-8 opacity-0 transition-opacity duration-700 items-center justify-center">
-                
-                <!-- Thinking Recap -->
-                <div class="w-full max-w-lg mx-auto">
-                    <div class="text-center mb-8">
-                        <span class="material-symbols-outlined text-5xl text-green-400 mb-4 block">verified</span>
-                        <h2 class="text-2xl font-headline font-bold text-primary tracking-[-0.02em]">Synthesis Ready</h2>
-                        <p class="text-on-surface-variant text-sm mt-2 leading-relaxed">Scope confirmed. Review the agent's summary below then dispatch the full analysis.</p>
+            <!-- STAGE 3: CHART OF ACCOUNTS -->
+            <div id="stage-coa" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 relative z-10">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10 border-b border-outline-variant/10 pb-8">
+                    <div>
+                        <span class="inline-block bg-secondary-container/10 text-primary border border-secondary-container/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Mandate Scope Mapping</span>
+                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Chart of Accounts Analysis</h2>
+                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Select nominal targets for deep-dive synthesis. Intelligence-led recommendations are pre-applied.</p>
+                    </div>
+                    <div class="flex gap-3 shrink-0">
+                        <button id="btn-materiality" class="px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-white border border-outline-variant/30 text-primary hover:bg-surface-container transition-all rounded-sm flex items-center gap-3 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">filter_alt</span>
+                            Materiality Filter
+                        </button>
+                        <button id="btn-approve-all" class="px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-primary text-white border border-transparent hover:bg-primary-container transition-all rounded-sm flex items-center gap-3 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">done_all</span>
+                            Approve Universal
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col border border-outline-variant/30 rounded-sm overflow-hidden">
+                    <div class="grid grid-cols-[auto_80px_1fr_100px_100px_200px] gap-4 bg-surface-container-low px-8 py-4 border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                        <div class="w-5"></div>
+                        <div>Code</div>
+                        <div>Nominal Identity</div>
+                        <div class="text-right">Prior Yr</div>
+                        <div class="text-right">Current</div>
+                        <div class="text-right">Recommendation</div>
+                    </div>
+                    <div class="flex flex-col overflow-y-auto custom-scrollbar" style="max-height: 400px;" id="coa-cards">
+                        <!-- Javascript will inject Chart of Accounts recommendations here -->
+                    </div>
+                </div>
+
+                <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
+                    <button id="btn-to-analysis"
+                        class="inline-flex items-center gap-4 px-10 py-5 bg-secondary-container text-on-secondary-container rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-secondary-container/90 hover:shadow-lg transition-all group shadow-md">
+                        Confirm Analytical Scope
+                        <span class="material-symbols-outlined text-base group-hover:scale-110 transition-transform">check_circle</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAGE 4: TRANSACTIONAL ANALYSIS -->
+            <div id="stage-analysis" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 flex-1 relative z-10">
+                <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-outline-variant/10 pb-8">
+                    <div class="max-w-2xl">
+                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Deep Transactional Extraction</span>
+                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Transactional Intelligence</h2>
+                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">
+                            Analysing historical activity for selected nominal identities. Identifying subscriptions, outliers, and variances.
+                        </p>
+                    </div>
+                    <div id="analysis-progress-container" class="shrink-0 bg-surface-container-low border border-outline-variant/20 px-6 py-4 rounded-sm text-center">
+                        <span class="block text-[9px] font-black uppercase tracking-widest text-outline mb-1">Items Processed</span>
+                        <span class="text-2xl font-black text-primary"><span id="analysis-current">0</span>/<span id="analysis-total">0</span></span>
+                    </div>
+                </div>
+
+                <div id="analysis-cards" class="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Progress and results injected here -->
+                    <div id="analysis-empty-state" class="flex flex-col items-center justify-center p-20 text-center">
+                        <span class="material-symbols-outlined text-primary/20 text-6xl animate-pulse mb-6">database</span>
+                        <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Initiating Deep Scan...</p>
+                    </div>
+                </div>
+
+                <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
+                    <button id="btn-to-final"
+                        class="hidden inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-primary-container hover:shadow-lg transition-all cursor-pointer shadow-md">
+                        Proceed to Finalization
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAGE 5: FINALIZE -->
+            <div id="stage-final" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 items-center justify-center relative z-10 text-center">
+                <div class="w-full max-w-xl mx-auto">
+                    <div class="mb-12">
+                        <div class="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-8 border border-green-500/20">
+                            <span class="material-symbols-outlined text-5xl text-green-600">verified</span>
+                        </div>
+                        <h2 class="text-4xl font-extrabold text-primary tracking-tight mb-4">Mandate Synthesis Ready</h2>
+                        <p class="text-on-surface-variant text-base font-medium leading-relaxed">Scope validation complete. Review the analytical recap and dispatch the final intelligence mandate.</p>
                     </div>
 
-                    <!-- Recap block (DESIGN.md "Stat Block" concept) -->
-                    <div class="bg-surface-container-lowest rounded-lg p-6 mb-8 border border-outline-variant/20 shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
-                        <span class="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-secondary block mb-4">Final Thinking Summary</span>
-                        <ul class="space-y-3">
-                            <li class="flex gap-3 text-xs font-mono">
-                                <span class="text-primary shrink-0 font-bold">></span>
-                                <span class="text-on-surface-variant">Scope: Limited to <span class="text-primary font-bold"><span id="selected-count-msg">-</span></span> nominal codes based on your input.</span>
+                    <div class="bg-surface-container-low border border-outline-variant/30 rounded-sm p-10 mb-12 text-left relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary-container"></div>
+                        <span class="text-[11px] font-black uppercase tracking-[0.3em] text-primary block mb-8 border-b border-outline-variant/10 pb-4">Synthesis Specification Summary</span>
+                        <ul class="space-y-6">
+                            <li class="flex gap-4 text-xs font-bold font-mono">
+                                <span class="text-secondary-container shrink-0">▶</span>
+                                <span class="text-on-surface leading-relaxed">Analytical Scope: Limited to <span class="text-primary font-black"><span id="selected-count-msg">-</span></span> nominal identities discovered.</span>
                             </li>
-                            <li class="flex gap-3 text-xs font-mono">
-                                <span class="text-primary shrink-0 font-bold">></span>
-                                <span class="text-on-surface-variant">Materiality: Transactions under <span class="text-primary font-bold">£500</span> have been excluded.</span>
+                            <li class="flex gap-4 text-xs font-bold font-mono">
+                                <span class="text-secondary-container shrink-0">▶</span>
+                                <span class="text-on-surface leading-relaxed">Materiality Protocol: Transactions < £500 excluded from synthesis.</span>
                             </li>
-                            <li class="flex gap-3 text-xs font-mono">
-                                <span class="text-primary shrink-0 font-bold">></span>
-                                <span class="text-on-surface-variant">Logic: Large outliers and new vendors reconciled prior to synthesis.</span>
+                            <li class="flex gap-4 text-xs font-bold font-mono">
+                                <span class="text-secondary-container shrink-0">▶</span>
+                                <span class="text-on-surface leading-relaxed">Reconciliation Logic: Discovered vendors successfully mapped.</span>
                             </li>
-                            <li class="flex gap-3 text-xs font-mono">
-                                <span class="text-green-400 shrink-0 font-bold">></span>
-                                <span class="text-on-surface-variant">Confidence: <span class="text-green-400 font-bold">98%</span> — 2 items moved to Needs Clarification.</span>
+                            <li class="flex gap-4 text-xs font-bold font-mono">
+                                <span class="text-green-600 shrink-0">▶</span>
+                                <span class="text-on-surface leading-relaxed">Statistical Confidence: <span class="text-green-600 font-black tracking-widest uppercase">98% Verified</span></span>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Final dispatch form -->
                     <form id="final-form" action="{{ url_for('upload') }}" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
                         <input type="hidden" name="current_year_end" value="{{ current_year_end }}"/>
                         <input type="hidden" name="comparison_year_end" value="{{ comparison_year_end }}"/>
 
-                        <div class="flex flex-col gap-2">
-                        </div>
-
                         <button type="submit"
-                            class="w-full py-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm shadow-xl hover:bg-surface-bright hover:text-primary hover:border-outline-variant border border-transparent hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2">
-                            Confirm &amp; Finalize Generation
-                            <span class="material-symbols-outlined text-sm">send</span>
+                            class="w-full py-6 bg-primary text-white rounded-sm font-black tracking-[0.3em] uppercase text-xs hover:bg-primary-container hover:shadow-2xl hover:scale-[1.01] transition-all flex items-center justify-center gap-4 group">
+                            Finalize & Dispatch Report
+                            <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">send</span>
                         </button>
                     </form>
                 </div>
             </div>
 
-        </div><!-- end right -->
-    </div><!-- end grid -->
+        </div>
+    </div>
 </div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d7dadf; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #c3c6d1; }
+    
+    @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+        animation: spin-slow 8s linear infinite;
+    }
+    
+    .coa-row:nth-child(even) { background-color: #f7f9ff; }
+</style>
 {% endblock %}
 
 {% block customJs %}
@@ -194,40 +274,55 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const stageInit  = document.getElementById("stage-init");
-    const stageFlags = document.getElementById("stage-flags");
+    const stageTb    = document.getElementById("stage-tb");
     const stageCoa   = document.getElementById("stage-coa");
+    const stageAnalysis = document.getElementById("stage-analysis");
     const stageFinal = document.getElementById("stage-final");
 
-    const pills      = [1,2,3,4].map(n => document.getElementById(`pill-${n}`));
+    const pills      = [1,2,3,4,5].map(n => document.getElementById(`pill-${n}`));
     const stream     = document.getElementById("thought-stream");
     const statusText = document.getElementById("agent-status-text");
-    const agentDot   = document.querySelector("#agent-badge .relative.inline-flex");
+    const agentDot   = document.querySelector("#agent-badge div");
 
     const btnToCoa   = document.getElementById("btn-to-coa");
+    const btnToAnalysis = document.getElementById("btn-to-analysis");
     const btnToFinal = document.getElementById("btn-to-final");
     const btnApprove = document.getElementById("btn-approve-all");
     const btnMat     = document.getElementById("btn-materiality");
 
     const flagCardsContainer = document.getElementById("flag-cards");
+    const tbRowsContainer    = document.getElementById("tb-rows");
     const coaCardsContainer  = document.getElementById("coa-cards");
+    const analysisCardsContainer = document.getElementById("analysis-cards");
+    const analysisCurrentEl = document.getElementById("analysis-current");
+    const analysisTotalEl = document.getElementById("analysis-total");
+    const analysisEmptyState = document.getElementById("analysis-empty-state");
 
     let expectedFlagResolutions = 0;
     let resolvedCount = 0;
 
     const activePill = (n) => {
-        const base = "px-3 py-1 rounded text-[0.6rem] font-bold uppercase tracking-[0.15em] transition-all duration-300";
         pills.forEach((p, i) => {
-            if (i + 1 === n)      p.className = `${base} bg-primary text-on-primary shadow-[0_0_12px_rgba(255,255,255,0.15)]`;
-            else if (i + 1 < n)   p.className = `${base} bg-surface-container-high text-primary`;
-            else                  p.className = `${base} bg-surface-container text-outline border border-outline-variant/30`;
+            if (i + 1 === n) {
+                p.className = "px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-primary text-white shadow-md transition-all duration-300 scale-105";
+            } else if (i + 1 < n) {
+                p.className = "px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-primary/5 text-primary border border-primary/20 transition-all duration-300";
+            } else {
+                p.className = "px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300";
+            }
         });
     };
 
-    const addThought = (tag, text, tagColor = "text-secondary") => {
+    const addThought = (tag, text, type = "info") => {
         const d = document.createElement("div");
-        d.className = "flex gap-2 bg-surface-container-highest/30 px-3 py-2.5 rounded border border-outline-variant/10";
-        d.style.animation = "fadeInUp 0.4s ease-out";
-        d.innerHTML = `<span class="font-bold shrink-0 ${tagColor}">[${tag}]</span><span class="text-on-surface-variant/80 leading-relaxed">${text}</span>`;
+        let tagClass = "text-secondary";
+        if (type === "error") tagClass = "text-error";
+        if (type === "success") tagClass = "text-green-600";
+        if (type === "logic") tagClass = "text-primary";
+        
+        d.className = "flex gap-3 bg-surface-container-low/50 px-4 py-3 rounded-sm border-l-2 border-outline-variant/30";
+        d.style.animation = "fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+        d.innerHTML = `<span class="font-black shrink-0 ${tagClass} uppercase text-[9px] tracking-widest">[${tag}]</span><span class="text-on-surface-variant font-bold text-[11px] leading-relaxed">${text}</span>`;
         stream.appendChild(d);
         stream.scrollTop = stream.scrollHeight;
     };
@@ -246,13 +341,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const setStatus = (label, colorClass = "text-secondary") => {
         statusText.textContent = label;
-        statusText.className = `text-[0.6rem] uppercase tracking-widest font-bold ${colorClass}`;
+        statusText.className = `text-[9px] font-black uppercase tracking-widest ${colorClass}`;
+    };
+
+    const checkUnblock = () => {
+        try {
+            const remaining = Math.max(0, expectedFlagResolutions - resolvedCount);
+            document.getElementById("pending-count").innerText = remaining;
+            
+            console.log(`Checking unblock state: ${resolvedCount}/${expectedFlagResolutions} (remaining: ${remaining})`);
+
+            if (resolvedCount >= expectedFlagResolutions) {
+                console.log("Threshold met. Enabling button.");
+                btnToCoa.disabled = false;
+                btnToCoa.removeAttribute("disabled");
+                
+                // Explicitly remove all disabled-state classes
+                btnToCoa.classList.remove("bg-surface-container", "text-outline", "border-outline-variant/30", "cursor-not-allowed", "opacity-50");
+                
+                // Explicitly add all enabled-state classes
+                btnToCoa.classList.add("bg-primary", "text-white", "cursor-pointer", "shadow-md", "hover:bg-primary-container", "hover:shadow-lg");
+                
+                addThought("System", "Reconciliation threshold met. Unlocking mandate scope mapping.", "success");
+            }
+        } catch (e) {
+            console.error("Error in checkUnblock:", e);
+        }
     };
 
     // Phase 1 - Initialization Logic
     activePill(1);
-    addThought("Logic", "Establishing read channel to Xero Ledger...", "text-blue-400");
-    addThought("Network", "Executing live fetch to /api/workbench/initialize", "text-secondary");
+    addThought("Engine", "Initializing secure connection to institutional ledger...", "logic");
+    addThought("Scanner", "Scanning general ledger for structural variance patterns", "info");
 
     const currentYearEnd = encodeURIComponent("{{ current_year_end }}");
     const comparisonYearEnd = encodeURIComponent("{{ comparison_year_end }}");
@@ -261,43 +381,75 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             if (data.status !== "Success") {
-                addThought("Error", data.message, "text-error");
+                addThought("Critical", data.message, "error");
+                setStatus("Exception", "text-error");
                 return;
             }
 
             const aiData = data.data;
 
-            // Render Flags dynamically
+            // 1. Render Raw Trial Balance
+            if (data.tb_raw) {
+                data.tb_raw.forEach(row => {
+                    const hasFlag = aiData.flags.some(f => 
+                        f.account && (f.account.includes(row.account) || row.account.includes(f.account) || f.account.includes(row.code))
+                    );
+                    const flagIcon = hasFlag ? `<span class="material-symbols-outlined text-error text-xs animate-pulse">warning</span>` : "";
+                    const bgColor = hasFlag ? "bg-error/5" : "bg-white";
+
+                    const el = document.createElement("div");
+                    el.className = `grid grid-cols-[80px_1fr_100px_100px_100px_100px] gap-4 items-center px-8 py-4 border-b border-outline-variant/10 hover:bg-surface-container-low transition-all ${bgColor}`;
+                    el.innerHTML = `
+                        <div class="font-mono text-[11px] font-black text-outline/60">${row.code || "—"}</div>
+                        <div class="text-primary text-[12px] font-bold uppercase tracking-tight flex items-center gap-2">
+                            ${row.account}
+                            ${flagIcon}
+                        </div>
+                        <div class="font-mono text-[11px] text-outline text-right">${row.prev_balance || "0"}</div>
+                        <div class="font-mono text-[11px] text-on-surface-variant text-right">${row.debit}</div>
+                        <div class="font-mono text-[11px] text-on-surface-variant text-right">${row.credit}</div>
+                        <div class="font-mono text-[11px] font-black text-primary text-right">${row.balance}</div>
+                    `;
+                    tbRowsContainer.appendChild(el);
+                });
+            }
+
+            // 2. Render Flags dynamically
             expectedFlagResolutions = aiData.flags.length;
+            document.getElementById("pending-count").innerText = expectedFlagResolutions;
+            
             if (expectedFlagResolutions === 0) {
-                flagCardsContainer.innerHTML = `<p class="text-secondary text-sm">No critical flags detected by AI.</p>`;
-                btnToCoa.disabled = false;
-                btnToCoa.className = btnToCoa.className
-                        .replace("cursor-not-allowed opacity-50 text-outline border-outline-variant/40", "")
-                        + " cursor-pointer text-primary border-primary hover:bg-primary hover:text-on-primary";
+                flagCardsContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-12 text-center bg-surface-container-low/30 border-2 border-dashed border-outline-variant/20 rounded-sm">
+                        <span class="material-symbols-outlined text-green-600 text-5xl mb-4">verified_user</span>
+                        <p class="text-primary font-black uppercase tracking-[0.2em] text-xs">No Critical Variance Patterns Detected</p>
+                        <p class="text-on-surface-variant text-sm mt-2 font-medium">Automatic unlocking of subsequent stages enabled.</p>
+                    </div>
+                `;
+                checkUnblock();
             }
 
             aiData.flags.forEach(flag => {
                 const el = document.createElement("div");
-                el.className = "flag-card bg-surface-container-low rounded-lg p-5 border border-outline-variant/20 hover:border-outline-variant/50 transition-all duration-200";
+                el.className = "flag-card bg-white rounded-sm p-8 border border-outline-variant/30 hover:border-primary/40 hover:shadow-md transition-all duration-300 relative overflow-hidden";
                 
-                let highlightClass = "text-error border-error/20 bg-error-container/20";
-                if (flag.category.toLowerCase().includes("subscription")) {
-                    highlightClass = "text-secondary bg-surface-container-highest border-transparent";
-                }
+                let accentColor = "bg-error";
+                if (flag.category.toLowerCase().includes("subscription")) accentColor = "bg-secondary-container";
 
                 el.innerHTML = `
-                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-[0.6rem] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded border ${highlightClass}">${flag.category}</span>
+                    <div class="absolute top-0 left-0 w-1 h-full ${accentColor}"></div>
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-8">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 bg-surface-container-low border border-outline-variant/20 rounded-sm text-primary">${flag.category}</span>
+                                ${flag.account ? `<span class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 bg-primary/5 border border-primary/20 rounded-sm text-primary">${flag.account}</span>` : ''}
                             </div>
-                            <p class="text-primary font-semibold text-sm mb-1">${flag.finding}</p>
-                            <p class="text-on-surface-variant text-xs leading-relaxed">${flag.logic}</p>
+                            <h4 class="text-primary font-extrabold text-lg tracking-tight mb-2 uppercase">${flag.finding}</h4>
+                            <p class="text-on-surface-variant text-sm leading-relaxed font-medium">${flag.logic}</p>
                         </div>
-                        <div class="flag-actions flex gap-2 shrink-0">
-                            <button class="flag-btn approve px-4 py-2 bg-surface-container-highest border border-outline-variant/50 text-primary rounded text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-200">Approve</button>
-                            <button class="flag-btn query px-4 py-2 bg-surface-container-highest border border-secondary/40 text-secondary rounded text-xs font-bold uppercase tracking-widest hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-all duration-200">Query</button>
+                        <div class="flag-actions flex gap-3 shrink-0">
+                            <button class="flag-btn approve px-6 py-3 bg-primary text-white rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary-container transition-all shadow-sm">Authorize</button>
+                            <button class="flag-btn query px-6 py-3 bg-white border border-secondary-container/40 text-secondary rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-surface-container transition-all shadow-sm">Query</button>
                         </div>
                     </div>
                 `;
@@ -308,112 +460,304 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".flag-card .flag-btn").forEach(btn => {
                 btn.addEventListener("click", function () {
                     const actions = this.closest(".flag-actions");
-                    const action  = this.classList.contains("approve") ? "Approved" :
-                                    this.classList.contains("reject")  ? "Rejected" : "Queried";
+                    const action  = this.classList.contains("approve") ? "Authorized" : "Queried";
+                    const color   = action === "Authorized" ? "text-green-600" : "text-secondary";
 
-                    const name = this.closest(".flag-card").querySelector("p.text-primary.font-semibold").textContent;
+                    const findingTitle = this.closest(".flag-card").querySelector("h4").textContent;
 
-                    actions.innerHTML = `<span class="text-[0.6rem] uppercase tracking-widest font-bold ${
-                        action === "Approved" ? "text-primary" : action === "Queried" ? "text-secondary" : "text-error"
-                    }">${action}</span>`;
-
- 
-                    addThought("Action", `"${name}" → ${action} by operator.`,
-                        action === "Approved" ? "text-green-400" : action === "Queried" ? "text-yellow-400" : "text-error");
+                    actions.innerHTML = `
+                        <div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 border border-outline-variant/20 rounded-sm">
+                            <span class="material-symbols-outlined text-sm ${color}">${action === "Authorized" ? 'check_circle' : 'help'}</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest ${color}">${action}</span>
+                        </div>
+                    `;
 
                     resolvedCount++;
-                    if (resolvedCount >= expectedFlagResolutions) {
-                        btnToCoa.disabled = false;
-                        btnToCoa.classList.remove("cursor-not-allowed", "opacity-50", "text-outline", "border-outline-variant/40");
-                        btnToCoa.classList.add("cursor-pointer", "text-primary", "border-primary", "hover:bg-primary", "hover:text-on-primary");
-                        addThought("System", "All flags resolved. Scope mapping is now unlocked.", "text-green-400");
-                    }
+                    addThought("Manual", `${action} Institutional Flag: "${findingTitle}"`, action === "Authorized" ? "success" : "info");
+                    checkUnblock();
                 });
             });
 
-            // Render Chart of Accounts dynamically
+            // 3. Render Chart of Accounts dynamically
             aiData.coa.forEach(item => {
                 const el = document.createElement("div");
                 const shouldSkip = item.suggestion.toLowerCase().includes("skip");
                 const opClass = shouldSkip ? "opacity-50" : "";
                 const tagColor = shouldSkip ? "text-secondary" : "text-error";
-                // Adding a hidden input to pass the selected nominal code
-                el.className = `coa-row flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high rounded-lg px-5 py-4 border border-outline-variant/10 transition-all duration-200 ${opClass}`;
+                const dotColor = shouldSkip ? "bg-outline-variant" : "bg-error";
+                
+                el.className = `coa-row grid grid-cols-[auto_80px_1fr_100px_100px_200px] gap-4 items-center px-8 py-5 border-b border-outline-variant/10 hover:bg-surface-container-low transition-all ${opClass}`;
                 el.innerHTML = `
-                    <input type="checkbox" name="selected_nominal_codes" value="${item.exact_xero_name || item.name}" ${shouldSkip ? "" : "checked"} class="coa-check w-4 h-4 shrink-0 text-primary bg-surface border-outline-variant/50 rounded focus:ring-0 cursor-pointer" form="final-form">
-                    <span class="font-mono text-[0.65rem] text-outline w-12 shrink-0">${item.code || ""}</span>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-primary text-sm font-medium">${item.name}</p>
-                        <p class="text-on-surface-variant text-xs mt-0.5">${item.type}</p>
+                    <div>
+                        <input type="checkbox" name="selected_nominal_codes" value="${item.exact_xero_name || item.name}" data-account-id="${item.account_id || ''}" ${shouldSkip ? "" : "checked"} class="coa-check w-5 h-5 text-primary border-outline-variant/40 rounded-sm focus:ring-0 cursor-pointer" form="final-form">
                     </div>
-                    <span class="font-mono text-sm text-primary shrink-0">${item.balance}</span>
-                    <div class="text-right shrink-0 w-48">
-                        <span class="${tagColor} text-xs font-bold">${item.suggestion}</span>
-                        <p class="text-on-surface-variant text-[0.6rem] mt-0.5">${item.logic}</p>
+                    <div class="font-mono text-[11px] font-black text-outline/60">${item.code || "—"}</div>
+                    <div class="min-w-0">
+                        <p class="text-primary text-[13px] font-extrabold uppercase tracking-tight">${item.name}</p>
+                        <p class="text-outline text-[9px] font-black uppercase tracking-[0.1em] mt-0.5">${item.type}</p>
+                    </div>
+                    <div class="font-mono text-[12px] text-outline text-right">${item.prev_balance || "—"}</div>
+                    <div class="font-mono text-[12px] text-primary font-bold text-right">${item.balance || "—"}</div>
+                    <div class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <span class="w-1.5 h-1.5 ${dotColor} rounded-full"></span>
+                            <span class="${tagColor} text-[10px] font-black uppercase tracking-[0.1em]">${item.suggestion}</span>
+                        </div>
+                        <p class="text-on-surface-variant text-[9px] font-bold mt-1 leading-tight">${item.logic}</p>
                     </div>
                 `;
                 coaCardsContainer.appendChild(el);
-            });
 
-            addThought("Insight", `Scanner identified ${aiData.flags.length} anomaly flags and ${aiData.coa.length} CoA targets.`, "text-green-400");
-            addThought("System", "Initial scan complete. Awaiting human verification.", "text-primary");
+                // Toggle opacity on checkbox change
+                const chk = el.querySelector(".coa-check");
+                chk.addEventListener("change", function() {
+                    if (this.checked) {
+                        el.classList.remove("opacity-50");
+                    } else {
+                        el.classList.add("opacity-50");
+                    }
+                });
+                });
 
-            // Transition
-            setTimeout(() => {
-                setStatus("Paused", "text-yellow-400");
-                agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-yellow-400";
-                activePill(2);
-                transitionTo(stageInit, stageFlags, 600);
-            }, 1000);
+                addThought("Insight", `Scan identified ${aiData.flags.length} anomaly patterns and ${aiData.coa.length} scope candidates.`, "success");
+                addThought("Action", "Awaiting operator reconciliation and scope authorization.", "info");
 
-        }).catch(err => {
+                // Transition
+                setTimeout(() => {
+                    setStatus("Awaiting Input", "text-secondary");
+                    agentDot.className = "h-2 w-2 rounded-full bg-secondary-container";
+                    activePill(2);
+                    transitionTo(stageInit, stageTb, 600);
+                }, 1200);
+
+                }).catch(err => {
+                console.error(err);
+                addThought("Failure", "Ledger communication exception discovered. Azure AI unresponsive.", "error");
+                });
+
+                btnToCoa.addEventListener("click", () => {
+                    if (btnToCoa.disabled) return;
+                    activePill(3);
+                    setStatus("Scope Mapping", "text-primary");
+                    transitionTo(stageTb, stageCoa, 600);
+                    addThought("Workflow", "Mapping nominal identities for deep-dive synthesis.", "logic");
+                });
+
+                btnApprove.addEventListener("click", () => {
+                document.querySelectorAll(".coa-check").forEach(cb => { cb.checked = true; });
+                document.querySelectorAll(".coa-row").forEach(r => r.classList.remove("opacity-50"));
+                addThought("Manual", "Operator authorized universal mandate scope.", "success");
+                btnApprove.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> Approved Universal`;
+                btnApprove.className = "px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-green-600 text-white border border-transparent rounded-sm flex items-center gap-3 shadow-md";
+                });
+
+                btnMat.addEventListener("click", () => {
+                addThought("Protocol", "Triggering materiality filter threshold across candidates.", "info");
+                });
+
+    const runTransactionalAnalysis = async () => {
+        const checkedBoxes = Array.from(document.querySelectorAll(".coa-check:checked"));
+        const selectedData = checkedBoxes.map(cb => ({
+            nominal: cb.value,
+            accountId: cb.getAttribute("data-account-id")
+        }));
+
+        analysisTotalEl.innerText = selectedData.length;
+        analysisEmptyState.classList.add("hidden");
+
+        addThought("Workflow", `Initiating deep analysis for ${selectedData.length} nominal identities.`, "logic");
+        
+        // 1. Prime Cache (Broad Ledger Fetch)
+        addThought("Scanner", "Priming institutional ledger cache for multi-period context...", "info");
+        try {
+            const primeRes = await fetch(`/api/workbench/prime_ledger/{{ tenant_id }}?current_year_end=${currentYearEnd}`);
+            const primeData = await primeRes.json();
+            if (primeData.status === "Success") {
+                addThought("System", "Ledger cache synchronised. Parallel synthesis unlocked.", "success");
+            } else {
+                addThought("Warning", "Cache priming partial. Performance may be degraded.", "info");
+            }
+        } catch (err) {
             console.error(err);
-            addThought("Error", "Failed to contact Azure AI scanner.", "text-error");
-        });
+            addThought("Warning", "Ledger synchronisation failed. Falling back to serial extraction.", "info");
+        }
 
-    btnToCoa.addEventListener("click", () => {
-        if (btnToCoa.disabled) return;
-        activePill(3);
-        setStatus("Mapping CoA", "text-secondary");
-        transitionTo(stageFlags, stageCoa, 600);
-        addThought("System", "Rendering real Chart of Accounts mapped from Xero.", "text-primary");
-    });
+        // 2. Parallel Extraction
+        addThought("Workflow", "Executing parallel transactional synthesis. Max concurrency: 5.", "logic");
 
-    btnApprove.addEventListener("click", () => {
-        document.querySelectorAll(".coa-check").forEach(cb => { cb.checked = true; });
-        document.querySelectorAll(".coa-row").forEach(r => r.classList.remove("opacity-50"));
-        addThought("Action", "User approved total agent-recommended scope.", "text-green-400");
-        btnApprove.textContent = "All Approved";
-        btnApprove.classList.add("text-primary", "border-primary/40");
-    });
+        let processedCount = 0;
+        const concurrencyLimit = 5;
+        const queue = [...selectedData];
+        const activePromises = [];
 
-    btnMat.addEventListener("click", () => {
-        // Find checked boxes with value < £500
-        addThought("Action", "Materiality filter feature triggered.", "text-yellow-400");
+        const processItem = async (item) => {
+            const startTime = Date.now();
+            console.log(`[Parallel] Starting: ${item.nominal}`);
+            addThought("Scanner", `Analysing transactions for: ${item.nominal}`, "info");
+
+            try {
+                const globalMat = document.getElementById("input-global-mat").value;
+                const nominalMat = document.getElementById("input-nominal-mat").value;
+                const res = await fetch(`/api/workbench/analyze_nominal/{{ tenant_id }}?nominal=${encodeURIComponent(item.nominal)}&account_id=${encodeURIComponent(item.accountId || "")}&current_year_end=${currentYearEnd}&global_materiality=${globalMat}&nominal_materiality=${nominalMat}`);
+                const data = await res.json();
+
+                if (data.status === "Success") {
+                    const result = data.data;
+                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                    console.log(`[Parallel] Finished: ${item.nominal} in ${duration}s`);
+                    
+                    const card = document.createElement("div");
+                    card.className = "bg-white border border-outline-variant/30 rounded-sm p-8 shadow-sm animate-fade-in-up";
+                    
+                    let subsHtml = "";
+                    if (result.subscriptions && result.subscriptions.length > 0) {
+                        subsHtml = `
+                            <div class="mb-6">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-secondary mb-3 block">Discovered Subscriptions</span>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${result.subscriptions.map(s => `
+                                        <div class="bg-surface-container-low/50 p-4 rounded-sm border border-outline-variant/10">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <h5 class="text-xs font-black text-primary uppercase tracking-tight">${s.name}</h5>
+                                                <span class="text-[9px] font-black px-2 py-0.5 bg-secondary-container/20 text-secondary rounded-full uppercase">${s.status}</span>
+                                            </div>
+                                            <p class="text-[10px] font-bold text-on-surface-variant">${s.amount} · ${s.frequency}</p>
+                                            <p class="text-[9px] text-outline mt-2 leading-relaxed">${s.logic}</p>
+                                        </div>
+                                    `).join("")}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    let outliersHtml = "";
+                    if (result.outliers && result.outliers.length > 0) {
+                        outliersHtml = `
+                            <div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-error mb-3 block">Significant Outliers</span>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${result.outliers.map(o => `
+                                        <div class="bg-error/5 p-4 rounded-sm border border-error/10">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <h5 class="text-xs font-black text-error uppercase tracking-tight">${o.name}</h5>
+                                                <span class="text-[9px] font-black text-error/60 font-mono">${o.date}</span>
+                                            </div>
+                                            <p class="text-[10px] font-black text-primary">${o.amount}</p>
+                                            <p class="text-[9px] text-on-surface-variant/70 mt-2 leading-relaxed italic">${o.logic}</p>
+                                        </div>
+                                    `).join("")}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between gap-4 mb-6 border-b border-outline-variant/10 pb-4">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-primary">analytics</span>
+                                <h4 class="text-lg font-extrabold text-primary tracking-tight uppercase">${item.nominal}</h4>
+                            </div>
+                            <button class="btn-view-tx px-4 py-2 bg-surface-container-low text-primary border border-outline-variant/20 rounded-sm text-[9px] font-black uppercase tracking-widest hover:bg-surface-container transition-all flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">list_alt</span>
+                                View Full Ledger
+                            </button>
+                        </div>
+                        ${subsHtml}
+                        ${outliersHtml}
+                        <div class="mt-6 pt-4 border-t border-outline-variant/5">
+                            <p class="text-[11px] font-bold text-on-surface-variant leading-relaxed">
+                                <span class="text-primary font-black uppercase tracking-widest text-[9px] mr-2">[Summary]</span>
+                                ${result.summary}
+                            </p>
+                        </div>
+                    `;
+                    analysisCardsContainer.appendChild(card);
+
+                    // Drill-down listener
+                    card.querySelector(".btn-view-tx").addEventListener("click", () => {
+                        const txBody = document.getElementById("modal-tx-body");
+                        document.getElementById("modal-tx-title").innerText = `Transaction Ledger: ${item.nominal}`;
+                        txBody.innerHTML = "";
+                        
+                        if (data.transactions && data.transactions.length > 0) {
+                            data.transactions.forEach(t => {
+                                const row = document.createElement("tr");
+                                row.className = "border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors";
+                                row.innerHTML = `
+                                    <td class="px-8 py-4 font-mono text-[11px] text-outline">${t.Date}</td>
+                                    <td class="px-8 py-4 font-bold text-primary">${t.Contact || "—"}</td>
+                                    <td class="px-8 py-4 text-on-surface-variant">${t.Description || "—"}</td>
+                                    <td class="px-8 py-4 text-right font-mono font-bold text-primary">£${Number(t.Total).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                                `;
+                                txBody.appendChild(row);
+                            });
+                        } else {
+                            txBody.innerHTML = `<tr><td colspan="4" class="px-8 py-12 text-center text-outline font-bold uppercase tracking-widest text-[10px]">No transaction identities discovered in current period.</td></tr>`;
+                        }
+                        
+                        openModal("modal-transactions");
+                    });
+
+                    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    addThought("Manual", `Verified transactional profile for ${item.nominal}`, "success");
+                } else {
+                    addThought("Engine", `Could not extract deep data for ${item.nominal}: ${data.message}`, "error");
+                }
+            } catch (err) {
+                console.error(err);
+                addThought("Critical", `Failed to analyse ${item.nominal} due to network exception.`, "error");
+            } finally {
+                processedCount++;
+                analysisCurrentEl.innerText = processedCount;
+            }
+        };
+
+        const workers = async () => {
+            while (queue.length > 0) {
+                const item = queue.shift();
+                await processItem(item);
+            }
+        };
+
+        // Start multiple workers to handle concurrency
+        const workerPromises = [];
+        for (let i = 0; i < Math.min(concurrencyLimit, selectedData.length); i++) {
+            workerPromises.push(workers());
+        }
+
+        await Promise.all(workerPromises);
+
+        addThought("System", "Full transactional deep-dive completed. Mandate ready for dispatch.", "success");
+        btnToFinal.classList.remove("hidden");
+        btnToFinal.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    btnToAnalysis.addEventListener("click", () => {
+        activePill(4);
+        setStatus("Transactional Analysis", "text-primary");
+        transitionTo(stageCoa, stageAnalysis, 600);
+        runTransactionalAnalysis();
     });
 
     btnToFinal.addEventListener("click", () => {
-        activePill(4);
-        setStatus("Complete", "text-green-400");
-        agentDot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-400";
-        transitionTo(stageCoa, stageFinal, 600);
+        activePill(5);
+        setStatus("Validation Complete", "text-green-600");
+        agentDot.className = "h-2 w-2 rounded-full bg-green-600 shadow-[0_0_8px_rgba(22,163,74,0.4)]";
+        transitionTo(stageAnalysis, stageFinal, 600);
         
-        // Count selected
         const count = document.querySelectorAll(".coa-check:checked").length;
         document.getElementById("selected-count-msg").innerText = count.toString();
 
-        addThought("System", "Workbench configuration committed. Form ready for background dispatch.", "text-green-400");
+        addThought("System", "Workbench specification committed to local ledger. Analysis unlocked.", "success");
     });
 
-    // Intercept form submission to inject the checked checkboxes 
-    // since they physically reside outside the <form> tree
     const finalForm = document.getElementById("final-form");
     finalForm.addEventListener("submit", (e) => {
         const checkedList = document.querySelectorAll(".coa-check:checked");
         checkedList.forEach((chk) => {
             const hidden = document.createElement("input");
             hidden.type = "hidden";
-            hidden.name = chk.name; // "selected_nominal_codes"
+            hidden.name = chk.name;
             hidden.value = chk.value;
             finalForm.appendChild(hidden);
         });
@@ -422,11 +766,75 @@ document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement("style");
     style.textContent = `
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(12px); }
             to   { opacity: 1; transform: translateY(0);   }
         }
     `;
     document.head.appendChild(style);
 });
+    <!-- Transaction Drill-down Modal -->
+    <div id="modal-transactions" class="fixed inset-0 z-[100] hidden items-center justify-center bg-primary/40 backdrop-blur-sm transition-all duration-300 opacity-0">
+        <div class="bg-white rounded-sm shadow-2xl w-full max-w-4xl overflow-hidden animate-fade-in-up border border-outline-variant/30 flex flex-col max-h-[80vh]">
+            <div class="px-8 py-6 bg-surface-container-low border-b border-outline-variant/20 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">list_alt</span>
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-primary" id="modal-tx-title">Transaction Identity Ledger</h3>
+                </div>
+                <button class="modal-close text-outline hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-0 overflow-y-auto flex-1 custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-surface-container-low border-b border-outline-variant text-[9px] font-black uppercase tracking-widest text-primary z-10">
+                        <tr>
+                            <th class="px-8 py-4">Date</th>
+                            <th class="px-8 py-4">Contact</th>
+                            <th class="px-8 py-4">Description</th>
+                            <th class="px-8 py-4 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-tx-body" class="text-sm">
+                        <!-- Injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-6 bg-surface-container-low border-t border-outline-variant/10 text-right">
+                <button class="modal-close px-6 py-3 bg-surface-container text-outline rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-surface-container-high transition-all">Close Ledger</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Modal Logic
+    const openModal = (id) => {
+        const m = document.getElementById(id);
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+        setTimeout(() => { m.classList.add("opacity-100"); }, 10);
+    };
+    const closeModal = (id) => {
+        const m = document.getElementById(id);
+        m.classList.remove("opacity-100");
+        setTimeout(() => { m.classList.add("hidden"); m.classList.remove("flex"); }, 300);
+    };
+
+    document.querySelectorAll(".modal-close").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            closeModal(e.target.closest("[id^='modal-']").id);
+        });
+    });
+
+    btnMat.addEventListener("click", () => {
+        openModal("modal-materiality");
+    });
+
+    document.getElementById("btn-save-mat").addEventListener("click", () => {
+        const global = document.getElementById("input-global-mat").value;
+        const nominal = document.getElementById("input-nominal-mat").value;
+        addThought("Protocol", `Materiality committed: Global=£${global}, Nominal=£${nominal}`, "success");
+        closeModal("modal-materiality");
+    });
+    </script>
 </script>
 {% endblock %}

@@ -1,23 +1,22 @@
 {%extends "base.html" %}
 
-<!------Page Title------>
-{%block title%} Dashboard | AI Review Notes {%endblock%}
+{%block title%} Dashboard | PHM Portal {%endblock%}
 
-<!------Main Block------>
 {%block main%}
-
 <!-- Dashboard Header -->
-<div class="flex justify-between items-end mb-8 border-b border-outline-variant/30 pb-6">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
     <div>
-        <span class="font-label text-secondary tracking-widest text-[10px] uppercase font-bold">Portal Access</span>
-        <h2 class="text-4xl font-headline font-bold text-primary tracking-[-0.02em] mt-1">Command Centre</h2>
-        <p class="text-on-surface-variant text-sm mt-2">Manage integrations, verify tenant access, and execute AI note generation.</p>
+        <nav class="flex mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+            <span class="text-secondary">Portal</span>
+            <span class="mx-2 text-outline-variant">/</span>
+            <span>Client Overview</span>
+        </nav>
+        <h1 class="text-4xl font-extrabold text-primary tracking-tight">Institutional Dashboard</h1>
+        <p class="text-on-surface-variant text-base mt-1 font-medium">Select a client mandate to manage reports and synthesis.</p>
     </div>
-    <div class="hidden md:flex gap-4">
-        <a class="px-5 py-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary border border-outline-variant hover:bg-surface-bright hover:text-primary rounded transition-all" href="{{ url_for('experiments_home') }}">
-            Experiment Lab
-        </a>
-        <a class="px-5 py-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-error border border-error/50 hover:bg-error/10 hover:border-error rounded transition-all" href="{{ url_for('auth.logout') }}">
+    <div class="flex gap-3">
+        <a class="px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white bg-error hover:bg-error/90 transition-all rounded-sm flex items-center gap-2" href="{{ url_for('auth.logout') }}">
+            <span class="material-symbols-outlined text-sm">logout</span>
             Logout
         </a>
     </div>
@@ -26,177 +25,68 @@
 <!-- Flashed Messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
-    <div class="mb-8 space-y-2">
+    <div class="mb-10 space-y-3">
     {% for message in messages %}
-        <div class="bg-surface-container-high border-l-4 border-primary text-primary px-4 py-3 rounded-r text-sm font-body shadow-lg">
-            {{ message }}
+        <div class="bg-white border border-outline-variant/30 border-l-4 border-l-secondary px-6 py-4 rounded-sm shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-secondary">info</span>
+                <span class="text-sm font-semibold text-on-surface">{{ message }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-outline hover:text-on-surface transition-colors">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
         </div>
     {% endfor %}
     </div>
     {% endif %}
 {% endwith %}
 
-<!-- Dashboard Grid Layout -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Client Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
     
-    <!-- Left Column: System Status & Overviews (Spans 4 columns) -->
-    <div class="lg:col-span-4 flex flex-col gap-6">
+    <!-- Add Client Card -->
+    <a href="{{ url_for('auth.xero_connect') }}" class="group bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-sm p-8 flex flex-col items-center justify-center text-center hover:border-primary/40 hover:bg-white transition-all min-h-[220px]">
+        <div class="w-14 h-14 rounded-full bg-white border border-outline-variant/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-primary text-3xl">add</span>
+        </div>
+        <span class="text-xs font-black uppercase tracking-[0.2em] text-primary">Add More Clients</span>
+        <p class="text-[10px] text-outline mt-2 font-bold uppercase tracking-widest">Initialise Xero Mandate</p>
+    </a>
 
-        <!-- Connection Status Widget -->
-        <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-6 shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
-            <h3 class="text-xs font-bold uppercase tracking-[0.1em] text-outline mb-4 flex items-center gap-2">
-                <span class="material-symbols-outlined text-[1rem]">link</span> Connection Status
-            </h3>
+    <!-- Connection Cards -->
+    {% if has_xero_token and connections %}
+        {% for conn in connections %}
+        <a href="{{ url_for('client_detail', tenant_id=conn.tenantId) }}" class="bg-white border border-outline-variant/30 rounded-sm p-8 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-primary group-hover:h-[6px] transition-all"></div>
             
-            <div class="flex items-center justify-between p-4 bg-surface-container rounded border border-outline-variant/10">
-                <div class="flex items-center gap-3">
-                    <img alt="Xero" class="w-6 h-6 {% if not has_xero_token %}grayscale opacity-50{% endif %}" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
-                    <div>
-                        <p class="text-sm font-medium text-primary">Xero Accounting</p>
-                        <p class="text-[10px] uppercase tracking-widest outline-variant mt-0.5 {% if has_xero_token %}text-green-500{% else %}text-error{% endif %}">
-                            {% if has_xero_token %}Connected{% else %}Disconnected{% endif %}
-                        </p>
-                    </div>
+            <div class="flex items-start justify-between mb-8">
+                <div class="w-12 h-12 bg-surface-container-low border border-outline-variant/10 rounded-sm flex items-center justify-center p-2">
+                    <img alt="Xero" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
                 </div>
-                <div>
-                    {% if has_xero_token %}
-                        <span class="relative flex h-3 w-3">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-20"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500/80"></span>
-                        </span>
-                    {% else %}
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-error/50"></span>
-                    {% endif %}
-                </div>
+                <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
             </div>
             
-            {% if connections %}
-            <div class="mt-4 flex items-center justify-between text-xs text-on-surface-variant font-mono">
-                <span>Active Tenants:</span>
-                <span class="text-primary font-bold px-2 py-0.5 bg-surface-container-high rounded">{{ connections|length }}</span>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Capability Overview Widget -->
-        <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-6 shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
-            <h3 class="text-xs font-bold uppercase tracking-[0.1em] text-outline mb-4 flex items-center gap-2">
-                <span class="material-symbols-outlined text-[1rem]">dashboard_customize</span> Quick Tools
-            </h3>
-            <ul class="space-y-2">
-                <li>
-                    <a href="{{ url_for('experiments_home') }}" class="group flex items-center justify-between p-3 rounded hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant/30">
-                        <div class="flex items-center gap-3 text-secondary group-hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined text-[1.1rem]">science</span>
-                            <span class="text-sm font-medium">Experiment Workspace</span>
-                        </div>
-                        <span class="material-symbols-outlined text-[1.1rem] text-outline opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform">arrow_forward</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="group flex items-center justify-between p-3 rounded hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant/30">
-                        <div class="flex items-center gap-3 text-secondary group-hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined text-[1.1rem]">analytics</span>
-                            <span class="text-sm font-medium">Historical Reports</span>
-                        </div>
-                        <span class="material-symbols-outlined text-[1.1rem] text-outline opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform">arrow_forward</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Right Column: Generation Console (Spans 8 columns) -->
-    <div class="lg:col-span-8 flex flex-col h-full">
-        <div class="bg-surface-container-low rounded-lg p-8 h-full shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col justify-center">
+            <h3 class="text-lg font-extrabold text-primary tracking-tight mb-1 group-hover:text-secondary transition-colors">{{ conn.tenantName }}</h3>
+            <p class="text-[9px] font-mono font-bold text-outline uppercase tracking-widest mb-6">ID: {{ conn.tenantId[:13] }}...</p>
             
-            <!-- Abstract background element -->
-            <div class="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] bg-surface-container-high rounded-full blur-[100px] opacity-40 pointer-events-none"></div>
-
-            {% if not has_xero_token %}
-                <div class="text-center py-10 relative z-10 max-w-sm mx-auto">
-                    <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mx-auto mb-6 shadow-inner border border-outline-variant/10">
-                        <span class="material-symbols-outlined text-outline text-3xl">key_off</span>
-                    </div>
-                    <h4 class="text-2xl font-headline text-primary mb-3 font-semibold tracking-tight">Authentication Required</h4>
-                    <p class="text-on-surface-variant text-sm mb-8">Establish a secure conduit with Xero to unlock generative reporting capabilities and tenant selection.</p>
-                    <a href="{{ url_for('auth.xero_login') }}" class="inline-flex items-center justify-center gap-3 bg-primary text-on-primary font-label font-bold uppercase tracking-[0.1em] text-[0.6875rem] px-8 py-4 rounded shadow-xl hover:shadow-2xl hover:scale-102 hover:bg-surface-bright hover:text-primary transition-all group border border-transparent hover:border-outline">
-                        <img alt="Xero" class="w-5 h-5 transition-all group-hover:brightness-0 group-hover:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
-                        Initialize Xero Link
-                    </a>
-                </div>
-            {% else %}
-                <div class="relative z-10 w-full max-w-xl mx-auto">
-                    <div class="mb-8 text-center md:text-left">
-                        <h4 class="text-2xl font-headline text-primary font-bold tracking-tight">Review Generation Console</h4>
-                        <p class="text-on-surface-variant mt-2 text-sm max-w-sm">Configure parameters for automated financial critique and analysis.</p>
-                    </div>
-
-                    <form action="{{ url_for('workbench') }}" method="post" class="space-y-8 bg-surface-container p-8 rounded-lg shadow-inner border border-outline-variant/10">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
-                        <!-- Tenant Selection -->
-                        <div class="flex flex-col gap-2">
-                            <label for="tenant_id" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1">Target Tenant <span class="text-error">*</span></label>
-                            {% if connections %}
-                                <div class="relative">
-                                    <select class="w-full bg-surface-container-highest border border-outline-variant/30 text-primary py-3 pl-4 pr-10 rounded focus:outline-none focus:border-primary transition-colors text-sm appearance-none cursor-pointer" id="tenant_id" name="tenant_id" required>
-                                        <option value="" disabled selected>-- Select an Institutional Client --</option>
-                                        {% for conn in connections %}
-                                            <option value="{{ conn.tenantId }}">{{ conn.tenantName }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
-                                        <span class="material-symbols-outlined text-sm">expand_more</span>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="bg-error-container/20 text-error-container border border-error/50 px-4 py-3 rounded text-sm font-body">
-                                    No active mandates discovered. Re-synchronize Xero.
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Date Configuration -->
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="flex flex-col gap-2">
-                                <label for="current_year_end" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline ml-1">Analysing Year End <span class="text-error">*</span></label>
-                                <input type="date" id="current_year_end" name="current_year_end" required 
-                                       class="w-full bg-surface-container-highest border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-primary transition-colors text-sm color-scheme-dark">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label for="comparison_year_end" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline ml-1">Comparison Year End</label>
-                                <input type="date" id="comparison_year_end" name="comparison_year_end" 
-                                       class="w-full bg-surface-container-highest border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-primary transition-colors text-sm color-scheme-dark">
-                            </div>
-                        </div>
-
-                        <style>
-                            input[type="date"]::-webkit-calendar-picker-indicator {
-                                filter: invert(1);
-                                opacity: 0.6;
-                            }
-                        </style>
-
-                        <!-- Main Action -->
-                        <button type="submit" class="w-full py-4 mt-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm hover:scale-[1.02] hover:bg-surface-bright hover:shadow-2xl hover:text-primary transition-all duration-300 flex justify-center items-center gap-3 border border-transparent hover:border-outline-variant" id="submit_button">
-                            Initiate Workbench
-                            <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
-                        </button>
-                        
-                        <!-- Connect another client -->
-                        <a href="/login?next=/" class="w-full py-3 mt-3 bg-transparent text-secondary rounded-lg font-label font-bold tracking-[0.05em] text-xs hover:text-primary transition-colors flex justify-center items-center gap-2 border border-outline-variant/30 hover:border-outline-variant hover:bg-surface-container">
-                            <span class="material-symbols-outlined text-[1rem]">add_circle</span>
-                            Connect Another Xero Client
-                        </a>
-                    </form>
-                </div>
-            {% endif %}
+            <div class="mt-auto pt-6 border-t border-outline-variant/10 flex items-center justify-between">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                    View Mandate
+                    <span class="material-symbols-outlined text-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </span>
+            </div>
+        </a>
+        {% endfor %}
+    {% elif not has_xero_token %}
+        <div class="lg:col-span-3 bg-white border border-outline-variant/30 rounded-sm p-12 text-center flex flex-col items-center">
+            <span class="material-symbols-outlined text-5xl text-outline-variant mb-6">cloud_off</span>
+            <h3 class="text-xl font-extrabold text-primary tracking-tight mb-2 uppercase">No Active Connections</h3>
+            <p class="text-on-surface-variant text-base font-medium max-w-sm mb-8">Establish a secure conduit with Xero to discover and manage client mandates.</p>
+            <a href="{{ url_for('auth.xero_connect') }}" class="px-10 py-4 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-[11px] hover:bg-primary-container transition-all shadow-md">
+                Authorize Xero Link
+            </a>
         </div>
-    </div>
+    {% endif %}
+
 </div>
 {% endblock %}
-
-{%block customJs%}
-  <script src="{{ url_for('static', filename='js/index/index.js') }}"> </script>
-{%endblock%}

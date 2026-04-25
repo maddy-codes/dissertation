@@ -1,91 +1,118 @@
 {% extends "base.html" %}
-{% block title %} Experiment Run {% endblock %}
+{% block title %} Run Analysis | PHM Portal {% endblock %}
 {% block main %}
 
-<div class="mb-4">
-    <div class="flex items-center gap-3 mb-2">
-        <a href="{{ url_for('experiments_home') }}" class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-all">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
-        </a>
-        <h1 class="text-[2.25rem] font-headline font-semibold text-primary tracking-[-0.02em] leading-tight">Run Analysis</h1>
-    </div>
-    <div class="flex flex-col md:flex-row md:items-center gap-4 ml-12">
-        <span class="bg-surface-container border border-outline-variant/30 text-outline px-3 py-1 rounded font-mono text-xs">{{ run.run_id }}</span>
-        <p class="text-on-surface-variant text-base font-headline font-medium">{{ run.run_name }}</p>
+<!-- Page Header -->
+<div class="mb-10">
+    <nav class="flex mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+        <span class="text-secondary">Portal</span>
+        <span class="mx-2 text-outline-variant">/</span>
+        <a href="{{ url_for('experiments_home') }}" class="hover:text-primary transition-colors">Experiments</a>
+        <span class="mx-2 text-outline-variant">/</span>
+        <span>Run Analysis</span>
+    </nav>
+    
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <a href="{{ url_for('experiments_home') }}" class="text-primary hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                </a>
+                <h1 class="text-4xl font-extrabold text-primary tracking-tight">Intelligence Report</h1>
+            </div>
+            <div class="flex items-center gap-4 ml-10">
+                <span class="bg-surface-container-high text-primary font-mono text-[10px] px-3 py-1 rounded-sm border border-outline-variant/30 font-bold tracking-wider">{{ run.run_id }}</span>
+                <p class="text-on-surface-variant text-base font-bold tracking-tight">{{ run.run_name }}</p>
+            </div>
+        </div>
+        
+        <div class="flex gap-3 ml-10 md:ml-0">
+            <a href="{{ url_for('download_run_csv', run_id=run.run_id) }}" class="px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] text-primary border-2 border-primary/10 hover:border-primary/30 hover:bg-white transition-all rounded-sm flex items-center gap-3 shadow-sm">
+                <span class="material-symbols-outlined text-base">table_chart</span> CSV Export
+            </a>
+            <a href="{{ url_for('download_run_json', run_id=run.run_id) }}" class="px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] text-primary border-2 border-primary/10 hover:border-primary/30 hover:bg-white transition-all rounded-sm flex items-center gap-3 shadow-sm">
+                <span class="material-symbols-outlined text-base">data_object</span> JSON Export
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="flex flex-wrap gap-4 mb-8 ml-12">
-    <a href="{{ url_for('download_run_csv', run_id=run.run_id) }}" class="inline-flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/50 hover:bg-surface-bright hover:border-outline text-primary font-label uppercase tracking-widest text-[0.6875rem] px-5 py-3 rounded-lg transition-all shadow hover:shadow-md">
-        <span class="material-symbols-outlined text-sm">table_chart</span> Download CSV
-    </a>
-    <a href="{{ url_for('download_run_json', run_id=run.run_id) }}" class="inline-flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/50 hover:bg-surface-bright hover:border-outline text-primary font-label uppercase tracking-widest text-[0.6875rem] px-5 py-3 rounded-lg transition-all shadow hover:shadow-md">
-        <span class="material-symbols-outlined text-sm">data_object</span> Download JSON
-    </a>
-</div>
-
+<!-- Results Table (Level 1 Card) -->
 <div class="w-full">
-    <div class="bg-surface-container-low rounded-lg shadow-[0_20px_40px_rgba(0,0,0,0.6)] border border-outline-variant/10 overflow-hidden">
-        <div class="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-lowest/50">
-            <h5 class="font-headline font-bold text-lg text-primary tracking-tight">Generation Results</h5>
-            <span class="text-outline text-xs uppercase tracking-widest font-bold">{{ generations|length }} Records</span>
+    <div class="bg-white border border-outline-variant/30 rounded-sm shadow-sm overflow-hidden flex flex-col">
+        <div class="p-8 border-b border-outline-variant/20 flex justify-between items-center bg-white relative">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-primary"></div>
+            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                <span class="material-symbols-outlined text-base">analytics</span> 
+                Inference Generations
+            </h3>
+            <span class="text-[10px] font-black uppercase tracking-widest text-outline bg-surface-container-low px-4 py-1.5 rounded-sm border border-outline-variant/20">
+                {{ generations|length }} Data points
+            </span>
         </div>
         
         <div class="overflow-x-auto w-full">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-surface-container-high text-[0.6875rem] uppercase tracking-widest text-on-surface-variant font-bold border-b border-outline-variant/50">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead class="sticky top-0 z-20 bg-surface-container-low border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.15em] text-primary">
                     <tr>
-                        <th class="px-6 py-4">Example</th>
-                        <th class="px-6 py-4">Model</th>
-                        <th class="px-6 py-4">Technique</th>
-                        <th class="px-6 py-4">Context</th>
-                        <th class="px-6 py-4">Latency (s)</th>
-                        <th class="px-6 py-4">Score (Coverage)</th>
-                        <th class="px-6 py-4">Score (1-Para)</th>
-                        <th class="px-6 py-4">Output (preview)</th>
+                        <th class="px-8 py-5">Source Mandate</th>
+                        <th class="px-8 py-5">Architecture</th>
+                        <th class="px-8 py-5">Methodology</th>
+                        <th class="px-8 py-5">Constraint</th>
+                        <th class="px-8 py-5">Latency</th>
+                        <th class="px-8 py-5">Coverage</th>
+                        <th class="px-8 py-5">Format</th>
+                        <th class="px-8 py-5">Intelligence Preview</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-outline-variant/10 font-body">
+                <tbody class="divide-y divide-outline-variant/10">
                     {% for g in generations %}
-                    <tr class="hover:bg-surface-container/50 transition-colors bg-surface-container-lowest/20">
-                        <td class="px-6 py-4 font-mono text-outline text-xs truncate max-w-[200px]" title="{{ g.example_id }}">
+                    <tr class="hover:bg-surface-container-low/40 transition-colors {% if loop.index is even %}bg-surface-container-low/10{% endif %}">
+                        <td class="px-8 py-5 font-mono text-[10px] font-bold text-outline uppercase tracking-wider truncate max-w-[180px]" title="{{ g.example_id }}">
                             {{ g.example_id }}
                         </td>
-                        <td class="px-6 py-4 text-primary font-medium">
-                            <span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded text-xs">{{ g.model_id }}</span>
+                        <td class="px-8 py-5">
+                            <span class="bg-primary/5 text-primary border border-primary/10 px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-wider">
+                                {{ g.model_id }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 text-on-surface-variant">
+                        <td class="px-8 py-5 text-on-surface-variant font-bold text-xs uppercase tracking-tight">
                             {{ g.technique }}
                         </td>
-                        <td class="px-6 py-4 text-on-surface-variant font-mono text-[10px] uppercase tracking-wide">
+                        <td class="px-8 py-5 text-on-surface-variant font-mono text-[9px] font-black uppercase tracking-widest">
                             {{ g.context_mode }}
                         </td>
-                        <td class="px-6 py-4 text-secondary font-mono">
+                        <td class="px-8 py-5 text-secondary font-mono font-bold text-xs">
                             {{ "%.2f"|format(g.latency_s) }}s
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-8 py-5">
                             {% if g.score_json.grounding.counterparty_coverage is not none %}
                                 {% set cov = g.score_json.grounding.counterparty_coverage|float %}
-                                <span class="{% if cov > 0.8 %}text-green-400{% elif cov > 0.5 %}text-secondary{% else %}text-error{% endif %} font-bold">
-                                    {{ "%.2f"|format(cov) }}
-                                </span>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-1.5 bg-surface-container rounded-full overflow-hidden">
+                                        <div class="h-full {% if cov > 0.8 %}bg-green-500{% elif cov > 0.5 %}bg-secondary{% else %}bg-error{% endif %}" style="width: {{ cov * 100 }}%"></div>
+                                    </div>
+                                    <span class="{% if cov > 0.8 %}text-green-600{% elif cov > 0.5 %}text-secondary{% else %}text-error{% endif %} font-black text-[10px] tracking-wider">
+                                        {{ (cov * 100)|round|int }}%
+                                    </span>
+                                </div>
                             {% else %}
-                                <span class="text-outline">n/a</span>
+                                <span class="text-outline text-[10px] font-bold uppercase tracking-widest">n/a</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-on-surface-variant">
+                        <td class="px-8 py-5">
                             {% if g.score_json.format.single_paragraph is not none %}
                                 {% if g.score_json.format.single_paragraph %}
-                                    <span class="material-symbols-outlined text-green-400 text-base align-middle">check_circle</span>
+                                    <span class="material-symbols-outlined text-green-600 text-lg">check_circle</span>
                                 {% else %}
-                                    <span class="material-symbols-outlined text-error text-base align-middle">cancel</span>
+                                    <span class="material-symbols-outlined text-error text-lg opacity-40">cancel</span>
                                 {% endif %}
                             {% else %}
-                                <span class="text-outline">n/a</span>
+                                <span class="text-outline text-[10px] font-bold uppercase tracking-widest">n/a</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-on-surface-variant text-xs truncate max-w-[350px] font-serif italic opacity-80" title="{{ g.output_text }}">
-                            {{ (g.output_text or "")[:120] }}{% if (g.output_text or "")|length > 120 %}...{% endif %}
+                        <td class="px-8 py-5 text-on-surface-variant text-[11px] font-medium leading-relaxed truncate max-w-[400px] italic border-l border-outline-variant/10" title="{{ g.output_text }}">
+                            {{ (g.output_text or "")[:140] }}{% if (g.output_text or "")|length > 140 %}...{% endif %}
                         </td>
                     </tr>
                     {% endfor %}

@@ -98,24 +98,39 @@ def run_analysis_thread(tenant_id: str, user_id: int, selected_nominal_codes: li
                 
             emit_event("progress", message=f"Mapped {len(messages)} focus targets. Initiating synthesis...")
             
-            run_all(
-                os.environ.get("AZURE_OPENAI_API_KEY"),
-                os.environ.get("AZURE_OPENAI_ENDPOINT"),
-                FILE_PATH_OUT,
-                API_VERSION,
-                ASSISTANT_ID,
-                DEPLOYED_MODEL_NAME,
-                MAX_BATCH_SIZE,
+            from main_crew import run_all_crew
+            run_all_crew(
                 messages,
                 mp_df,
-                client_initialisation,
-                retrieve_assistant,
-                make_thread,
-                run_thread,
-                save_systematic_output,
-                emit_event
+                FILE_PATH_OUT=FILE_PATH_OUT,
+                emit_event=emit_event
             )
             
+            # Save to Database History
+            try:
+                # Get tenant name for history
+                connections = xero_client.list_connections()
+                t_name = "Unknown Client"
+                for c in connections:
+                    if c['tenantId'] == tenant_id:
+                        t_name = c['tenantName']
+                        break
+                
+                from setup.models import db, ReviewNote
+                new_note = ReviewNote(
+                    user_id=user_id,
+                    tenant_id=tenant_id,
+                    tenant_name=t_name,
+                    run_id=run_id,
+                    year_start=str(comparison_date) if comparison_date else "N/A",
+                    year_end=str(report_date),
+                    status='COMPLETED'
+                )
+                db.session.add(new_note)
+                db.session.commit()
+            except Exception as db_err:
+                logging.error(f"Failed to save history: {str(db_err)}")
+
             emit_event("complete", message="Core analysis successfully completed.", result_file=FILE_PATH_OUT)
         except Exception as e:
             emit_event("error", logic=str(e))
@@ -263,49 +278,81 @@ def _available_models():
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def upload():
-    """Route to handle initiating the processing task using Xero integration."""
-    form = UploadForm()
-    
+    """Dashboard showing connected clients and handling analysis initiation."""
     connections = []
     has_xero_token = current_user.get_xero_token() is not None
     
-    if has_xero_token:
-        try:
-            from integrations.xero_api import XeroClient
-            xero_client = XeroClient(
-                client_id=os.environ.get("XERO_CLIENT_ID"),
-                client_secret=os.environ.get("XERO_CLIENT_SECRET"),
-                refresh_token=current_user.get_xero_token().get("refresh_token"),
-                user=current_user
-            )
-            connections = xero_client.list_connections()
-        except Exception as e:
-            flash(f"Could not load Xero connections: {str(e)}")
-            has_xero_token = False
-            
-    if request.method == "POST" and form.validate_on_submit():
+    if request.method == "POST":
         tenant_id = request.form.get("tenant_id")
         current_year_end = request.form.get("current_year_end")
         comparison_year_end = request.form.get("comparison_year_end")
-        
-        if not tenant_id:
-            flash("Please select a Xero tenant.")
-            return redirect(request.url)
-            
-        flash(f"API Extraction started for tenant.")
-
         selected_nominal_codes = request.form.getlist("selected_nominal_codes")
 
+        if not tenant_id:
+            flash("Mandate missing. Please retry.")
+            return redirect(url_for('upload'))
+            
         run_id = str(uuid.uuid4())
         thread = threading.Thread(
             target=run_analysis_thread,
             args=(tenant_id, current_user.id, selected_nominal_codes, run_id, current_year_end, comparison_year_end)
         )
         thread.start()
-
         return redirect(url_for("report_stream", run_id=run_id))
 
-    return render_template("index.html", form=form, connections=connections, has_xero_token=has_xero_token)
+    if has_xero_token:
+        try:
+            from integrations.xero_api import XeroClient
+            token_data = current_user.get_xero_token()
+            xero_client = XeroClient(
+                client_id=os.environ.get("XERO_CLIENT_ID"),
+                client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+                refresh_token=token_data.get("refresh_token"),
+                user=current_user
+            )
+            connections = xero_client.list_connections()
+        except Exception as e:
+            flash(f"Could not load Xero connections: {str(e)}")
+            has_xero_token = False
+
+    return render_template("index.html", connections=connections, has_xero_token=has_xero_token)
+
+
+@app.route("/client/<tenant_id>")
+@login_required
+def client_detail(tenant_id):
+    """Specific client mandate overview."""
+    from setup.models import ReviewNote
+    from integrations.xero_api import XeroClient
+    
+    token_data = current_user.get_xero_token()
+    if not token_data:
+        flash("Authorization required.")
+        return redirect(url_for('upload'))
+        
+    xero_client = XeroClient(
+        client_id=os.environ.get("XERO_CLIENT_ID"),
+        client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+        refresh_token=token_data.get("refresh_token"),
+        user=current_user
+    )
+    
+    # Discovery of specific tenant name
+    connections = xero_client.list_connections()
+    tenant_name = "Unknown Client"
+    for conn in connections:
+        if conn['tenantId'] == tenant_id:
+            tenant_name = conn['tenantName']
+            break
+            
+    # Fetch previous notes for this tenant
+    history = ReviewNote.query.filter_by(user_id=current_user.id, tenant_id=tenant_id).order_by(ReviewNote.created_at.desc()).all()
+    
+    return render_template("client_detail.html", 
+        tenant_id=tenant_id, 
+        tenant_name=tenant_name,
+        history=history
+    )
 
 
 @app.route("/workbench", methods=["POST"])
@@ -357,11 +404,21 @@ def init_workbench(tenant_id):
         except ValueError:
             report_date = date.today()
             
-        # Fetch Trial Balance directly
+        from dateutil.relativedelta import relativedelta
+        prev_report_date = report_date - relativedelta(years=1)
+
+        from concurrent.futures import ThreadPoolExecutor
+        
+        # Fetch Trial Balance directly (Parallel)
         try:
-            tb_json = xero_client.get_trial_balance(tenant_id, report_date=report_date)
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                f1 = executor.submit(xero_client.get_trial_balance, tenant_id, report_date=report_date)
+                f2 = executor.submit(xero_client.get_trial_balance, tenant_id, report_date=prev_report_date)
+                tb_json = f1.result()
+                prev_tb_json = f2.result()
         except Exception as e:
             tb_json = {}
+            prev_tb_json = {}
             
         def extract_tb_rows(rows, target_dict):
             for r in rows:
@@ -373,18 +430,39 @@ def init_workbench(tenant_id):
                     extract_tb_rows(r["Rows"], target_dict)
                     
         tb_dict = {}
+        prev_tb_dict = {}
         if tb_json.get("Reports"):
             extract_tb_rows(tb_json["Reports"][0].get("Rows", []), tb_dict)
+        if prev_tb_json.get("Reports"):
+            extract_tb_rows(prev_tb_json["Reports"][0].get("Rows", []), prev_tb_dict)
             
         summary_lines = []
-        for index, (acc_name, cells) in enumerate(tb_dict.items()):
-            if index > 30: # Limit to Top 30 accounts to keep token usage fast for the scanner
-                break
-            # Try to extract the balance value
+        tb_raw_data = []
+        
+        for acc_name, cells in tb_dict.items():
+            # Try to extract values
+            # Xero TB: [Account, Debit, Credit]
+            debit = cells[1].get("Value", "0") if len(cells) > 1 else "0"
+            credit = cells[2].get("Value", "0") if len(cells) > 2 else "0"
+            
+            # Prior year balance
+            prev_cells = prev_tb_dict.get(acc_name, [])
+            prev_balance = prev_cells[1].get("Value", "0") if len(prev_cells) > 1 else "0"
+
+            # Simple balance extraction for AI summary
             balance = ""
             if len(cells) > 1:
                 balance = cells[1].get("Value", "")
-            summary_lines.append(f"Account: {acc_name}, Balance: {balance}")
+            summary_lines.append(f"Account: {acc_name}, Balance: {balance}, Prior Year Balance: {prev_balance}")
+            
+            tb_raw_data.append({
+                "account": acc_name,
+                "code": acc_name.split("-")[0].strip() if "-" in acc_name else "",
+                "debit": debit,
+                "credit": credit,
+                "balance": balance,
+                "prev_balance": prev_balance
+            })
             
         context_str = "\n".join(summary_lines)
         
@@ -395,20 +473,24 @@ def init_workbench(tenant_id):
         )
         
         prompt = f"""
-You are an expert UK accounting AI assistant. Review this excerpt of Xero Trial Balance data:
+You are an expert UK accounting AI assistant. Review this excerpt of Xero Trial Balance data (including current and prior year balances):
 {context_str}
 
 Please generate a JSON response exactly matching this schema:
 {{
   "flags": [
-    {{"category": "Subscriptions", "finding": "...", "logic": "..."}}
+    {"category": "Subscriptions", "finding": "...", "logic": "...", "account": "Account Name or Code"}
   ],
+
   "coa": [
-    {{"code": "4000", "name": "Sales Revenue", "exact_xero_name": "EXACT_STRING_FROM_INPUT", "type": "Income", "balance": "£100", "suggestion": "Analyze", "logic": "..."}}
+    {{"code": "4000", "name": "Sales Revenue", "exact_xero_name": "EXACT_STRING_FROM_INPUT", "type": "Income", "balance": "£100", "prev_balance": "£80", "suggestion": "Analyze", "logic": "..."}}
   ]
 }}
-Limit to max 2 critical flags (e.g. large payments, anomalies) and exactly 5 Chart of Account items to analyze (mark some as 'Skip' and some as 'Analyze' based on materiality). 
-CRITICAL: For every item in the `coa` array, `exact_xero_name` MUST be identical to the exact string provided after 'Account: ' in the input data. Make it realistic to a UK Accountant.
+Limit to max 2 critical flags (e.g. large payments, anomalies).
+For the `coa` array, provide a recommendation for EVERY account provided in the input. 
+Mark accounts as 'Analyze' if they are material or likely to contain relevant review notes (e.g. Revenue, Cost of Sales, significant expenses), and 'Skip' for others (e.g. small balances, non-analytical accounts).
+CRITICAL: For every item in the `coa` array, `exact_xero_name` MUST be identical to the exact string provided after 'Account: ' in the input data.
+Include the `prev_balance` in each `coa` item based on the 'Prior Year Balance' provided in the input.
         """
         
         response = client.chat.completions.create(
@@ -423,13 +505,253 @@ CRITICAL: For every item in the `coa` array, `exact_xero_name` MUST be identical
         
         result_json_str = response.choices[0].message.content
         result_data = json.loads(result_json_str)
-        return jsonify({"status": "Success", "data": result_data})
+        
+        # Inject account_id to avoid 429 later
+        try:
+            accounts_resp = xero_client.get_accounts(tenant_id)
+            accounts_list = accounts_resp.get("Accounts", [])
+            for item in result_data.get("coa", []):
+                exact_name = item.get("exact_xero_name") or item.get("name")
+                for acc in accounts_list:
+                    code = acc.get('Code', '')
+                    name = acc.get('Name', '')
+                    full_name = f"{code} - {name}"
+                    if full_name == exact_name or name == exact_name or code == exact_name:
+                        item["account_id"] = acc.get("AccountID")
+                        break
+                
+                # Fallback to fuzzy match if not found
+                if not item.get("account_id") and exact_name:
+                    for acc in accounts_list:
+                        code = acc.get('Code', '')
+                        name = acc.get('Name', '')
+                        if (code and code in exact_name) and (name and name in exact_name):
+                            item["account_id"] = acc.get("AccountID")
+                            break
+        except Exception as e:
+            print(f"Failed to fetch accounts for mapping: {e}")
+
+        return jsonify({"status": "Success", "data": result_data, "tb_raw": tb_raw_data})
         
     except Exception as e:
         import traceback
         traceback.print_exc()
         return jsonify({"status": "Error", "message": str(e)}), 500
 
+
+@app.route("/api/workbench/prime_ledger/<tenant_id>", methods=["GET"])
+@login_required
+def prime_ledger(tenant_id):
+    from integrations.xero_api import XeroClient
+    from datetime import date, timedelta
+    from dateutil.relativedelta import relativedelta
+
+    token_data = current_user.get_xero_token()
+    if not token_data:
+        return jsonify({"status": "Error", "message": "No Xero token"}), 400
+
+    try:
+        current_date_str = request.args.get('current_year_end')
+        report_date = date.fromisoformat(current_date_str) if current_date_str else date.today()
+    except ValueError:
+        report_date = date.today()
+
+    start_date = report_date - relativedelta(years=1) + timedelta(days=1)
+    prev_report_date = report_date - relativedelta(years=1)
+    prev_start_date = prev_report_date - relativedelta(years=1) + timedelta(days=1)
+
+    try:
+        xero_client = XeroClient(
+            client_id=os.environ.get("XERO_CLIENT_ID"),
+            client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+            refresh_token=token_data.get("refresh_token"),
+            user=current_user
+        )
+        
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Trigger broad fetches to populate global cache in parallel
+            executor.submit(xero_client.get_bank_transactions, tenant_id, start_date=start_date, end_date=report_date)
+            executor.submit(xero_client.get_invoices, tenant_id, start_date=start_date, end_date=report_date, statuses=["AUTHORISED", "PAID"])
+            executor.submit(xero_client.get_bank_transactions, tenant_id, start_date=prev_start_date, end_date=prev_report_date)
+            executor.submit(xero_client.get_invoices, tenant_id, start_date=prev_start_date, end_date=prev_report_date, statuses=["AUTHORISED", "PAID"])
+
+        return jsonify({"status": "Success", "message": "Ledger cache primed."})
+    except Exception as e:
+        return jsonify({"status": "Error", "message": str(e)}), 500
+
+@app.route("/api/workbench/analyze_nominal/<tenant_id>", methods=["GET"])
+@login_required
+def analyze_nominal(tenant_id):
+    from integrations.xero_api import XeroClient
+    from datetime import date, timedelta
+    from dateutil.relativedelta import relativedelta
+    import json
+    import os
+    from openai import AzureOpenAI
+    from strings.assistant import API_VERSION, DEPLOYED_MODEL_NAME
+    
+    token_data = current_user.get_xero_token()
+    if not token_data:
+        return jsonify({"status": "Error", "message": "No Xero token"}), 400
+        
+    nominal_name = request.args.get('nominal')
+    account_id = request.args.get('account_id')
+    
+    if not nominal_name:
+        return jsonify({"status": "Error", "message": "No nominal name provided"}), 400
+        
+    try:
+        xero_client = XeroClient(
+            client_id=os.environ.get("XERO_CLIENT_ID"),
+            client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+            refresh_token=token_data.get("refresh_token"),
+            user=current_user
+        )
+        
+        # 1. Resolve Account details (especially the Code for filtering)
+        accounts = xero_client.get_accounts(tenant_id).get("Accounts", [])
+        target_account = None
+
+        if account_id and account_id != "undefined" and account_id != "null":
+            # Search by ID first
+            for acc in accounts:
+                if acc.get("AccountID") == account_id:
+                    target_account = acc
+                    break
+        
+        # Fallback to name/code match if ID not provided or not found
+        if not target_account:
+            for acc in accounts:
+                code = acc.get('Code', '')
+                name = acc.get('Name', '')
+                full_name = f"{code} - {name}"
+                if full_name == nominal_name or name == nominal_name or code == nominal_name:
+                    target_account = acc
+                    break
+            
+            if not target_account and nominal_name:
+                # Fallback to fuzzy match
+                for acc in accounts:
+                    code = acc.get('Code', '')
+                    name = acc.get('Name', '')
+                    if (code and code in nominal_name) and (name and name in nominal_name):
+                        target_account = acc
+                        break
+        
+        if not target_account:
+            return jsonify({"status": "Error", "message": f"Account details for '{nominal_name}' (ID: {account_id}) not found in Xero."}), 404
+            
+        account_id = target_account["AccountID"]
+        target_code = target_account.get("Code")
+        
+        # 2. Date ranges
+        try:
+            current_date_str = request.args.get('current_year_end')
+            report_date = date.fromisoformat(current_date_str) if current_date_str else date.today()
+        except ValueError:
+            report_date = date.today()
+            
+        start_date = report_date - relativedelta(years=1) + timedelta(days=1)
+        prev_report_date = report_date - relativedelta(years=1)
+        prev_start_date = prev_report_date - relativedelta(years=1) + timedelta(days=1)
+        
+        # 3. Fetch Transactions (Bank Transactions and Invoices) for both years
+        def fetch_and_filter_transactions(s_date, e_date):
+            txs = []
+            try:
+                # Fetch BROAD (unfiltered by code) to trigger the global cache for subsequent parallel workers
+                bt_resp = xero_client.get_bank_transactions(tenant_id, start_date=s_date, end_date=e_date, max_pages=50)
+                inv_resp = xero_client.get_invoices(tenant_id, start_date=s_date, end_date=e_date, statuses=["AUTHORISED", "PAID"], max_pages=50)
+                
+                # Filter in-memory for the target nominal
+                # Process Bank Transactions
+                for bt in bt_resp.get("BankTransactions", []):
+                    for li in bt.get("LineItems", []):
+                        if li.get("AccountCode") == target_code:
+                            txs.append({
+                                "Date": bt.get("DateString", bt.get("Date", "")),
+                                "Source": "BankTransaction",
+                                "Description": li.get("Description", bt.get("Reference", "")),
+                                "Reference": bt.get("Reference", ""),
+                                "Contact": bt.get("Contact", {}).get("Name", ""),
+                                "Total": li.get("LineAmount", "")
+                            })
+                            
+                # Process Invoices
+                for inv in inv_resp.get("Invoices", []):
+                    for li in inv.get("LineItems", []):
+                        if li.get("AccountCode") == target_code:
+                            txs.append({
+                                "Date": inv.get("DateString", inv.get("Date", "")),
+                                "Source": "Invoice",
+                                "Description": li.get("Description", inv.get("InvoiceNumber", "")),
+                                "Reference": inv.get("Reference", ""),
+                                "Contact": inv.get("Contact", {}).get("Name", ""),
+                                "Total": li.get("LineAmount", "")
+                            })
+            except Exception as e:
+                print(f"Error fetching/filtering transactions for {target_code}: {e}")
+            return txs
+
+        curr_txs = fetch_and_filter_transactions(start_date, report_date)
+        prev_txs = fetch_and_filter_transactions(prev_start_date, prev_report_date)
+        
+        print(f"DEBUG: {nominal_name} - Current Txs: {len(curr_txs)}, Previous Txs: {len(prev_txs)}")
+        
+        # 4. AI Analysis for Subscriptions and Outliers
+        global_mat = request.args.get('global_materiality', '1000')
+        nominal_mat = request.args.get('nominal_materiality', '500')
+
+        client = AzureOpenAI(
+            api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
+            api_version=API_VERSION,
+            azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT")
+        )
+        
+        context_str = f"Current Year Transactions ({start_date} to {report_date}) - Total Found: {len(curr_txs)}:\n"
+        context_str += "\n".join([str(t) for t in curr_txs[:50]]) # Limit to 50 for tokens
+        context_str += f"\n\nPrevious Year Transactions ({prev_start_date} to {prev_report_date}) - Total Found: {len(prev_txs)}:\n"
+        context_str += "\n".join([str(t) for t in prev_txs[:50]])
+        
+        prompt = f"""
+You are an expert UK accounting AI. Analyze these transactions for nominal account '{nominal_name}'.
+The configured Global Materiality is £{global_mat} and Nominal Materiality (trivial threshold) is £{nominal_mat}.
+
+Identify:
+1. Recurring Subscriptions: Payments that occur regularly (monthly/annually) in both years or new in this year.
+2. Outlier Payments: Large or unusual payments. Focus on items exceeding Nominal Materiality (£{nominal_mat}). Items exceeding Global Materiality (£{global_mat}) are CRITICAL.
+3. Year-on-Year Variances: Notable new vendors or stopped vendors.
+
+Please generate a JSON response:
+{{
+  "subscriptions": [
+    {{"name": "...", "amount": "...", "frequency": "...", "status": "New / Existing / Stopped", "logic": "..."}}
+  ],
+  "outliers": [
+    {{"name": "...", "amount": "...", "date": "...", "logic": "..."}}
+  ],
+  "summary": "Brief overall transactional insight."
+}}
+        """
+        
+        response = client.chat.completions.create(
+            model=DEPLOYED_MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "You are a JSON-producing accounting assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1
+        )
+        
+        result_data = json.loads(response.choices[0].message.content)
+        return jsonify({"status": "Success", "nominal": nominal_name, "data": result_data, "transactions": curr_txs})
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"status": "Error", "message": str(e)}), 500
 
 @app.route("/report/<run_id>")
 def report_stream(run_id: str):

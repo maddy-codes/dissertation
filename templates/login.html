@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -7,115 +7,91 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <!-- Tailwind Config -->
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "surface-container": "#1f1f1f",
-                        "on-secondary": "#1a1c1c",
-                        "on-surface-variant": "#c6c6c6",
-                        "outline": "#919191",
-                        "on-error-container": "#ffdad6",
-                        "on-error": "#690005",
-                        "surface-container-low": "#1b1b1b",
-                        "surface-container-high": "#2a2a2a",
-                        "outline-variant": "#474747",
-                        "surface-container-highest": "#353535",
-                        "background": "#131313",
-                        "surface-variant": "#353535",
-                        "surface-bright": "#393939",
-                        "on-background": "#e2e2e2",
-                        "surface": "#131313",
-                        "on-surface": "#e2e2e2",
-                        "error": "#ffb4ab",
-                        "secondary": "#c6c6c6",
-                        "error-container": "#93000a",
-                        "primary": "#ffffff",
-                        "on-primary": "#1a1c1c",
-                        "surface-container-lowest": "#0e0e0e",
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
+                        "surface": "#f7f9ff",
+                        "on-surface": "#181c20",
+                        "on-surface-variant": "#434750",
+                        "outline": "#737781",
+                        "outline-variant": "#c3c6d1",
+                        "primary": "#003065",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1c4782",
+                        "secondary": "#835400",
+                        "secondary-container": "#fcab27",
+                        "on-secondary-container": "#694300",
+                        "background": "#f7f9ff",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f1f4f9",
+                        "surface-container": "#ebeef3",
                     },
                     fontFamily: {
-                        headline: ["Inter", "sans-serif"],
-                        body: ["Inter", "sans-serif"],
-                        label: ["Inter", "sans-serif"]
+                        headline: ["Manrope", "sans-serif"],
+                        body: ["Work Sans", "sans-serif"],
                     }
                 }
             }
         }
     </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        .glass-panel {
-            background: rgba(42, 42, 42, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(145, 145, 145, 0.1);
-        }
-        body { font-family: 'Inter', sans-serif; min-height: max(884px, 100dvh); }
+        body { font-family: 'Work Sans', sans-serif; background-color: #f7f9ff; color: #181c20; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
     </style>
 </head>
-<body class="bg-background text-on-background min-h-screen overflow-x-hidden antialiased">
-    <!-- Background Decoration: Asymmetrical Layering for Dark Mode -->
-    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div class="absolute -top-[10%] -left-[5%] w-[60%] h-[80%] bg-surface-container-highest rounded-full blur-[120px] opacity-20"></div>
-        <div class="absolute bottom-[5%] right-[5%] w-[40%] h-[50%] bg-primary/5 rounded-full blur-[100px]"></div>
-    </div>
+<body class="bg-background text-on-surface min-h-screen antialiased flex flex-col md:flex-row">
     
-    <main class="min-h-screen flex flex-col md:flex-row">
+    <!-- Left Column: Editorial Headline & Brand Identity -->
+    <section class="flex-1 flex flex-col justify-center px-10 md:px-24 py-20 bg-primary text-white relative overflow-hidden">
+        <!-- Subtle geometric decoration -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary-container/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
         
-        <!-- Left Column: Editorial Headline & Brand Identity -->
-        <section class="flex-1 flex flex-col justify-center px-10 md:px-24 py-20">
-            <div class="max-w-2xl">
-                <header class="mb-12">
-                    <span class="font-label text-secondary tracking-widest text-xs uppercase font-bold border-b border-secondary/30 pb-2">ESTABLISHED 1994</span>
-                    <h1 class="mt-8 font-headline text-5xl md:text-7xl text-primary leading-tight tracking-[-0.02em] font-black">
-                        Welcome to <br/>
-                        <span class="font-light text-on-surface-variant">The AI Review</span> <br/>
-                        <span class="font-bold">Notes Portal</span>
-                    </h1>
-                </header>
-                <div class="space-y-8 hidden md:block">
-                    <p class="font-headline text-xl text-on-surface-variant leading-relaxed max-w-md font-light">
-                        Where technical precision meets bespoke financial strategy. Enter your private portal to manage algorithmic analysis.
-                    </p>
-                    <div class="flex items-center gap-4 text-primary/40">
-                        <span class="h-[1px] w-12 bg-primary/20"></span>
-                        <span class="font-label text-xs tracking-[0.2em] uppercase font-bold">Phipps Henson McAllister</span>
-                    </div>
+        <div class="max-w-2xl relative z-10">
+            <header class="mb-12">
+                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-on-primary-container opacity-60">ESTABLISHED 1994</span>
+                <h1 class="mt-8 text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
+                    Welcome to <br/>
+                    <span class="text-secondary-container">The AI Review</span> <br/>
+                    <span>Notes Portal</span>
+                </h1>
+            </header>
+            <div class="space-y-8 hidden md:block">
+                <p class="text-xl text-white/80 leading-relaxed max-w-md font-medium">
+                    Where technical precision meets bespoke financial strategy. Enter your private portal to manage algorithmic analysis.
+                </p>
+                <div class="flex items-center gap-6">
+                    <span class="h-[2px] w-16 bg-secondary-container"></span>
+                    <span class="text-[10px] font-black tracking-[0.3em] uppercase">Phipps Henson McAllister</span>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Right Column: Focused Login Journey -->
-        <section class="flex-1 flex items-center justify-center px-6 md:px-20 py-10 relative">
-            <div class="absolute inset-0 bg-surface-container-low/50"></div>
-            
-            <!-- Login Card: Glassmorphism Dark Mode -->
-            <div class="glass-panel w-full max-w-md p-10 md:p-14 rounded-xl shadow-[0px_24px_48px_rgba(0,0,0,0.6)] relative z-10">
-                <div class="mb-10 text-center md:text-left">
-                    <h2 class="font-headline text-3xl text-primary font-bold tracking-tight">Secure Access</h2>
-                    <p class="text-on-surface-variant mt-2 text-sm">Please authenticate to proceed to your dashboard.</p>
+    <!-- Right Column: Focused Login Journey -->
+    <section class="flex-1 flex items-center justify-center px-6 md:px-20 py-10 bg-surface">
+        <div class="w-full max-w-md">
+            <div class="bg-white border border-outline-variant/30 p-12 md:p-16 rounded-sm shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-secondary-container"></div>
+                
+                <div class="mb-12">
+                    <h2 class="text-3xl font-extrabold text-primary tracking-tight">Secure Access</h2>
+                    <p class="text-on-surface-variant mt-2 text-sm font-medium">Authentication required for dashboard access.</p>
                 </div>
                 
                 <!-- Flash Messages -->
                 {% with messages = get_flashed_messages() %}
                   {% if messages %}
-                    <div class="mb-6 space-y-2">
+                    <div class="mb-8 space-y-3">
                     {% for message in messages %}
-                      <div class="bg-error-container text-on-error-container border border-error/50 px-4 py-3 rounded text-sm font-body">
+                      <div class="bg-error/5 text-error border border-error/20 px-5 py-4 rounded-sm text-xs font-bold uppercase tracking-widest flex items-center gap-3">
+                          <span class="material-symbols-outlined text-sm">warning</span>
                           {{ message }}
                       </div>
                     {% endfor %}
@@ -123,64 +99,65 @@
                   {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-8">
-                    <!-- CSRF Token -->
+                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-10">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                     <!-- Email Field -->
-                    <div class="relative group">
-                        <label class="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary mb-1 ml-1" for="email">Account Email</label>
-                        <div class="flex items-center border-b border-outline-variant group-focus-within:border-primary transition-colors duration-300 py-2">
-                            <span class="material-symbols-outlined text-on-surface-variant mr-3 text-lg">mail</span>
-                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-primary placeholder:text-outline font-body" id="email" name="email" placeholder="atelier@client.com" type="email" required/>
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="email">
+                            <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                            Account Email
+                        </label>
+                        <div class="flex items-center border border-outline-variant/30 bg-surface-container-low px-5 py-4 rounded-sm focus-within:border-primary transition-all">
+                            <span class="material-symbols-outlined text-outline mr-4 text-xl">mail</span>
+                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-on-surface font-semibold text-sm placeholder:text-outline/60" id="email" name="email" placeholder="email@phm-accountants.co.uk" type="email" required/>
                         </div>
                     </div>
 
                     <!-- Password Field -->
-                    <div class="relative group">
-                        <div class="flex justify-between items-end mb-1">
-                            <label class="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary ml-1" for="password">Passphrase</label>
-                            <a class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors" href="#">Forgot?</a>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-end">
+                            <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="password">
+                                <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                                Passphrase
+                            </label>
+                            <a class="text-[9px] font-black text-outline uppercase tracking-widest hover:text-primary transition-colors" href="#">Recovery?</a>
                         </div>
-                        <div class="flex items-center border-b border-outline-variant group-focus-within:border-primary transition-colors duration-300 py-2">
-                            <span class="material-symbols-outlined text-on-surface-variant mr-3 text-lg">lock</span>
-                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-primary placeholder:text-outline font-body" id="password" name="password" placeholder="••••••••" type="password" required/>
+                        <div class="flex items-center border border-outline-variant/30 bg-surface-container-low px-5 py-4 rounded-sm focus-within:border-primary transition-all">
+                            <span class="material-symbols-outlined text-outline mr-4 text-xl">lock</span>
+                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-on-surface font-semibold text-sm placeholder:text-outline/60" id="password" name="password" placeholder="••••••••" type="password" required/>
                         </div>
                     </div>
 
                     <!-- Primary Action -->
-                    <button class="w-full py-4 bg-primary text-on-primary rounded-lg font-label font-bold tracking-[0.1em] uppercase text-sm shadow-xl hover:bg-surface-bright hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2 group" type="submit">
-                        Sign In
-                        <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                    </button>
+                    <div class="pt-4 flex flex-col gap-4">
+                        <button class="w-full py-5 bg-primary text-white rounded-sm font-extrabold tracking-[0.2em] uppercase text-xs hover:bg-primary-container hover:shadow-lg transition-all flex items-center justify-center gap-4 group" type="submit">
+                            Sign In with Password
+                            <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        </button>
 
-                    <!-- Divider -->
-                    <div class="flex items-center gap-4 py-2">
-                        <div class="h-[1px] flex-1 bg-outline-variant/30"></div>
-                        <span class="text-[10px] font-bold text-outline uppercase tracking-[0.3em]">Institutional Sync</span>
-                        <div class="h-[1px] flex-1 bg-outline-variant/30"></div>
+                        <div class="flex items-center gap-6 py-4">
+                            <div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+                            <span class="text-[9px] font-black text-outline/40 uppercase tracking-[0.3em]">OR</span>
+                            <div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+                        </div>
+
+                        <!-- Secondary Action: Xero Authentication -->
+                        <button onclick="window.location.href='{{ url_for('auth.xero_login') }}'" class="w-full py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all rounded-sm font-extrabold text-[10px] uppercase tracking-widest flex items-center justify-center gap-4" type="button">
+                            <img alt="Xero" class="w-5 h-5 group-hover:brightness-0 group-hover:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
+                            Sign in with Xero
+                        </button>
                     </div>
-
-                    <!-- Secondary Action: Xero Integration -->
-                    <button onclick="window.location.href='{{ url_for('auth.xero_login') }}'" class="w-full py-4 bg-surface-container-high border border-outline-variant hover:bg-surface-bright text-primary rounded-lg font-label font-medium text-sm transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-xl" type="button">
-                        <img alt="Xero" class="w-5 h-5 grayscale group-hover:grayscale-0 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
-                        Sign in with Xero
-                    </button>
                 </form>
 
-                <footer class="mt-12 text-center">
-                    <p class="text-xs text-on-surface-variant font-label">
-                        New partner? <a class="text-primary font-bold hover:underline underline-offset-4 transition-colors" href="{{ url_for('auth.register') }}">Inquire here</a>
+                <footer class="mt-16 text-center">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
+                        New partner? <a class="text-secondary font-black hover:text-secondary-container transition-colors" href="{{ url_for('auth.register') }}">Register Mandate</a>
                     </p>
                 </footer>
             </div>
-            
-            <!-- Subtle Decorative Element -->
-            <div class="absolute bottom-10 right-10 text-outline-variant/10 select-none pointer-events-none hidden lg:block">
-                <span class="font-headline font-black text-8xl">PHM</span>
-            </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
 </body>
 </html>

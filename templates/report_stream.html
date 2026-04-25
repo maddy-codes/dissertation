@@ -1,85 +1,105 @@
 {% extends "base.html" %}
 
-{% block title %}Report Generation - Phipps Henson McAllister{% endblock %}
+{% block title %}Report Synthesis | PHM Portal{% endblock %}
 
-{% block content %}
+{% block main %}
 <!-- Include marked.js for parsing markdown in real-time -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
-    /* Editorial Markdown Styles based on Monolithic Ledger */
-    .prose-premium h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-on-surface); margin-bottom: 2rem; }
-    .prose-premium h2 { font-size: 1.5rem; font-weight: 600; color: var(--color-on-surface); margin-top: 3rem; margin-bottom: 1.5rem; }
-    .prose-premium h3 { font-size: 1.25rem; font-weight: 600; color: var(--color-on-surface); margin-top: 2rem; margin-bottom: 1rem; }
-    .prose-premium p { font-size: 1rem; line-height: 1.8; color: var(--color-on-surface-variant); margin-bottom: 1.5rem; }
-    /* Table Overflow Handling */
-    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 2rem; border-radius: 1rem; }
-    .prose-premium table { width: 100%; text-align: left; border-collapse: collapse; white-space: normal; }
-    .prose-premium th { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--color-on-surface); text-transform: uppercase; font-size: 0.6875rem; letter-spacing: 0.1em; padding: 1.5rem 1rem; background-color: var(--color-surface-container); border: none; }
-    .prose-premium td { padding: 1rem; color: var(--color-on-surface-variant); font-size: 0.875rem; border: none; }
-    .prose-premium tr:nth-child(odd) td { background-color: var(--color-surface-container-lowest); }
-    .prose-premium tr:nth-child(even) td { background-color: var(--color-surface-container); }
+    /* Editorial Markdown Styles based on Professional Financial Portal */
+    .prose-premium h1 { font-family: 'Manrope', sans-serif; font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; color: #003065; margin-bottom: 2rem; }
+    .prose-premium h2 { font-family: 'Manrope', sans-serif; font-size: 1.5rem; font-weight: 700; color: #003065; margin-top: 3rem; margin-bottom: 1.5rem; }
+    .prose-premium h3 { font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; color: #003065; margin-top: 2rem; margin-bottom: 1rem; }
+    .prose-premium p { font-family: 'Work Sans', sans-serif; font-size: 1rem; line-height: 1.8; color: #434750; margin-bottom: 1.5rem; font-weight: 400; }
+    
+    /* Table Styling */
+    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 2rem; border: 1px solid #c3c6d1; border-radius: 4px; }
+    .prose-premium table { width: 100%; text-align: left; border-collapse: collapse; }
+    .prose-premium th { font-family: 'Work Sans', sans-serif; font-weight: 700; color: #003065; text-transform: uppercase; font-size: 10px; letter-spacing: 0.15em; padding: 1.25rem 1.5rem; background-color: #ebeef3; border-bottom: 2px solid #c3c6d1; }
+    .prose-premium td { padding: 1.25rem 1.5rem; color: #434750; font-size: 0.875rem; border-bottom: 1px solid #ebeef3; font-weight: 500; }
+    .prose-premium tr:nth-child(even) td { background-color: #f7f9ff; }
+    .prose-premium tr:last-child td { border-bottom: none; }
+    
     .prose-premium ul { list-style-type: none; padding-left: 0; margin-bottom: 2rem; }
-    .prose-premium ul li { position: relative; padding-left: 1.5rem; font-size: 1rem; line-height: 1.8; color: var(--color-on-surface-variant); margin-bottom: 2rem; }
-    .prose-premium ul li::before { content: "•"; position: absolute; left: 0; color: var(--color-primary); font-weight: bold; }
-    .prose-premium strong { color: var(--color-on-surface); font-weight: 600; }
+    .prose-premium ul li { position: relative; padding-left: 2rem; font-size: 1rem; line-height: 1.8; color: #434750; margin-bottom: 1rem; }
+    .prose-premium ul li::before { content: "•"; position: absolute; left: 0.5rem; color: #835400; font-weight: 900; font-size: 1.25rem; }
+    .prose-premium strong { color: #181c20; font-weight: 700; }
     
     .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    
+    .blink { animation: blink-animation 1.5s steps(5, start) infinite; }
+    @keyframes blink-animation { to { visibility: hidden; } }
 </style>
 
-<div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-12 mt-8">
+<div class="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-gutter">
     
     <!-- LEFT SIDEBAR: Stream Log & Status -->
-    <div class="col-span-4 self-start sticky top-32">
-        <div class="flex items-center gap-3 mb-8">
-            <div id="status-indicator" class="relative inline-flex rounded-full h-2 w-2 bg-yellow-400 loading-pulse"></div>
-            <h2 id="status-text" class="text-on-surface text-sm font-label uppercase tracking-widest font-bold">Initializing Report...</h2>
+    <div class="md:col-span-4 self-start sticky top-24">
+        <div class="flex items-center gap-4 mb-8">
+            <div id="status-indicator" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary-container loading-pulse"></div>
+            <h2 id="status-text" class="text-primary text-[10px] font-black uppercase tracking-[0.2em]">Initializing Synthesis...</h2>
         </div>
 
-        <div class="bg-surface-container-low rounded-xl p-6 min-h-[400px] max-h-[70vh] overflow-y-auto">
-            <h3 class="text-xs uppercase tracking-widest text-outline font-bold mb-6">Activity Stream</h3>
-            <div id="activity-stream" class="space-y-4">
+        <div class="bg-white border border-outline-variant/30 rounded-sm p-8 min-h-[400px] max-h-[70vh] flex flex-col shadow-sm">
+            <h3 class="text-[10px] uppercase tracking-[0.2em] text-outline font-black mb-6 border-b border-outline-variant/10 pb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">terminal</span>
+                Audit Stream
+            </h3>
+            <div id="activity-stream" class="flex-grow space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                 <!-- Log entries injected here -->
             </div>
         </div>
         
-        <div id="action-area" class="mt-8 hidden bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
-            <h3 class="text-on-surface font-headline font-bold mb-4">Report Secured. Proceed with distribution?</h3>
-            <form id="send-report-form" class="flex flex-col gap-4">
-                <div class="flex flex-col gap-2">
-                    <label for="client_email" class="text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-outline ml-1">Client Email Address <span class="text-error">*</span></label>
-                    <input type="email" id="client_email" name="client_email" required placeholder="client@example.com"
-                           class="w-full bg-surface-container border border-outline-variant/30 text-primary py-3 px-4 rounded focus:outline-none focus:border-primary transition-colors text-sm">
+        <div id="action-area" class="mt-8 hidden bg-white p-8 rounded-sm border border-outline-variant/30 shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h3 class="text-primary text-sm font-extrabold uppercase tracking-tight mb-6">Distribution Protocol</h3>
+            <form id="send-report-form" class="space-y-6">
+                <div class="space-y-3">
+                    <label for="client_email" class="text-[10px] font-bold uppercase tracking-[0.2em] text-outline ml-1">Client Recipient <span class="text-error">*</span></label>
+                    <input type="email" id="client_email" name="client_email" required placeholder="mandate@client-entity.com"
+                           class="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all text-sm font-semibold">
                 </div>
-                <button type="submit" id="send-report-btn" class="bg-primary text-on-primary px-6 py-3 rounded uppercase font-bold tracking-widest text-xs hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-sm">mail</span> Send to Client Portal
+                <button type="submit" id="send-report-btn" class="w-full bg-secondary-container text-on-secondary-container py-5 rounded-sm font-black tracking-[0.2em] uppercase text-xs hover:bg-secondary-container/90 hover:shadow-lg transition-all flex items-center justify-center gap-4 group">
+                    <span class="material-symbols-outlined text-base">send</span> 
+                    Dispatch to Portal
                 </button>
             </form>
             
-            <a href="/" class="inline-flex w-full justify-center items-center gap-2 px-6 py-3 mt-4 bg-surface text-secondary border border-outline-variant/30 rounded font-label font-bold uppercase tracking-[0.1em] text-xs transition-all duration-200 hover:scale-[1.02] hover:bg-surface-container">
-                Return to Dashboard Menu
-                <span class="material-symbols-outlined text-sm">home</span>
+            <a href="/" class="inline-flex w-full justify-center items-center gap-4 py-4 mt-6 text-primary border border-outline-variant/30 rounded-sm font-black uppercase tracking-[0.2em] text-[10px] hover:bg-surface-container transition-all">
+                <span class="material-symbols-outlined text-base">dashboard</span>
+                Return to Centre
             </a>
-            <p id="email-status" class="text-[0.65rem] text-primary text-center mt-4 hidden font-bold"></p>
+            <p id="email-status" class="text-[10px] font-black uppercase tracking-widest text-center mt-6 hidden"></p>
         </div>
     </div>
 
     <!-- RIGHT SECTION: The Report Builder -->
-    <div class="col-span-8">
+    <div class="md:col-span-8">
         <div class="mb-12">
-            <h1 class="text-display-md text-on-surface font-semibold tracking-tight">AI Review Notes Synthesis</h1>
-            <p class="text-on-surface-variant mt-4 max-w-2xl text-sm leading-relaxed">
-                 You can safely close this browser tab and return later; the agent streams its work continuously. Progress is safely persisted to the ledger.
+            <nav class="flex mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+                <span class="text-secondary">Synthesis</span>
+                <span class="mx-2 text-outline-variant">/</span>
+                <span>Active Generation</span>
+            </nav>
+            <h1 class="text-4xl font-extrabold text-primary tracking-tight">AI Review Notes Synthesis</h1>
+            <p class="text-on-surface-variant mt-4 max-w-2xl text-base font-medium leading-relaxed">
+                 You can safely close this browser tab and return later; the agent streams its work continuously. Progress is safely persisted to the institutional ledger.
             </p>
         </div>
 
-        <div id="report-container" class="space-y-12">
+        <div id="report-container" class="space-y-12 pb-20">
              <!-- Dynamically generated sections will appear here -->
         </div>
     </div>
 
 </div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d7dadf; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #c3c6d1; }
+</style>
 
 <script>
     const runId = "{{ run_id }}";
@@ -93,16 +113,16 @@
     
     // Auto-scroll helper for the log
     function scrollToBottom() {
-        const parent = activityStream.parentElement;
-        parent.scrollTop = parent.scrollHeight;
+        activityStream.scrollTop = activityStream.scrollHeight;
     }
 
     function addLog(text, highlight=false) {
         const el = document.createElement("div");
-        el.className = "flex gap-3 text-xs font-mono";
+        el.className = "flex gap-4 text-[11px] font-bold border-l-2 border-transparent pl-2";
+        if (highlight) el.className += " border-secondary bg-surface-container-low/50 py-2";
         el.innerHTML = `
-            <span class="text-primary shrink-0">${highlight ? '▶' : '·'}</span>
-            <span class="${highlight ? 'text-on-surface font-semibold' : 'text-on-surface-variant'} leading-relaxed">${text}</span>
+            <span class="${highlight ? 'text-secondary' : 'text-outline/40'} shrink-0 font-mono">${highlight ? '▶' : '·'}</span>
+            <span class="${highlight ? 'text-primary font-black uppercase tracking-tight' : 'text-on-surface-variant font-semibold'} leading-relaxed">${text}</span>
         `;
         activityStream.appendChild(el);
         scrollToBottom();
@@ -119,22 +139,23 @@
                 addLog(data.message);
             }
             else if (data.type === "account_start") {
-                statusText.innerText = "Processing Data...";
+                statusText.innerText = "Syncing Account Data...";
                 addLog(`Began synthesis for ${data.account}`, true);
                 
                 // Mount a skeletal loading block in the report
                 const block = document.createElement("div");
                 block.id = `block-${data.account.replace(/\\s+/g, '-')}`;
-                block.className = "bg-surface-container-lowest p-8 rounded-xl transition-all duration-500 opacity-50";
+                block.className = "bg-white border border-outline-variant/30 p-10 rounded-sm transition-all duration-500 opacity-50 shadow-sm relative overflow-hidden";
                 block.innerHTML = `
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
-                        <h3 class="text-lg font-bold text-on-surface m-0 uppercase tracking-wide">${data.account}</h3>
+                    <div class="absolute top-0 left-0 w-1 h-full bg-outline-variant/30"></div>
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+                        <h3 class="text-lg font-black text-primary m-0 uppercase tracking-widest">${data.account}</h3>
                     </div>
-                    <div class="space-y-3 prose-premium">
-                        <div class="h-4 bg-surface-container-high rounded w-3/4 loading-pulse"></div>
-                        <div class="h-4 bg-surface-container-high rounded w-full loading-pulse"></div>
-                        <div class="h-4 bg-surface-container-high rounded w-5/6 loading-pulse"></div>
+                    <div class="space-y-4">
+                        <div class="h-4 bg-surface-container-low rounded-sm w-3/4 loading-pulse"></div>
+                        <div class="h-4 bg-surface-container-low rounded-sm w-full loading-pulse"></div>
+                        <div class="h-4 bg-surface-container-low rounded-sm w-5/6 loading-pulse"></div>
                     </div>
                 `;
                 reportContainer.appendChild(block);
@@ -149,32 +170,32 @@
                     // In case we missed the start event on a hot reload
                     block = document.createElement("div");
                     block.id = blockId;
-                    block.className = "bg-surface-container-lowest p-8 rounded-xl transition-all duration-500";
+                    block.className = "bg-white border border-outline-variant/30 p-10 rounded-sm transition-all duration-500 shadow-sm relative overflow-hidden";
                     reportContainer.appendChild(block);
                 }
                 
                 block.classList.remove("opacity-50");
                 block.innerHTML = `
-                    <h3 class="text-xl font-bold text-on-surface mb-6 uppercase tracking-wide border-l-2 border-primary pl-4">${data.account}</h3>
-                    <div class="table-responsive prose-premium">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+                    <h3 class="text-xl font-black text-primary mb-8 uppercase tracking-widest border-l-4 border-primary pl-6">${data.account}</h3>
+                    <div class="prose-premium">
                         ${marked.parse(data.synthesis)}
                     </div>
                 `;
             }
             else if (data.type === "error") {
                 addLog(`ERROR: ${data.logic}`, true);
-                statusIndicator.className = "relative inline-flex rounded-full h-2 w-2 bg-error";
-                statusText.innerText = "System Error";
-                statusText.classList.add("text-error");
+                statusIndicator.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-error";
+                statusText.innerText = "System Exception Discovered";
+                statusText.className = "text-error text-[10px] font-black uppercase tracking-[0.2em]";
                 eventSource.close();
             }
             else if (data.type === "complete") {
                 addLog(data.message, true);
-                statusIndicator.classList.remove("loading-pulse", "bg-yellow-400");
-                statusIndicator.classList.add("bg-green-400");
-                statusText.innerText = "Analysis Complete";
-                statusText.classList.remove("text-on-surface");
-                statusText.classList.add("text-green-400");
+                statusIndicator.classList.remove("loading-pulse", "bg-secondary-container");
+                statusIndicator.classList.add("bg-green-600");
+                statusText.innerText = "Audit Synthesis Complete";
+                statusText.className = "text-green-600 text-[10px] font-black uppercase tracking-[0.2em]";
                 actionArea.classList.remove("hidden");
                 eventSource.close();
             }
@@ -185,23 +206,17 @@
     };
 
     eventSource.onerror = function() {
-        // SSE auto-reconnects on drop, but if we handle it explicitly we shouldn't necessarily close unless we know it's dead.
         console.log("SSE disconnected or errored. Will attempt reconnect naturally.");
     };
 
-    document.getElementById("send-report-btn").addEventListener("click", async () => {
+    document.getElementById("send-report-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
         const btn = document.getElementById("send-report-btn");
         const status = document.getElementById("email-status");
-        const email = document.getElementById("recipient-email").value;
+        const email = document.getElementById("client_email").value;
         
-        if (!email) {
-            status.textContent = "Please provide an email.";
-            status.classList.remove("hidden");
-            return;
-        }
-
         btn.disabled = true;
-        btn.textContent = "Sending...";
+        btn.innerHTML = `<div class="w-4 h-4 border-2 border-on-secondary-container border-t-transparent animate-spin rounded-full"></div> Sending...`;
         
         try {
             const resp = await fetch(`/api/send_report/${runId}`, {
@@ -213,18 +228,17 @@
             status.textContent = data.message;
             status.classList.remove("hidden");
             if(data.status === "success") {
-                 status.classList.add("text-green-400");
-                 status.classList.remove("text-error");
+                 status.className = "text-[10px] font-black uppercase tracking-widest text-center mt-6 text-green-600";
             } else {
-                 status.classList.add("text-error");
-                 status.classList.remove("text-green-400");
+                 status.className = "text-[10px] font-black uppercase tracking-widest text-center mt-6 text-error";
             }
         } catch(e) {
             status.textContent = "Error sending report.";
+            status.className = "text-[10px] font-black uppercase tracking-widest text-center mt-6 text-error";
             status.classList.remove("hidden");
         } finally {
             btn.disabled = false;
-            btn.textContent = "Send Report Securely";
+            btn.innerHTML = `<span class="material-symbols-outlined text-base">send</span> Dispatch to Portal`;
         }
     });
 

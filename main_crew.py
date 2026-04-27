@@ -25,12 +25,9 @@ def run_all_crew(
         account_name = message["name"]
         financial_context = message["message"]
         
-        if emit_event:
-            emit_event("account_start", account=account_name, message=f"Crew initialising for {account_name}...")
-            
         try:
             if emit_event:
-                emit_event("account_progress", account=account_name, message="Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)...")
+                emit_event("account_start", account=account_name, message="Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)...")
             
             # Kickoff the agentic process
             response = phm_crew.run_synthesis(account_name, financial_context)

@@ -1,3 +1,7 @@
+# strings/assistant.py - Legacy AI Context & Metadata
+# Note: Production logic has transitioned to a Multi-Agentic CrewAI framework in agents/crew_manager.py
+
+# Legacy reference instructions
 INSTRUCTION = """You are an expert accounting partner at Phipps Henson McAllister UK. Please create Review Notes of a set of accounts. All the transactions are in £.
                               The following structure will be followed for the review notes.
                               1.Template of the variance calculation is the following paragraph.
@@ -21,11 +25,14 @@ INSTRUCTION = """You are an expert accounting partner at Phipps Henson McAlliste
 
                                Do not say things like sure! or feel free to ask more. Just do the work!"""
 
-ASSISTANT_ID = "asst_Q3o1FUlx9P89Py9EOrUbDljn"                        # unique id for the assistant in azure
-TEMPRATURE = 0.01                                                     # 0.01 to reduce creativity
-NAME = "PHM_BOT"
-TOP_P = 0.9                                                           # 0.9 to reduce randomness
-MODEL = "gpt-4o"
+# Deployment Metadata
 DEPLOYED_MODEL_NAME = "gpt-4o-auto-update"
 API_VERSION = "2024-02-15-preview"
-MAX_BATCH_SIZE = 256000                                               # maximum batch size for the thread
+
+# Legacy Constants (Retained for backwards compatibility where necessary)
+ASSISTANT_ID = "asst_Q3o1FUlx9P89Py9EOrUbDljn"
+TEMPRATURE = 0.01
+NAME = "PHM_BOT"
+TOP_P = 0.9
+MODEL = "gpt-4o"
+MAX_BATCH_SIZE = 256000

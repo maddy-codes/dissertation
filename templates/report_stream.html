@@ -38,7 +38,7 @@
     <div class="md:col-span-4 self-start sticky top-24">
         <div class="flex items-center gap-4 mb-8">
             <div id="status-indicator" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary-container loading-pulse"></div>
-            <h2 id="status-text" class="text-primary text-[10px] font-black uppercase tracking-[0.2em]">Initializing Synthesis...</h2>
+            <h2 id="status-text" class="text-primary text-[10px] font-black uppercase tracking-[0.2em]">Starting Synthesis...</h2>
         </div>
 
         <div class="bg-white border border-outline-variant/30 rounded-sm p-8 min-h-[400px] max-h-[70vh] flex flex-col shadow-sm">
@@ -180,6 +180,29 @@
                     <h3 class="text-xl font-black text-primary mb-8 uppercase tracking-widest border-l-4 border-primary pl-6">${data.account}</h3>
                     <div class="prose-premium">
                         ${marked.parse(data.synthesis)}
+                    </div>
+                `;
+            }
+            else if (data.type === "account_error") {
+                addLog(`ERROR synthesizing ${data.account}: ${data.logic}`, true);
+                
+                const blockId = `block-${data.account.replace(/\\s+/g, '-')}`;
+                let block = document.getElementById(blockId);
+                
+                if (!block) {
+                    block = document.createElement("div");
+                    block.id = blockId;
+                    block.className = "bg-error-container border border-error/30 p-10 rounded-sm transition-all duration-500 shadow-sm relative overflow-hidden";
+                    reportContainer.appendChild(block);
+                }
+                
+                block.classList.remove("opacity-50");
+                block.innerHTML = `
+                    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+                    <h3 class="text-xl font-black text-error mb-8 uppercase tracking-widest border-l-4 border-error pl-6">${data.account}</h3>
+                    <div class="prose-premium text-error">
+                        <p><strong>Error:</strong> Failed to generate report notes.</p>
+                        <p class="text-xs text-error/80 mt-4">${data.logic}</p>
                     </div>
                 `;
             }

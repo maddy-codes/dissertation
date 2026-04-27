@@ -88,22 +88,6 @@ def create_app() -> Flask:
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-    
-    with app.app_context():
-        if db_schema and "mssql" in app.config["SQLALCHEMY_DATABASE_URI"]:
-            from sqlalchemy import text
-            try:
-                # Check if schema exists
-                check_schema = db.session.execute(text(f"SELECT name FROM sys.schemas WHERE name = '{db_schema}'")).fetchone()
-                if not check_schema:
-                    # Create schema if it doesn't exist
-                    db.session.execute(text(f"CREATE SCHEMA {db_schema}"))
-                    db.session.commit()
-            except Exception as e:
-                print(f"Warning: Could not ensure schema {db_schema} exists: {e}")
-                db.session.rollback()
-
-        db.create_all()
 
     csrf = CSRFProtect(app)
 

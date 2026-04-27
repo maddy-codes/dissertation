@@ -4,6 +4,18 @@ from typing import List, Optional
 from crewai import Agent, Task, Crew, Process
 from langchain_openai import AzureChatOpenAI
 
+class AzureChatOpenAIStopFix(AzureChatOpenAI):
+    """
+    Custom wrapper for AzureChatOpenAI to handle models that don't support 
+    the 'stop' parameter (like o1-preview) or when the API version is strict.
+    """
+    def _generate(self, messages, stop=None, **kwargs):
+        # Explicitly remove 'stop' to prevent 400 error on unsupported models
+        return super()._generate(messages, stop=None, **kwargs)
+
+    async def _agenerate(self, messages, stop=None, **kwargs):
+        return await super()._agenerate(messages, stop=None, **kwargs)
+
 # --- Structured Data Models for the Dissertation ---
 
 class FinancialAnalysis(BaseModel):
@@ -25,20 +37,31 @@ class AuditNote(BaseModel):
 
 # --- Agentic Framework ---
 
+from strings.assistant import DEPLOYED_MODEL_NAME
+
 def get_llm():
     """
     Initialise Azure OpenAI LLM.
     We set temperature to 0.0 and use a fixed seed for maximum reproducibility 
     in a dissertation context.
     """
-    return AzureChatOpenAI(
-        azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
-        api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
-        api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-        azure_deployment=os.environ.get("DEPLOYED_MODEL_NAME", "gpt-4o"),
-        temperature=0.0,
-        model_kwargs={"seed": 42}  # Fixed seed for deterministic-ish output
-    )
+    deployment_name = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME") or DEPLOYED_MODEL_NAME
+    
+    # o1 models don't support temperature < 1.0 or seed currently
+    is_o1 = "o1" in deployment_name.lower()
+    
+    config = {
+        "azure_endpoint": os.environ.get("AZURE_OPENAI_ENDPOINT"),
+        "api_key": os.environ.get("AZURE_OPENAI_API_KEY"),
+        "api_version": os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
+        "azure_deployment": deployment_name,
+        "temperature": 1.0 if is_o1 else 0.0,
+    }
+    
+    if not is_o1:
+        config["model_kwargs"] = {"seed": 42}
+        
+    return AzureChatOpenAIStopFix(**config)
 
 class PHMCrew:
     def __init__(self):
@@ -52,7 +75,9 @@ class PHMCrew:
             past the numbers in the Trial Balance and identify the 'story' in the transactions. 
             You are meticulous about rounding and identifying material counterparties.""",
             llm=self.llm,
-            verbose=True
+            verbose=True,
+            allow_delegation=False,
+            max_iter=15
         )
 
     def technical_accounting_writer(self) -> Agent:
@@ -63,7 +88,9 @@ class PHMCrew:
             synthesise complex variance data into a single, punchy paragraph that 
             an Audit Partner would be proud to sign off. You adhere strictly to naming conventions.""",
             llm=self.llm,
-            verbose=True
+            verbose=True,
+            allow_delegation=False,
+            max_iter=15
         )
 
     def audit_quality_partner(self) -> Agent:
@@ -74,7 +101,9 @@ class PHMCrew:
             formatting errors, bullet points, or 'conversational' AI fluff. You ensure the note 
             is grounded strictly in the provided evidence and contains no forbidden identifiers.""",
             llm=self.llm,
-            verbose=True
+            verbose=True,
+            allow_delegation=False,
+            max_iter=15
         )
 
     def run_synthesis(self, account_name: str, financial_context: str) -> str:
@@ -134,7 +163,7 @@ class PHMCrew:
             agents=[analyst, writer, reviewer],
             tasks=[extraction_task, synthesis_task, audit_task],
             process=Process.sequential,
-            memory=True, # Enable memory for cross-task grounding
+            memory=False, # Disabled to prevent context bloat and iteration loops
             verbose=2
         )
 

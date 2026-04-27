@@ -70,9 +70,21 @@
                                 <span class="font-mono text-[10px] text-outline uppercase tracking-wider">{{ run.run_id }}</span>
                             </td>
                             <td class="px-8 py-5 text-right">
+                                {% if run.status == 'DRAFT' %}
+                                <form action="{{ url_for('workbench') }}" method="post" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <input type="hidden" name="tenant_id" value="{{ run.tenant_id }}"/>
+                                    <input type="hidden" name="current_year_end" value="{{ run.year_end }}"/>
+                                    <input type="hidden" name="comparison_year_end" value="{{ run.year_start }}"/>
+                                    <button type="submit" class="inline-flex items-center gap-2 text-secondary text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors">
+                                        Resume Draft <span class="material-symbols-outlined text-sm">edit_document</span>
+                                    </button>
+                                </form>
+                                {% else %}
                                 <a href="{{ url_for('report_stream', run_id=run.run_id) }}" class="inline-flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-colors">
                                     View Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

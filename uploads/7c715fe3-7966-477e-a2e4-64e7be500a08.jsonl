@@ -1,0 +1,14 @@
+{"type": "start", "timestamp": 1777307907.138844, "message": "Analysis starting..."}
+{"type": "progress", "timestamp": 1777307908.4381819, "message": "Fetching Trial Balance and executing Xero mappings..."}
+{"type": "progress", "timestamp": 1777307911.0843232, "message": "Mapped 8 focus targets. Starting synthesis..."}
+{"type": "account_start", "timestamp": 1777307911.841248, "account": "Other Revenue (260)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777307951.997309, "account": "Other Revenue (260)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777307951.997707, "account": "Consulting (412)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777307997.666492, "account": "Consulting (412)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777307997.667188, "account": "General Expenses (429)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777308038.933577, "account": "General Expenses (429)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777308038.934293, "account": "Printing & Stationery (461)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777308076.505238, "account": "Printing & Stationery (461)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777308076.5056472, "account": "Accounts Receivable (610)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777308131.137409, "account": "Accounts Receivable (610)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777308131.138096, "account": "Business Bank Account (090)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}

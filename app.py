@@ -10,18 +10,10 @@ from wtforms import StringField, IntegerField
 from wtforms.validators import DataRequired, NumberRange
 from flask_login import login_required, current_user
 from strings.paths import NL_PATH, TB_PATH, TRANS_PATH, FILE_PATH_OUT
-from strings.assistant import (
-    API_VERSION,
-    ASSISTANT_ID,
-    DEPLOYED_MODEL_NAME,
-    MAX_BATCH_SIZE,
-)
+from strings.assistant import DEPLOYED_MODEL_NAME
 from helpers.data_processors import xero_info_to_message
 from helpers.mappers import xero_iris_mapper
-from setup.assistant_initialiser import client_initialisation, retrieve_assistant
-from helpers.runners import make_thread, run_thread
 from helpers.utility import save_systematic_output, save_uploaded_file
-from main import run_all
 from setup.app_factory import create_app
 import dotenv
 
@@ -70,7 +62,7 @@ def run_analysis_thread(tenant_id: str, user_id: int, selected_nominal_codes: li
         with open(log_file_path, "a") as f:
             f.write(json.dumps(event) + "\n")
 
-    emit_event("start", message="Analysis initialising...")
+    emit_event("start", message="Analysis starting...")
 
     with app.app_context():
         try:
@@ -96,7 +88,7 @@ def run_analysis_thread(tenant_id: str, user_id: int, selected_nominal_codes: li
             if selected_nominal_codes is not None:
                 messages = [m for m in messages if m["name"] in selected_nominal_codes]
                 
-            emit_event("progress", message=f"Mapped {len(messages)} focus targets. Initiating synthesis...")
+            emit_event("progress", message=f"Mapped {len(messages)} focus targets. Starting synthesis...")
             
             from main_crew import run_all_crew
             run_all_crew(
@@ -293,6 +285,14 @@ def upload():
             return redirect(url_for('upload'))
             
         run_id = str(uuid.uuid4())
+        
+        # Clean up any existing DRAFT for this tenant
+        from setup.models import db, ReviewNote
+        draft = ReviewNote.query.filter_by(user_id=current_user.id, tenant_id=tenant_id, status="DRAFT").first()
+        if draft:
+            db.session.delete(draft)
+            db.session.commit()
+            
         thread = threading.Thread(
             target=run_analysis_thread,
             args=(tenant_id, current_user.id, selected_nominal_codes, run_id, current_year_end, comparison_year_end)
@@ -373,15 +373,11 @@ def workbench():
     )
 
 
-@app.route("/api/workbench/initialize/<tenant_id>", methods=["GET"])
+@app.route("/api/workbench/fetch_tb/<tenant_id>", methods=["GET"])
 @login_required
-def init_workbench(tenant_id):
+def fetch_tb(tenant_id):
     from integrations.xero_api import XeroClient
     from datetime import date
-    import json
-    import os
-    from openai import AzureOpenAI
-    from strings.assistant import API_VERSION, DEPLOYED_MODEL_NAME
     
     token_data = current_user.get_xero_token()
     if not token_data:
@@ -395,31 +391,18 @@ def init_workbench(tenant_id):
             user=current_user
         )
         
-        try:
-            current_date_str = request.args.get('current_year_end')
-            if current_date_str:
-                report_date = date.fromisoformat(current_date_str)
-            else:
-                report_date = date.today()
-        except ValueError:
-            report_date = date.today()
-            
+        current_date_str = request.args.get('current_year_end')
+        report_date = date.fromisoformat(current_date_str) if current_date_str else date.today()
         from dateutil.relativedelta import relativedelta
         prev_report_date = report_date - relativedelta(years=1)
 
         from concurrent.futures import ThreadPoolExecutor
-        
-        # Fetch Trial Balance directly (Parallel)
-        try:
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                f1 = executor.submit(xero_client.get_trial_balance, tenant_id, report_date=report_date)
-                f2 = executor.submit(xero_client.get_trial_balance, tenant_id, report_date=prev_report_date)
-                tb_json = f1.result()
-                prev_tb_json = f2.result()
-        except Exception as e:
-            tb_json = {}
-            prev_tb_json = {}
-            
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            f1 = executor.submit(xero_client.get_trial_balance, tenant_id, report_date=report_date)
+            f2 = executor.submit(xero_client.get_trial_balance, tenant_id, report_date=prev_report_date)
+            tb_json = f1.result()
+            prev_tb_json = f2.result()
+
         def extract_tb_rows(rows, target_dict):
             for r in rows:
                 if r.get("RowType") == "Row":
@@ -428,32 +411,21 @@ def init_workbench(tenant_id):
                         target_dict[cells[0].get("Value")] = cells
                 elif "Rows" in r:
                     extract_tb_rows(r["Rows"], target_dict)
-                    
+
         tb_dict = {}
         prev_tb_dict = {}
         if tb_json.get("Reports"):
             extract_tb_rows(tb_json["Reports"][0].get("Rows", []), tb_dict)
         if prev_tb_json.get("Reports"):
             extract_tb_rows(prev_tb_json["Reports"][0].get("Rows", []), prev_tb_dict)
-            
-        summary_lines = []
+
         tb_raw_data = []
-        
         for acc_name, cells in tb_dict.items():
-            # Try to extract values
-            # Xero TB: [Account, Debit, Credit]
             debit = cells[1].get("Value", "0") if len(cells) > 1 else "0"
             credit = cells[2].get("Value", "0") if len(cells) > 2 else "0"
-            
-            # Prior year balance
             prev_cells = prev_tb_dict.get(acc_name, [])
             prev_balance = prev_cells[1].get("Value", "0") if len(prev_cells) > 1 else "0"
-
-            # Simple balance extraction for AI summary
-            balance = ""
-            if len(cells) > 1:
-                balance = cells[1].get("Value", "")
-            summary_lines.append(f"Account: {acc_name}, Balance: {balance}, Prior Year Balance: {prev_balance}")
+            balance = cells[1].get("Value", "") if len(cells) > 1 else ""
             
             tb_raw_data.append({
                 "account": acc_name,
@@ -463,79 +435,157 @@ def init_workbench(tenant_id):
                 "balance": balance,
                 "prev_balance": prev_balance
             })
-            
-        context_str = "\n".join(summary_lines)
-        
-        client = AzureOpenAI(
-            api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
-            api_version=API_VERSION,
-            azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT")
-        )
-        
-        prompt = f"""
-You are an expert UK accounting AI assistant. Review this excerpt of Xero Trial Balance data (including current and prior year balances):
-{context_str}
 
-Please generate a JSON response exactly matching this schema:
-{{
-  "flags": [
-    {"category": "Subscriptions", "finding": "...", "logic": "...", "account": "Account Name or Code"}
-  ],
-
-  "coa": [
-    {{"code": "4000", "name": "Sales Revenue", "exact_xero_name": "EXACT_STRING_FROM_INPUT", "type": "Income", "balance": "£100", "prev_balance": "£80", "suggestion": "Analyze", "logic": "..."}}
-  ]
-}}
-Limit to max 2 critical flags (e.g. large payments, anomalies).
-For the `coa` array, provide a recommendation for EVERY account provided in the input. 
-Mark accounts as 'Analyze' if they are material or likely to contain relevant review notes (e.g. Revenue, Cost of Sales, significant expenses), and 'Skip' for others (e.g. small balances, non-analytical accounts).
-CRITICAL: For every item in the `coa` array, `exact_xero_name` MUST be identical to the exact string provided after 'Account: ' in the input data.
-Include the `prev_balance` in each `coa` item based on the 'Prior Year Balance' provided in the input.
-        """
-        
-        response = client.chat.completions.create(
-            model=DEPLOYED_MODEL_NAME,
-            messages=[
-                {"role": "system", "content": "You are a JSON-producing accounting assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.1
-        )
-        
-        result_json_str = response.choices[0].message.content
-        result_data = json.loads(result_json_str)
-        
-        # Inject account_id to avoid 429 later
-        try:
-            accounts_resp = xero_client.get_accounts(tenant_id)
-            accounts_list = accounts_resp.get("Accounts", [])
-            for item in result_data.get("coa", []):
-                exact_name = item.get("exact_xero_name") or item.get("name")
-                for acc in accounts_list:
-                    code = acc.get('Code', '')
-                    name = acc.get('Name', '')
-                    full_name = f"{code} - {name}"
-                    if full_name == exact_name or name == exact_name or code == exact_name:
-                        item["account_id"] = acc.get("AccountID")
-                        break
-                
-                # Fallback to fuzzy match if not found
-                if not item.get("account_id") and exact_name:
-                    for acc in accounts_list:
-                        code = acc.get('Code', '')
-                        name = acc.get('Name', '')
-                        if (code and code in exact_name) and (name and name in exact_name):
-                            item["account_id"] = acc.get("AccountID")
-                            break
-        except Exception as e:
-            print(f"Failed to fetch accounts for mapping: {e}")
-
-        return jsonify({"status": "Success", "data": result_data, "tb_raw": tb_raw_data})
-        
+        return jsonify({"status": "Success", "tb_raw": tb_raw_data})
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        return jsonify({"status": "Error", "message": str(e)}), 500
+
+
+@app.route("/api/workbench/analyze_scope_batch/<tenant_id>", methods=["POST"])
+@login_required
+def analyze_scope_batch(tenant_id):
+    from helpers.batch_analyzer import analyze_nominal_batch
+    tb_data = request.json.get("tb_data", [])
+    global_mat = request.json.get("global_materiality", 1000)
+    
+    try:
+        results = analyze_nominal_batch(tb_data, float(global_mat))
+        return jsonify({"status": "Success", "data": {"coa_suggestions": results}})
+    except Exception as e:
+        return jsonify({"status": "Error", "message": str(e)}), 500
+
+
+@app.route("/api/workbench/save_draft/<tenant_id>", methods=["POST"])
+@login_required
+def save_draft(tenant_id):
+    from setup.models import db, ReviewNote
+    import uuid, json, os
+    from flask import current_app
+    
+    current_year_end = request.json.get("current_year_end")
+    comparison_year_end = request.json.get("comparison_year_end")
+    draft_state = request.json.get("draft_state", [])
+    
+    draft = ReviewNote.query.filter_by(user_id=current_user.id, tenant_id=tenant_id, status="DRAFT").first()
+    if not draft:
+        draft = ReviewNote(
+            user_id=current_user.id,
+            tenant_id=tenant_id,
+            run_id=f"draft_{uuid.uuid4().hex[:8]}",
+            status="DRAFT",
+            year_end=current_year_end,
+            year_start=comparison_year_end
+        )
+        db.session.add(draft)
+        db.session.commit()
+    
+    # Save the draft state to a file
+    draft_file = os.path.join(current_app.config["UPLOAD_FOLDER"], f"{draft.run_id}_draft.json")
+    with open(draft_file, 'w') as f:
+        json.dump(draft_state, f)
+        
+    return jsonify({"status": "Success", "message": "Draft saved"})
+
+@app.route("/api/workbench/load_draft/<tenant_id>", methods=["GET"])
+@login_required
+def load_draft(tenant_id):
+    from setup.models import ReviewNote
+    import os, json
+    from flask import current_app
+    
+    draft = ReviewNote.query.filter_by(user_id=current_user.id, tenant_id=tenant_id, status="DRAFT").first()
+    if draft:
+        draft_file = os.path.join(current_app.config["UPLOAD_FOLDER"], f"{draft.run_id}_draft.json")
+        if os.path.exists(draft_file):
+            with open(draft_file, 'r') as f:
+                draft_state = json.load(f)
+            return jsonify({"status": "Success", "draft_state": draft_state, "current_year_end": draft.year_end, "comparison_year_end": draft.year_start})
+            
+    return jsonify({"status": "NotFound"})
+
+
+@app.route("/api/workbench/nominal_transactions/<tenant_id>", methods=["GET"])
+@login_required
+def nominal_transactions(tenant_id):
+    from integrations.xero_api import XeroClient
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+    import traceback
+
+    account_code = request.args.get("account_code")
+    account_name = request.args.get("account_name")
+    current_year_end = request.args.get("current_year_end")
+    if not current_year_end or (not account_code and not account_name):
+        return jsonify({"status": "Error", "message": "Missing parameter"}), 400
+
+    token_data = current_user.get_xero_token()
+    if not token_data:
+        return jsonify({"status": "Error", "message": "No Xero token"}), 400
+
+    try:
+        xero_client = XeroClient(
+            client_id=os.environ.get("XERO_CLIENT_ID"),
+            client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+            refresh_token=token_data.get("refresh_token"),
+            user=current_user
+        )
+        
+        # 1. Map code to account ID
+        accounts = xero_client.get_accounts(tenant_id)
+        account_id = None
+        for acc in accounts.get("Accounts", []):
+            if account_code and acc.get("Code") == account_code:
+                account_id = acc.get("AccountID")
+                break
+            elif account_name and acc.get("Name") == account_name:
+                account_id = acc.get("AccountID")
+                break
+                
+        if not account_id:
+            return jsonify({"status": "Success", "transactions": []})
+            
+        # 2. Fetch Detailed Transaction Report for current year
+        report_date = date.fromisoformat(current_year_end)
+        start_date = report_date - relativedelta(years=1) + relativedelta(days=1)
+        
+        tx_report = xero_client.get_detailed_transaction_report(
+            tenant_id=tenant_id, 
+            start_date=start_date, 
+            end_date=report_date, 
+            account_id=account_id
+        )
+        
+        # Parse the report to extract transactions
+        transactions = []
+        if tx_report.get("Reports"):
+            for row in tx_report["Reports"][0].get("Rows", []):
+                # The section with transactions usually has RowType = Section
+                if row.get("RowType") == "Section":
+                    for inner_row in row.get("Rows", []):
+                        if inner_row.get("RowType") == "Row":
+                            cells = inner_row.get("Cells", [])
+                            if len(cells) >= 5:
+                                tx_date = cells[0].get("Value", "")
+                                desc = cells[1].get("Value", "") or cells[2].get("Value", "")
+                                try:
+                                    amount_str = cells[5].get("Value", "0").replace(',', '')
+                                    amount = float(amount_str) if amount_str else 0.0
+                                except ValueError:
+                                    amount = 0.0
+                                    
+                                transactions.append({
+                                    "date": tx_date,
+                                    "desc": desc,
+                                    "amount": amount,
+                                    "type": "transaction"
+                                })
+                                
+        # Sort and limit to top 10 for display purposes (or filter by subscriptions if possible)
+        transactions = sorted(transactions, key=lambda x: abs(x["amount"]), reverse=True)[:10]
+        
+        return jsonify({"status": "Success", "transactions": transactions})
+    except Exception as e:
+        print(f"Error fetching transactions: {traceback.format_exc()}")
         return jsonify({"status": "Error", "message": str(e)}), 500
 
 

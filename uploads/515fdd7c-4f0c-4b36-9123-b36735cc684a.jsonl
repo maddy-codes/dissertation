@@ -1,0 +1,8 @@
+{"type": "start", "timestamp": 1777319280.381834, "message": "Analysis starting..."}
+{"type": "progress", "timestamp": 1777319281.081362, "message": "Fetching Trial Balance and executing Xero mappings..."}
+{"type": "progress", "timestamp": 1777319284.2441971, "message": "Mapped 19 focus targets. Starting synthesis..."}
+{"type": "account_start", "timestamp": 1777319285.032174, "account": "Advertising & Marketing (400)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777319326.529504, "account": "Advertising & Marketing (400)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777319326.5298991, "account": "Audit & Accountancy fees (401)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}
+{"type": "account_complete", "timestamp": 1777319367.4729788, "account": "Audit & Accountancy fees (401)", "synthesis": "Agent stopped due to iteration limit or time limit."}
+{"type": "account_start", "timestamp": 1777319367.4737139, "account": "Bank Fees (404)", "message": "Multi-agent synthesis in progress (Analyst -> Writer -> Reviewer)..."}

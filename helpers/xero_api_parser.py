@@ -39,16 +39,56 @@ def fetch_and_format_xero_data(xero_client, tenant_id: str, report_date: date, c
     messages = []
     output_mapping_dataframe = {"xero_names": [], "xero_codes": [], "ai_summary": []}
 
-    # 4. Fetch Bank Transactions and get subscriptions
-    try:
-        bank_txs_json = xero_client.get_bank_transactions(tenant_id)
-        from experiments.types import Example, SubscriptionPolicy
-        from experiments.context.subscriptions import summarise_subscriptions
-        
-        mock_example = Example(example_id="api", transactions=bank_txs_json.get("BankTransactions", []))
-        sys_subs = summarise_subscriptions(mock_example, SubscriptionPolicy())
-    except Exception as e:
-        sys_subs = f"SUBSCRIPTIONS_SUMMARY (error fetching transactions: {e})"
+    # 4. BROAD TRANSACTION FETCH via BankTransactions and Invoices
+    # Pull transactions for all accounts at once
+    def parse_detailed_report(s_date, e_date):
+        from collections import defaultdict
+        ledger_by_code = defaultdict(list)
+        if not s_date or not e_date: return ledger_by_code
+        try:
+            bt_resp = xero_client.get_bank_transactions(tenant_id, start_date=s_date, end_date=e_date, max_pages=100)
+            inv_resp = xero_client.get_invoices(tenant_id, start_date=s_date, end_date=e_date, statuses=["AUTHORISED", "PAID"], max_pages=100)
+            
+            for bt in bt_resp.get("BankTransactions", []):
+                contact_name = bt.get("Contact", {}).get("Name", "Unknown")
+                date_str = bt.get("DateString", bt.get("Date", ""))[:10]
+                for li in bt.get("LineItems", []):
+                    acc_code = li.get("AccountCode")
+                    if not acc_code:
+                        continue
+                    desc = li.get("Description") or contact_name
+                    amount = li.get("LineAmount", 0)
+                    ledger_by_code[acc_code].append({
+                        "Description": desc,
+                        "Amount": amount,
+                        "Date": date_str
+                    })
+                    
+            for inv in inv_resp.get("Invoices", []):
+                contact_name = inv.get("Contact", {}).get("Name", "Unknown")
+                date_str = inv.get("DateString", inv.get("Date", ""))[:10]
+                for li in inv.get("LineItems", []):
+                    acc_code = li.get("AccountCode")
+                    if not acc_code:
+                        continue
+                    desc = li.get("Description") or contact_name
+                    amount = li.get("LineAmount", 0)
+                    ledger_by_code[acc_code].append({
+                        "Description": desc,
+                        "Amount": amount,
+                        "Date": date_str
+                    })
+        except Exception as e:
+            print(f"Detailed report fetch error: {e}")
+        return ledger_by_code
+
+    print(f"Fetching broad ledger for current year ({start_date} to {report_date})...")
+    ledger_by_code = parse_detailed_report(start_date, report_date)
+    print(f"Fetching broad ledger for prior year ({comp_start} to {comparison_date})...")
+    prior_ledger_by_code = parse_detailed_report(comp_start, comparison_date)
+
+    messages = []
+    output_mapping_dataframe = {"xero_names": [], "xero_codes": [], "ai_summary": []}
 
     # Helper to parse Xero Reports Rows
     def extract_rows(rows, target_list):
@@ -75,6 +115,8 @@ def fetch_and_format_xero_data(xero_client, tenant_id: str, report_date: date, c
         extract_rows(comp_pl_json["Reports"][0].get("Rows", []), comp_pl_rows)
 
     # Iterate over TB rows to construct exactly what the AI needs
+    from helpers.ledger_analyzer import analyze_ledger
+    
     for row in tb_rows:
         cells = row.get("Cells", [])
         if not cells or len(cells) < 1:
@@ -83,6 +125,24 @@ def fetch_and_format_xero_data(xero_client, tenant_id: str, report_date: date, c
         account_val = cells[0].get("Value", "")
         if account_val == "Total":
             continue
+            
+        import re
+        account_code = ""
+        match_paren = re.search(r'\((\w+)\)$', account_val)
+        if match_paren:
+            account_code = match_paren.group(1).strip()
+        elif "-" in account_val:
+            account_code = account_val.split("-")[0].strip()
+
+        # Perform Deep Ledger Analysis for this specific account
+        tx_analysis = ""
+        if account_code:
+            acc_txs = ledger_by_code.get(account_code, [])
+            acc_prior_txs = prior_ledger_by_code.get(account_code, [])
+            tx_analysis = f"\n--- TRANSACTIONAL INSIGHTS (Code: {account_code}) ---\n"
+            tx_analysis += analyze_ledger(acc_txs, acc_prior_txs)
+        else:
+            tx_analysis = "\n(No account code found for transactional analysis)"
             
         # P&L Context (if exists)
         pl_context = [p for p in pl_rows if len(p.get("Cells", [])) > 0 and p["Cells"][0].get("Value") == account_val]
@@ -100,9 +160,8 @@ def fetch_and_format_xero_data(xero_client, tenant_id: str, report_date: date, c
         if comp_pl_context:
             message_content += f"Prior Year Profit & Loss Data: {str(comp_pl_context[0].get('Cells', []))}\n"
 
-        # Prepend Subscription Summary on the first valid message we create (to give context)
-        if not messages and sys_subs:
-            message_content = f"==== CORE INSIGHT: RECURRING SUBSCRIPTIONS ====\n{sys_subs}\n===============================================\n\n" + message_content
+        # Append Transactional Insights
+        message_content += tx_analysis
 
         messages.append({
             "name": account_val,

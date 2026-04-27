@@ -58,9 +58,17 @@ def create_app() -> Flask:
                 except Exception:
                     # Fallback or silent fail if odbcinst fails
                     pass
-            
-            params = urllib.parse.quote_plus(db_conn)
-            app.config["SQLALCHEMY_DATABASE_URI"] = f"mssql+pyodbc:///?odbc_connect={params}"
+
+            # Check if pyodbc can actually connect; fall back to SQLite if not
+            try:
+                import pyodbc
+                pyodbc.connect(db_conn, timeout=5)
+                params = urllib.parse.quote_plus(db_conn)
+                app.config["SQLALCHEMY_DATABASE_URI"] = f"mssql+pyodbc:///?odbc_connect={params}"
+            except Exception:
+                import logging
+                logging.warning("Azure SQL connection unavailable; falling back to SQLite.")
+                app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
         else:
             # Assume it's a standard SQLAlchemy URI
             app.config["SQLALCHEMY_DATABASE_URI"] = db_conn
@@ -72,7 +80,9 @@ def create_app() -> Flask:
     from setup.models import db
     db.init_app(app)
 
-    if db_schema:
+    # Only apply schema prefix when using a non-SQLite backend
+    is_sqlite = "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"]
+    if db_schema and not is_sqlite:
         # Set the default schema for metadata and all existing tables
         db.metadata.schema = db_schema
         for table in db.metadata.tables.values():

@@ -1,0 +1,68 @@
+{"type": "start", "timestamp": 1777377110.3407547, "message": "Starting review\u2026"}
+{"type": "progress", "timestamp": 1777377110.341965, "message": "Fetching trial balance from Xero\u2026"}
+{"type": "progress", "timestamp": 1777377110.3420322, "message": "Fetching profit & loss and prior-year comparatives\u2026"}
+{"type": "progress", "timestamp": 1777377110.3420663, "message": "Pulling current and prior-year transactions (bank, invoices, manual journals)\u2026"}
+{"type": "progress", "timestamp": 1777377111.9832337, "message": "24 accounts with activity identified."}
+{"type": "progress", "timestamp": 1777377111.9836638, "message": "Filtered to 20 accounts you selected."}
+{"type": "progress", "timestamp": 1777377115.5079677, "message": "Reviewing 20 accounts in parallel (4 at a time). Notes will appear below as they finish."}
+{"type": "account_start", "timestamp": 1777377115.5083292, "account": "Sales (200)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "account_start", "timestamp": 1777377115.508538, "account": "Advertising & Marketing (400)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "account_start", "timestamp": 1777377115.5138965, "account": "Audit & Accountancy fees (401)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "account_start", "timestamp": 1777377115.5182507, "account": "Bank Fees (404)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "account_error", "timestamp": 1777377115.904115, "account": "Advertising & Marketing (400)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_error", "timestamp": 1777377115.9053302, "account": "Audit & Accountancy fees (401)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377115.9062736, "account": "Entertainment-100% business (420)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377115.9063785, "message": "Completed 1 of 20 accounts."}
+{"type": "account_start", "timestamp": 1777377115.9066794, "account": "General Expenses (429)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "account_error", "timestamp": 1777377115.907136, "account": "Sales (200)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "progress", "timestamp": 1777377115.9136596, "message": "Completed 2 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377115.9144335, "account": "Bank Fees (404)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377115.9195478, "account": "Light, Power, Heating (445)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377115.9197345, "message": "Completed 3 of 20 accounts."}
+{"type": "account_start", "timestamp": 1777377115.9199138, "account": "Printing & Stationery (461)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377115.924628, "message": "Completed 4 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.0270858, "account": "General Expenses (429)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.0272748, "account": "Rent (469)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.0273378, "message": "Completed 5 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.0365674, "account": "Printing & Stationery (461)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.036684, "account": "Subscriptions (485)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.0367424, "message": "Completed 6 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.043083, "account": "Entertainment-100% business (420)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.0431948, "account": "Telephone & Internet (489)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.0432303, "message": "Completed 7 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.0492697, "account": "Light, Power, Heating (445)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.049452, "account": "Accounts Receivable (610)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.0495, "message": "Completed 8 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.134298, "account": "Rent (469)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.134491, "account": "Business Bank Account (090)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.1345754, "message": "Completed 9 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.148036, "account": "Subscriptions (485)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.1481612, "account": "Computer Equipment (720)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.1482236, "message": "Completed 10 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.1547444, "account": "Accounts Receivable (610)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.1548746, "account": "Office Equipment (710)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.1549377, "message": "Completed 11 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.1727448, "account": "Telephone & Internet (489)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.1728933, "account": "Accounts Payable (800)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.1729422, "message": "Completed 12 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.2552931, "account": "Business Bank Account (090)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.2554553, "account": "Historical Adjustment (840)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.2555056, "message": "Completed 13 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.2619061, "account": "Computer Equipment (720)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.2620184, "account": "Unpaid Expense Claims (801)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.2620585, "message": "Completed 14 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.2790098, "account": "Office Equipment (710)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.2791343, "account": "VAT (820)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.2791886, "message": "Completed 15 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.2942004, "account": "Accounts Payable (800)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "account_start", "timestamp": 1777377116.2943246, "account": "Retained Earnings (960)", "message": "Drafting review note from Xero data\u2026"}
+{"type": "progress", "timestamp": 1777377116.294397, "message": "Completed 16 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.3726673, "account": "Historical Adjustment (840)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "progress", "timestamp": 1777377116.372968, "message": "Completed 17 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.3755984, "account": "Unpaid Expense Claims (801)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "progress", "timestamp": 1777377116.3759305, "message": "Completed 18 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.3988464, "account": "VAT (820)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "progress", "timestamp": 1777377116.3990393, "message": "Completed 19 of 20 accounts."}
+{"type": "account_error", "timestamp": 1777377116.4044194, "account": "Retained Earnings (960)", "logic": "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}"}
+{"type": "progress", "timestamp": 1777377116.4045753, "message": "Completed 20 of 20 accounts."}
+{"type": "complete", "timestamp": 1777377116.729407, "message": "Review notes generated.", "result_file": "/home/runner/workspace/uploads/b5edc698-d1a9-4ed1-9571-85bf18bf0ff5.csv"}

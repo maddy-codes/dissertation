@@ -50,6 +50,15 @@ def get_llm():
     # o1 models don't support temperature < 1.0 or seed currently
     is_o1 = "o1" in deployment_name.lower()
     
+    # Newer reasoning / GPT-5 family deployments require
+    # `max_completion_tokens`; classic GPT-4o accepts `max_tokens`. Detect by
+    # deployment name and allow an explicit env override for edge cases.
+    new_param_markers = ("o1", "o3", "o4", "gpt-5")
+    uses_new_param = any(tag in deployment_name.lower() for tag in new_param_markers)
+    token_param = os.environ.get("PHM_LLM_TOKEN_PARAM") or (
+        "max_completion_tokens" if uses_new_param else "max_tokens"
+    )
+
     config = {
         "azure_endpoint": os.environ.get("AZURE_OPENAI_ENDPOINT"),
         "api_key": os.environ.get("AZURE_OPENAI_API_KEY"),
@@ -60,11 +69,14 @@ def get_llm():
         # forever and so we can't blow up costs on a runaway response.
         "request_timeout": float(os.environ.get("PHM_LLM_TIMEOUT_SECONDS", "60")),
         "max_retries": int(os.environ.get("PHM_LLM_MAX_RETRIES", "2")),
-        "max_tokens": int(os.environ.get("PHM_LLM_MAX_TOKENS", "800")),
     }
 
+    # Pass the token cap through model_kwargs under the parameter name the
+    # underlying deployment understands.
+    model_kwargs = {token_param: int(os.environ.get("PHM_LLM_MAX_TOKENS", "800"))}
     if not is_o1:
-        config["model_kwargs"] = {"seed": 42}
+        model_kwargs["seed"] = 42
+    config["model_kwargs"] = model_kwargs
 
     return AzureChatOpenAIStopFix(**config)
 

@@ -238,6 +238,16 @@ def load_draft(tenant_id):
 @workbench_bp.route("/api/workbench/nominal_transactions/<tenant_id>", methods=["GET"])
 @login_required
 def nominal_transactions(tenant_id):
+    """
+    Return the top transactions hitting a single nominal account for the
+    current financial year.
+
+    Aggregates Bank Transactions, Invoices and posted Manual Journals via
+    the same helper the review pipeline uses, so the drilldown matches
+    what the LLM is briefed on. (Xero's Accounting API does not expose a
+    "DetailedTransactionReport" endpoint — calling that returns 404, which
+    is what the previous implementation tripped over.)
+    """
     account_code = request.args.get("account_code")
     account_name = request.args.get("account_name")
     current_year_end = request.args.get("current_year_end")
@@ -249,53 +259,45 @@ def nominal_transactions(tenant_id):
         return jsonify({"status": "Error", "message": "No Xero token"}), 400
 
     try:
+        # Resolve the account (and its code, if we only got the name)
         accounts = xero_client.get_accounts(tenant_id)
-        account_id = None
+        account_lookup: dict[str, dict] = {}
+        resolved_code: str | None = None
         for acc in accounts.get("Accounts", []):
+            acc_id = acc.get("AccountID")
+            if acc_id:
+                account_lookup[acc_id] = acc
             if account_code and acc.get("Code") == account_code:
-                account_id = acc.get("AccountID")
-                break
-            if account_name and acc.get("Name") == account_name:
-                account_id = acc.get("AccountID")
-                break
-        if not account_id:
+                resolved_code = acc.get("Code")
+            elif account_name and acc.get("Name") == account_name:
+                resolved_code = acc.get("Code")
+
+        if account_code and not resolved_code:
+            resolved_code = account_code
+
+        if not resolved_code:
             return jsonify({"status": "Success", "transactions": []})
 
         report_date = date.fromisoformat(current_year_end)
         start_date = report_date - relativedelta(years=1) + timedelta(days=1)
 
-        tx_report = xero_client.get_detailed_transaction_report(
-            tenant_id=tenant_id,
-            start_date=start_date,
-            end_date=report_date,
-            account_id=account_id,
+        from helpers.xero_api_parser import _build_ledger_by_code
+
+        ledger = _build_ledger_by_code(
+            xero_client, tenant_id, start_date, report_date, account_lookup
         )
+        entries = ledger.get(str(resolved_code), [])
 
-        transactions = []
-        if tx_report.get("Reports"):
-            for row in tx_report["Reports"][0].get("Rows", []):
-                if row.get("RowType") == "Section":
-                    for inner in row.get("Rows", []):
-                        if inner.get("RowType") == "Row":
-                            cells = inner.get("Cells", [])
-                            if len(cells) >= 5:
-                                tx_date = cells[0].get("Value", "")
-                                desc = cells[1].get("Value", "") or cells[2].get("Value", "")
-                                try:
-                                    amount = float(
-                                        (cells[5].get("Value", "0") or "0").replace(",", "")
-                                    )
-                                except (ValueError, IndexError):
-                                    amount = 0.0
-                                transactions.append(
-                                    {
-                                        "date": tx_date,
-                                        "desc": desc,
-                                        "amount": amount,
-                                        "type": "transaction",
-                                    }
-                                )
-
+        # Reshape for the workbench drilldown JS:
+        # { date, desc, amount }
+        transactions = [
+            {
+                "date": e.get("Date", ""),
+                "desc": e.get("Description") or e.get("Contact") or "Transaction",
+                "amount": float(e.get("Amount", 0.0) or 0.0),
+            }
+            for e in entries
+        ]
         transactions.sort(key=lambda x: abs(x["amount"]), reverse=True)
         return jsonify({"status": "Success", "transactions": transactions[:10]})
     except Exception as exc:

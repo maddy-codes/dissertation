@@ -400,22 +400,6 @@ class XeroClient:
             raise RuntimeError(f"Xero trial balance failed: {resp.status_code} {resp.text}")
         return resp.json()
 
-    def get_detailed_transaction_report(
-        self, tenant_id: str, start_date: date, end_date: date, account_id: str = None
-    ) -> dict[str, Any]:
-        url = f"{XERO_ACCOUNTING_BASE}/Reports/DetailedTransactionReport"
-        params = {
-            "fromDate": start_date.isoformat(),
-            "toDate": end_date.isoformat(),
-        }
-        if account_id:
-            params["accountID"] = account_id
-
-        resp = self._session.get(url, headers=self._headers(tenant_id), params=params, timeout=60)
-        if resp.status_code >= 400:
-            raise RuntimeError(f"Xero detailed transaction report failed: {resp.status_code} {resp.text}")
-        return resp.json()
-
     def get_profit_and_loss(self, tenant_id: str, start_date: date, end_date: date) -> dict[str, Any]:
         url = f"{XERO_ACCOUNTING_BASE}/Reports/ProfitAndLoss"
         resp = self._session.get(

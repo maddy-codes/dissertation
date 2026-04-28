@@ -22,7 +22,6 @@ from flask import (
 from flask_login import current_user, login_required
 
 from setup.models import ReviewNote, User, db
-from strings.paths import FILE_PATH_OUT
 
 logger = logging.getLogger(__name__)
 
@@ -54,13 +53,28 @@ def _run_analysis(
 ):
     """Background worker that streams progress events into uploads/<run_id>.jsonl."""
     log_file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{run_id}.jsonl")
+    run_output_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{run_id}.csv")
+    owner_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{run_id}.owner")
+
+    # Bind this run to the kicking-off user so the SSE / report / email
+    # endpoints can verify ownership and prevent cross-user data leaks.
+    try:
+        with open(owner_path, "w") as fh:
+            fh.write(str(user_id))
+    except OSError:
+        logger.exception("Could not write run owner sidecar at %s", owner_path)
+
+    emit_lock = threading.Lock()
 
     def emit(event_type: str, **kwargs) -> None:
         event = {"type": event_type, "timestamp": time.time(), **kwargs}
-        with open(log_file_path, "a") as fh:
-            fh.write(json.dumps(event) + "\n")
+        line = json.dumps(event) + "\n"
+        # Lock so concurrent worker threads don't interleave bytes mid-line
+        with emit_lock:
+            with open(log_file_path, "a") as fh:
+                fh.write(line)
 
-    emit("start", message="Review starting…")
+    emit("start", message="Starting review…")
 
     with app.app_context():
         try:
@@ -70,10 +84,20 @@ def _run_analysis(
                 emit("error", logic="No Xero token associated with user")
                 return
 
-            emit("progress", message="Fetching trial balance and building per-account context…")
             report_date = date.fromisoformat(current_year_end) if current_year_end else date.today()
             comparison_date = (
                 date.fromisoformat(comparison_year_end) if comparison_year_end else None
+            )
+
+            # Per-stage progress events so the live page never sits silent.
+            emit("progress", message="Fetching trial balance from Xero…")
+            emit(
+                "progress",
+                message="Fetching profit & loss and prior-year comparatives…",
+            )
+            emit(
+                "progress",
+                message="Pulling current and prior-year transactions (bank, invoices, manual journals)…",
             )
 
             from helpers.xero_api_parser import fetch_and_format_xero_data
@@ -81,20 +105,32 @@ def _run_analysis(
             messages, mp_df = fetch_and_format_xero_data(
                 xero_client, tenant_id, report_date, comparison_date=comparison_date
             )
-            if selected_nominal_codes:
-                messages = [m for m in messages if m["name"] in selected_nominal_codes]
 
             emit(
                 "progress",
-                message=f"Reviewing {len(messages)} accounts. Generating notes…",
+                message=f"{len(messages)} accounts with activity identified.",
             )
+
+            if selected_nominal_codes:
+                # Match by either the account label OR the resolved code so
+                # the workbench's "selection by name" form still works.
+                selected = set(selected_nominal_codes)
+                filtered = []
+                for m, code in zip(messages, mp_df["xero_codes"]):
+                    if m["name"] in selected or (code and str(code) in selected):
+                        filtered.append(m)
+                messages = filtered
+                emit(
+                    "progress",
+                    message=f"Filtered to {len(messages)} accounts you selected.",
+                )
 
             from main_crew import run_all_crew
 
             run_all_crew(
                 messages,
                 mp_df,
-                FILE_PATH_OUT=FILE_PATH_OUT,
+                FILE_PATH_OUT=run_output_path,
                 emit_event=emit,
             )
 
@@ -120,8 +156,8 @@ def _run_analysis(
 
             emit(
                 "complete",
-                message="Review notes successfully generated.",
-                result_file=FILE_PATH_OUT,
+                message="Review notes generated.",
+                result_file=run_output_path,
             )
         except Exception as exc:
             logger.exception("Background review failed")

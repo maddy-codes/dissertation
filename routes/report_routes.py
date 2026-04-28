@@ -6,31 +6,77 @@ import logging
 import os
 import time
 
-from flask import Blueprint, Response, current_app, jsonify, render_template, request
-from flask_login import login_required
-
-from strings.paths import FILE_PATH_OUT
+from flask import (
+    Blueprint,
+    Response,
+    abort,
+    current_app,
+    jsonify,
+    render_template,
+    request,
+)
+from flask_login import current_user, login_required
 
 logger = logging.getLogger(__name__)
 
 report_bp = Blueprint("report", __name__)
 
 
+def _run_csv_path(run_id: str) -> str:
+    return os.path.join(current_app.config["UPLOAD_FOLDER"], f"{run_id}.csv")
+
+
+def _run_owner_path(run_id: str) -> str:
+    return os.path.join(current_app.config["UPLOAD_FOLDER"], f"{run_id}.owner")
+
+
+def _require_run_owner(run_id: str) -> None:
+    """
+    Abort with 404 unless the current user owns this run.
+
+    Treating ownership failures as 404 (rather than 403) prevents leaking the
+    fact that a given run_id exists for some other user.
+    """
+    owner_path = _run_owner_path(run_id)
+    if not os.path.exists(owner_path):
+        abort(404)
+    try:
+        with open(owner_path) as fh:
+            owner_id = int(fh.read().strip())
+    except (OSError, ValueError):
+        abort(404)
+    if owner_id != int(getattr(current_user, "id", -1)):
+        abort(404)
+
+
 @report_bp.route("/report/<run_id>")
+@login_required
 def report_stream(run_id: str):
     """Render the live review-notes page for a single run."""
+    _require_run_owner(run_id)
     return render_template("report_stream.html", run_id=run_id)
 
 
 @report_bp.route("/api/stream_report/<run_id>")
+@login_required
 def stream_report(run_id: str):
-    """Server-sent events feed of progress for one review run."""
+    """Server-sent events feed of progress for one review run.
+
+    Sends a comment-line heartbeat every few seconds so proxies don't kill
+    the connection during long quiet windows (LLM calls in flight).
+    """
+    _require_run_owner(run_id)
     log_file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], f"{run_id}.jsonl")
+    poll_interval = 0.5
+    heartbeat_every = 10.0  # seconds
 
     def generate():
         last_pos = 0
-        # Tail the file until we see a terminal event
+        last_heartbeat = time.time()
+        # Tell the client we're connected immediately
+        yield ": connected\n\n"
         while True:
+            sent_anything = False
             if os.path.exists(log_file_path):
                 with open(log_file_path) as fh:
                     fh.seek(last_pos)
@@ -40,13 +86,21 @@ def stream_report(run_id: str):
                         if not line.strip():
                             continue
                         yield f"data: {line}\n\n"
+                        sent_anything = True
                         try:
                             event = json.loads(line)
                             if event.get("type") in ("complete", "error"):
                                 return
                         except Exception:
                             continue
-            time.sleep(0.5)
+            now = time.time()
+            if not sent_anything and (now - last_heartbeat) >= heartbeat_every:
+                # SSE comment lines are ignored by EventSource but keep proxies happy
+                yield ": heartbeat\n\n"
+                last_heartbeat = now
+            elif sent_anything:
+                last_heartbeat = now
+            time.sleep(poll_interval)
 
     return Response(generate(), mimetype="text/event-stream")
 
@@ -54,6 +108,7 @@ def stream_report(run_id: str):
 @report_bp.route("/api/send_report/<run_id>", methods=["POST"])
 @login_required
 def send_report(run_id: str):
+    _require_run_owner(run_id)
     payload = request.get_json(silent=True) or {}
     email = payload.get("email")
     if not email:
@@ -61,6 +116,18 @@ def send_report(run_id: str):
 
     try:
         from helpers.email_service import send_email
+
+        file_path = _run_csv_path(run_id)
+        if not os.path.exists(file_path):
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Review file is not ready yet — try again once the review completes.",
+                    }
+                ),
+                404,
+            )
 
         subject = "Generated Review Notes | PHM Accountants"
         body = (
@@ -74,7 +141,7 @@ def send_report(run_id: str):
 
         send_email(
             subject=subject,
-            file_path=FILE_PATH_OUT,
+            file_path=file_path,
             body=body,
             recipient_list=recipient_list,
             sender_address=sender_address,

@@ -56,11 +56,16 @@ def get_llm():
         "api_version": os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
         "azure_deployment": deployment_name,
         "temperature": 1.0 if is_o1 else 0.0,
+        # Bound the LLM call so a stuck request can't hang a worker thread
+        # forever and so we can't blow up costs on a runaway response.
+        "request_timeout": float(os.environ.get("PHM_LLM_TIMEOUT_SECONDS", "60")),
+        "max_retries": int(os.environ.get("PHM_LLM_MAX_RETRIES", "2")),
+        "max_tokens": int(os.environ.get("PHM_LLM_MAX_TOKENS", "800")),
     }
-    
+
     if not is_o1:
         config["model_kwargs"] = {"seed": 42}
-        
+
     return AzureChatOpenAIStopFix(**config)
 
 class PHMCrew:
@@ -105,6 +110,57 @@ class PHMCrew:
             allow_delegation=False,
             max_iter=15
         )
+
+    def run_single_shot_review(self, account_name: str, briefing: str) -> str:
+        """
+        Produce a single-paragraph UK accountant review note in ONE LLM call.
+
+        Much faster and more reliable than the 3-agent chain: the analyst /
+        writer / reviewer split was prone to JSON-schema parsing failures, and
+        when parsing failed the caller used to get the entire CrewAI internal
+        log dump as the "review note".
+
+        The briefing is expected to be the clean, human-readable per-account
+        text produced by `helpers.xero_api_parser.fetch_and_format_xero_data`.
+        """
+        from langchain.schema import HumanMessage, SystemMessage
+
+        system = SystemMessage(content=(
+            "You are a UK chartered accountant at Phipps Henson McAllister "
+            "preparing year-end review notes from Xero data. You write a single, "
+            "factual paragraph per nominal account. You only use figures, "
+            "vendor names and dates that appear in the briefing supplied; you "
+            "never invent transactions, counterparties or amounts."
+        ))
+
+        human = HumanMessage(content=f"""\
+Account under review: {account_name}
+
+Briefing (figures, transactions, recurring items and anomalies pulled directly from Xero):
+{briefing}
+
+Write a SINGLE PARAGRAPH review note in this template:
+
+  "<Current Year Figure £> vs <Prior Year Figure £> – £<variance> <increase|decrease> (<%>): \
+<Current year description naming up to 3 real counterparties from the briefing> \
+versus prior year <Prior year description naming up to 3 real counterparties> \
+due to <plain-English economic reason inferred from the patterns>."
+
+RULES (strictly enforced):
+1. Use £ symbols and round to whole pounds.
+2. Reference only counterparties, descriptions or amounts that are explicitly in the briefing.
+3. If the variance is immaterial (under £500 absolute AND under 5%), state that plainly instead of inventing drivers.
+4. If the briefing shows no transactions, comment on the closing balance only and say "no movement in the year".
+5. Output ONE PARAGRAPH only. No bullet points, no headings, no journal numbers.
+6. Do not add commentary about your own reasoning or the briefing format.
+""")
+
+        # Let exceptions propagate — the worker in main_crew catches them and
+        # emits a proper `account_error` event instead of pretending the
+        # account was successfully reviewed with the error text as the note.
+        result = self.llm.invoke([system, human])
+        text = getattr(result, "content", None) or str(result)
+        return text.strip()
 
     def run_synthesis(self, account_name: str, financial_context: str) -> str:
         # Agents

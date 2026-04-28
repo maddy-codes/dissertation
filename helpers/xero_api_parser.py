@@ -92,6 +92,62 @@ def _safe_float(value: Any) -> float:
         return 0.0
 
 
+# ---------------------------------------------------------------------------
+# Cell-level helpers for turning the raw Xero report cells into clean numbers
+# ---------------------------------------------------------------------------
+
+def _parse_money(value: Any) -> float:
+    """Parse a Xero money cell value like '£1,234.56', '(1,234.56)' or '1234.56'."""
+    if value is None:
+        return 0.0
+    s = str(value).strip()
+    if not s:
+        return 0.0
+    negative = s.startswith("(") and s.endswith(")")
+    s = s.strip("()£$,€ ")
+    s = s.replace(",", "")
+    try:
+        amt = float(s)
+    except ValueError:
+        return 0.0
+    return -amt if negative else amt
+
+
+def _tb_amount(cells: List[Dict[str, Any]]) -> float:
+    """
+    Resolve a Trial Balance row's net balance from its cells.
+
+    Xero TB rows typically contain: [label, debit, credit, ytd, ...] or
+    [label, debit, credit, balance]. We derive a signed net (Dr positive,
+    Cr negative) so downstream comparisons can be done in a uniform space.
+    """
+    debit = _parse_money(cells[1].get("Value")) if len(cells) > 1 else 0.0
+    credit = _parse_money(cells[2].get("Value")) if len(cells) > 2 else 0.0
+    return debit - credit
+
+
+def _pl_amount(cells: List[Dict[str, Any]]) -> float:
+    """P&L rows usually have a single value column; take the last numeric cell."""
+    for cell in reversed(cells[1:] or []):
+        v = cell.get("Value")
+        if v not in (None, ""):
+            return _parse_money(v)
+    return 0.0
+
+
+def _format_money(amount: float) -> str:
+    sign = "-" if amount < 0 else ""
+    return f"{sign}£{abs(amount):,.0f}"
+
+
+def _row_has_activity(cells: List[Dict[str, Any]]) -> bool:
+    """True if any non-label cell has a non-zero numeric value."""
+    for cell in cells[1:] or []:
+        if _parse_money(cell.get("Value")) != 0:
+            return True
+    return False
+
+
 def _build_ledger_by_code(
     xero_client,
     tenant_id: str,
@@ -307,54 +363,103 @@ def fetch_and_format_xero_data(
         cells = row.get("Cells", [])
         if not cells:
             continue
-        label = cells[0].get("Value", "")
-        if not label or label.lower() == "total":
+        label = (cells[0].get("Value") or "").strip()
+        if not label or label.lower().startswith("total"):
             continue
 
         account_code = _row_account_code(row, account_lookup)
 
-        if account_code:
-            curr_txs = curr_ledger.get(str(account_code), [])
-            prior_txs = prior_ledger.get(str(account_code), [])
-            tx_section = (
-                f"\n--- TRANSACTIONAL INSIGHTS (Code: {account_code}) ---\n"
-                + analyze_ledger(curr_txs, prior_txs)
-            )
-        else:
-            tx_section = "\n(No account code resolved for transactional analysis)"
-
+        # Look up the matching rows in the comparison reports
         pl_match = next(
-            (
-                p for p in pl_rows
-                if p.get("Cells") and p["Cells"][0].get("Value") == label
-            ),
+            (p for p in pl_rows if p.get("Cells") and p["Cells"][0].get("Value") == label),
             None,
         )
         comp_tb_match = next(
-            (
-                p for p in comp_tb_rows
-                if p.get("Cells") and p["Cells"][0].get("Value") == label
-            ),
+            (p for p in comp_tb_rows if p.get("Cells") and p["Cells"][0].get("Value") == label),
             None,
         )
         comp_pl_match = next(
-            (
-                p for p in comp_pl_rows
-                if p.get("Cells") and p["Cells"][0].get("Value") == label
-            ),
+            (p for p in comp_pl_rows if p.get("Cells") and p["Cells"][0].get("Value") == label),
             None,
         )
 
-        body = [f"Xero Account Summary for {label}:", f"Trial Balance Data: {cells}"]
-        if pl_match:
-            body.append(f"Profit & Loss Data: {pl_match.get('Cells', [])}")
-        if comp_tb_match:
-            body.append(f"Prior Year Trial Balance Data: {comp_tb_match.get('Cells', [])}")
-        if comp_pl_match:
-            body.append(f"Prior Year Profit & Loss Data: {comp_pl_match.get('Cells', [])}")
-        body.append(tx_section)
+        # Skip rows that are pure section headers / have zero activity in BOTH
+        # years AND no transactional data — these just generate noise notes.
+        has_curr_activity = _row_has_activity(cells)
+        has_prior_activity = bool(comp_tb_match) and _row_has_activity(
+            comp_tb_match.get("Cells", [])
+        )
+        curr_txs_for_code = curr_ledger.get(str(account_code), []) if account_code else []
+        prior_txs_for_code = prior_ledger.get(str(account_code), []) if account_code else []
+        if (
+            not has_curr_activity
+            and not has_prior_activity
+            and not curr_txs_for_code
+            and not prior_txs_for_code
+        ):
+            continue
 
-        messages.append({"name": label, "message": "\n".join(body)})
+        # Resolve clean numbers
+        tb_curr = _tb_amount(cells)
+        tb_prior = _tb_amount(comp_tb_match.get("Cells", [])) if comp_tb_match else 0.0
+        pl_curr = _pl_amount(pl_match.get("Cells", [])) if pl_match else 0.0
+        pl_prior = _pl_amount(comp_pl_match.get("Cells", [])) if comp_pl_match else 0.0
+
+        # Use TB as the headline; fall back to P&L if TB is zero (income/expense)
+        headline_curr = tb_curr if tb_curr else pl_curr
+        headline_prior = tb_prior if tb_prior else pl_prior
+        variance_abs = headline_curr - headline_prior
+        if abs(headline_prior) > 0.01:
+            variance_pct = (variance_abs / abs(headline_prior)) * 100.0
+        else:
+            variance_pct = 0.0 if abs(headline_curr) < 0.01 else float("inf")
+
+        # Build a clean, sectioned briefing the LLM can actually use
+        lines: List[str] = []
+        lines.append(f"=== ACCOUNT: {label} (Code {account_code or 'unresolved'}) ===")
+        lines.append("")
+        lines.append(
+            f"CURRENT YEAR (to {report_date.isoformat()}):"
+        )
+        lines.append(
+            f"  Trial Balance net (Dr +ve / Cr -ve): {_format_money(tb_curr)}"
+        )
+        if pl_match:
+            lines.append(f"  P&L movement: {_format_money(pl_curr)}")
+        lines.append("")
+
+        if comp_tb_match or comp_pl_match:
+            comp_label = comparison_date.isoformat() if comparison_date else "prior year"
+            lines.append(f"PRIOR YEAR (to {comp_label}):")
+            lines.append(
+                f"  Trial Balance net (Dr +ve / Cr -ve): {_format_money(tb_prior)}"
+            )
+            if comp_pl_match:
+                lines.append(f"  P&L movement: {_format_money(pl_prior)}")
+            lines.append("")
+            lines.append("YEAR-ON-YEAR VARIANCE:")
+            direction = "increase" if variance_abs > 0 else "decrease" if variance_abs < 0 else "no change"
+            pct_str = (
+                "n/a"
+                if variance_pct == float("inf")
+                else f"{variance_pct:+.1f}%"
+            )
+            lines.append(
+                f"  Absolute: {_format_money(variance_abs)} ({direction})"
+            )
+            lines.append(f"  Percentage: {pct_str}")
+            lines.append("")
+
+        if account_code:
+            lines.append(f"TRANSACTIONAL INSIGHTS (Code {account_code}):")
+            lines.append(analyze_ledger(curr_txs_for_code, prior_txs_for_code))
+        else:
+            lines.append(
+                "TRANSACTIONAL INSIGHTS: account code could not be resolved for this row, "
+                "so individual transactions are not available — base the note on the headline figures only."
+            )
+
+        messages.append({"name": label, "message": "\n".join(lines)})
 
         out_map["xero_names"].append(label)
         out_map["xero_codes"].append(account_code)

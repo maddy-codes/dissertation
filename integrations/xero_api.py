@@ -94,6 +94,37 @@ class XeroClient:
         raw = f"{self._client_id}:{self._client_secret}".encode("utf-8")
         return "Basic " + base64.b64encode(raw).decode("ascii")
 
+    def _get(self, url: str, **kwargs):
+        """
+        GET wrapper that respects Xero's 429 Retry-After header.
+
+        Xero's per-tenant ceiling is 60 calls/min/5 concurrent. Pulling a
+        Trial Balance + P&L + comparison reports + paginated transactions can
+        easily breach this on a busy account, so we wait the requested cool-off
+        period (capped) and retry a small number of times before giving up.
+        """
+        max_retries = int(os.environ.get("XERO_MAX_RETRIES", "4"))
+        max_backoff = float(os.environ.get("XERO_MAX_BACKOFF_SECONDS", "30"))
+
+        attempt = 0
+        while True:
+            resp = self._session.get(url, **kwargs)
+            if resp.status_code != 429 or attempt >= max_retries:
+                return resp
+            retry_after = resp.headers.get("Retry-After")
+            try:
+                wait = float(retry_after) if retry_after is not None else (2 ** attempt)
+            except ValueError:
+                wait = 2 ** attempt
+            wait = min(max(wait, 1.0), max_backoff)
+            attempt += 1
+            try:
+                # Lazy import so we don't pollute the top of the module
+                import time as _time
+                _time.sleep(wait)
+            except Exception:
+                pass
+
     def _load_cached_token(self) -> Optional[XeroToken]:
         try:
             with open(self._token_cache_path, "r", encoding="utf-8") as f:
@@ -177,7 +208,7 @@ class XeroClient:
 
     def list_connections(self) -> list[dict[str, Any]]:
         tok = self._ensure_token()
-        resp = self._session.get(
+        resp = self._get(
             XERO_CONNECTIONS_URL,
             headers={"Authorization": f"Bearer {tok.access_token}", "Accept": "application/json"},
             timeout=30,
@@ -193,7 +224,7 @@ class XeroClient:
                 return _GLOBAL_ACCOUNTS_CACHE[tenant_id]
                 
             url = f"{XERO_ACCOUNTING_BASE}/Accounts"
-            resp = self._session.get(url, headers=self._headers(tenant_id), timeout=60)
+            resp = self._get(url, headers=self._headers(tenant_id), timeout=60)
             if resp.status_code >= 400:
                 raise RuntimeError(f"Xero accounts failed: {resp.status_code} {resp.text}")
                 
@@ -237,7 +268,7 @@ class XeroClient:
                 if where:
                     params["where"] = where
                     
-                resp = self._session.get(
+                resp = self._get(
                     url,
                     headers=self._headers(tenant_id),
                     params=params,
@@ -297,7 +328,7 @@ class XeroClient:
                 if where:
                     params["where"] = where
 
-                resp = self._session.get(
+                resp = self._get(
                     url,
                     headers=self._headers(tenant_id),
                     params=params,
@@ -355,7 +386,7 @@ class XeroClient:
                 params = {"page": page}
                 if where:
                     params["where"] = where
-                resp = self._session.get(
+                resp = self._get(
                     url,
                     headers=self._headers(tenant_id),
                     params=params,
@@ -378,7 +409,7 @@ class XeroClient:
 
     def get_balance_sheet(self, tenant_id: str, report_date: date) -> dict[str, Any]:
         url = f"{XERO_ACCOUNTING_BASE}/Reports/BalanceSheet"
-        resp = self._session.get(
+        resp = self._get(
             url,
             headers=self._headers(tenant_id),
             params={"date": report_date.isoformat()},
@@ -390,7 +421,7 @@ class XeroClient:
 
     def get_trial_balance(self, tenant_id: str, report_date: date) -> dict[str, Any]:
         url = f"{XERO_ACCOUNTING_BASE}/Reports/TrialBalance"
-        resp = self._session.get(
+        resp = self._get(
             url,
             headers=self._headers(tenant_id),
             params={"date": report_date.isoformat()},
@@ -402,7 +433,7 @@ class XeroClient:
 
     def get_profit_and_loss(self, tenant_id: str, start_date: date, end_date: date) -> dict[str, Any]:
         url = f"{XERO_ACCOUNTING_BASE}/Reports/ProfitAndLoss"
-        resp = self._session.get(
+        resp = self._get(
             url,
             headers=self._headers(tenant_id),
             params={"fromDate": start_date.isoformat(), "toDate": end_date.isoformat()},

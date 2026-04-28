@@ -3,13 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Register | Phipps Henson McAllister</title>
-    <!-- Tailwind CSS -->
+    <title>Create account | Phipps Henson McAllister</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <!-- Tailwind Config -->
     <script id="tailwind-config">
         tailwind.config = {
             theme: {
@@ -46,25 +43,23 @@
     </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen antialiased flex flex-col md:flex-row">
-    
-    <!-- Left Column: Editorial Headline & Brand Identity -->
+
     <section class="flex-1 flex flex-col justify-center px-10 md:px-24 py-20 bg-primary text-white relative overflow-hidden">
-        <!-- Subtle geometric decoration -->
         <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary-container/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
-        
+
         <div class="max-w-2xl relative z-10">
             <header class="mb-12">
                 <span class="text-[10px] font-black uppercase tracking-[0.3em] text-on-primary-container opacity-60">ESTABLISHED 1994</span>
                 <h1 class="mt-8 text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
-                    Partner <br/>
-                    <span class="text-secondary-container">Access</span> <br/>
-                    <span>Initialization</span>
+                    Create <br/>
+                    <span class="text-secondary-container">your</span> <br/>
+                    <span>account</span>
                 </h1>
             </header>
             <div class="space-y-8 hidden md:block">
                 <p class="text-xl text-white/80 leading-relaxed max-w-md font-medium">
-                    Where technical precision meets bespoke financial strategy. Set up your private portal to manage algorithmic analysis.
+                    Set up access to the AI Review Notes Portal.
                 </p>
                 <div class="flex items-center gap-6">
                     <span class="h-[2px] w-16 bg-secondary-container"></span>
@@ -74,18 +69,16 @@
         </div>
     </section>
 
-    <!-- Right Column: Focused Register Journey -->
     <section class="flex-1 flex items-center justify-center px-6 md:px-20 py-10 bg-surface">
         <div class="w-full max-w-md">
             <div class="bg-white border border-outline-variant/30 p-12 md:p-16 rounded-sm shadow-sm relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-[4px] bg-secondary-container"></div>
-                
+
                 <div class="mb-12">
-                    <h2 class="text-3xl font-extrabold text-primary tracking-tight">Register Mandate</h2>
-                    <p class="text-on-surface-variant mt-2 text-sm font-medium">Provide details to establish a secure institutional link.</p>
+                    <h2 class="text-3xl font-extrabold text-primary tracking-tight">Create account</h2>
+                    <p class="text-on-surface-variant mt-2 text-sm font-medium">Enter an email and choose a password.</p>
                 </div>
-                
-                <!-- Flash Messages -->
+
                 {% with messages = get_flashed_messages() %}
                   {% if messages %}
                     <div class="mb-8 space-y-3">
@@ -102,11 +95,10 @@
                 <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-10">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
-                    <!-- Email Field -->
                     <div class="space-y-3">
                         <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="email">
                             <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
-                            Account Email
+                            Email
                         </label>
                         <div class="flex items-center border border-outline-variant/30 bg-surface-container-low px-5 py-4 rounded-sm focus-within:border-primary transition-all">
                             <span class="material-symbols-outlined text-outline mr-4 text-xl">mail</span>
@@ -114,11 +106,10 @@
                         </div>
                     </div>
 
-                    <!-- Password Field -->
                     <div class="space-y-3">
                         <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="password">
                             <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
-                            Initialize Passphrase
+                            Password
                         </label>
                         <div class="flex items-center border border-outline-variant/30 bg-surface-container-low px-5 py-4 rounded-sm focus-within:border-primary transition-all">
                             <span class="material-symbols-outlined text-outline mr-4 text-xl">vpn_key</span>
@@ -126,10 +117,9 @@
                         </div>
                     </div>
 
-                    <!-- Primary Action -->
                     <div class="pt-4">
                         <button class="w-full py-5 bg-primary text-white rounded-sm font-extrabold tracking-[0.2em] uppercase text-xs hover:bg-primary-container hover:shadow-lg transition-all flex items-center justify-center gap-4 group" type="submit">
-                            Register & Initialize
+                            Create account
                             <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">how_to_reg</span>
                         </button>
                     </div>
@@ -137,7 +127,7 @@
 
                 <footer class="mt-16 text-center">
                     <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
-                        Existing partner? <a class="text-secondary font-black hover:text-secondary-container transition-colors" href="{{ url_for('auth.login') }}">Return to Login</a>
+                        Already have an account? <a class="text-secondary font-black hover:text-secondary-container transition-colors" href="{{ url_for('auth.login') }}">Sign in</a>
                     </p>
                 </footer>
             </div>

@@ -318,6 +318,64 @@ class XeroClient:
                 
             return result
 
+    def get_manual_journals(
+        self,
+        tenant_id: str,
+        start_date: date = None,
+        end_date: date = None,
+        max_pages: int = 50,
+    ) -> dict[str, Any]:
+        """Fetch Manual Journals over a date window. Cached on the broad query."""
+        cache_key = (tenant_id, str(start_date), str(end_date), "manual_journals")
+
+        now = time.time()
+        if cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
+            return _GLOBAL_TX_CACHE[cache_key]
+
+        with _TX_LOCK:
+            now = time.time()
+            if cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
+                return _GLOBAL_TX_CACHE[cache_key]
+
+            url = f"{XERO_ACCOUNTING_BASE}/ManualJournals"
+            all_items: list[dict[str, Any]] = []
+
+            conditions = []
+            if start_date:
+                conditions.append(
+                    f"Date >= DateTime({start_date.year},{start_date.month},{start_date.day})"
+                )
+            if end_date:
+                conditions.append(
+                    f"Date < DateTime({end_date.year},{end_date.month},{end_date.day})"
+                )
+            where = " && ".join(conditions) if conditions else None
+
+            for page in range(1, max_pages + 1):
+                params = {"page": page}
+                if where:
+                    params["where"] = where
+                resp = self._session.get(
+                    url,
+                    headers=self._headers(tenant_id),
+                    params=params,
+                    timeout=60,
+                )
+                if resp.status_code >= 400:
+                    raise RuntimeError(
+                        f"Xero manual journals failed: {resp.status_code} {resp.text}"
+                    )
+                data = resp.json()
+                items = data.get("ManualJournals") or []
+                if not isinstance(items, list) or not items:
+                    break
+                all_items.extend(items)
+
+            result = {"ManualJournals": all_items}
+            _GLOBAL_TX_CACHE[cache_key] = result
+            _GLOBAL_TX_CACHE_TS[cache_key] = now
+            return result
+
     def get_balance_sheet(self, tenant_id: str, report_date: date) -> dict[str, Any]:
         url = f"{XERO_ACCOUNTING_BASE}/Reports/BalanceSheet"
         resp = self._session.get(

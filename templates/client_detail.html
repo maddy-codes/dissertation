@@ -7,9 +7,9 @@
     <nav class="flex mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
         <a href="/" class="text-secondary hover:text-primary transition-colors">Portal</a>
         <span class="mx-2 text-outline-variant">/</span>
-        <span>Client Mandate</span>
+        <span>Client File</span>
     </nav>
-    
+
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
             <div class="flex items-center gap-4 mb-2">
@@ -19,38 +19,38 @@
                 <h1 class="text-4xl font-extrabold text-primary tracking-tight">{{ tenant_name }}</h1>
             </div>
             <div class="flex items-center gap-4 ml-10">
-                <span class="bg-surface-container-high text-primary font-mono text-[10px] px-3 py-1 rounded-sm border border-outline-variant/30 font-bold tracking-wider">Tenant ID: {{ tenant_id }}</span>
+                <span class="bg-surface-container-high text-primary font-mono text-[10px] px-3 py-1 rounded-sm border border-outline-variant/30 font-bold tracking-wider">Xero Ref: {{ tenant_id }}</span>
             </div>
         </div>
-        
+
         <div class="flex gap-3 ml-10 md:ml-0">
             <button onclick="document.getElementById('new-analysis-modal').classList.remove('hidden')" class="px-8 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-white bg-primary hover:bg-primary-container transition-all rounded-sm flex items-center gap-3 shadow-md">
-                <span class="material-symbols-outlined text-base">add_circle</span> New Review Note
+                <span class="material-symbols-outlined text-base">add_circle</span> New Review
             </button>
         </div>
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-    <!-- History Table (Level 1 Card) -->
+    <!-- History Table -->
     <div class="lg:col-span-12">
         <div class="bg-white border border-outline-variant/30 rounded-sm shadow-sm overflow-hidden flex flex-col min-h-[400px]">
             <div class="p-8 border-b border-outline-variant/20 flex justify-between items-center bg-white relative">
                 <div class="absolute top-0 left-0 w-full h-[3px] bg-primary"></div>
                 <h3 class="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
-                    <span class="material-symbols-outlined text-base">history</span> 
-                    Audit History
+                    <span class="material-symbols-outlined text-base">history</span>
+                    Review History
                 </h3>
             </div>
-            
+
             {% if history %}
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-surface-container-low border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.15em] text-primary">
                         <tr>
                             <th class="px-8 py-5">Current / Comparison Year End</th>
-                            <th class="px-8 py-5">Execution Date</th>
-                            <th class="px-8 py-5">Run Identity</th>
+                            <th class="px-8 py-5">Run Date</th>
+                            <th class="px-8 py-5">Run Reference</th>
                             <th class="px-8 py-5 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -71,7 +71,7 @@
                             </td>
                             <td class="px-8 py-5 text-right">
                                 {% if run.status == 'DRAFT' %}
-                                <form action="{{ url_for('workbench') }}" method="post" class="inline">
+                                <form action="{{ url_for('workbench.workbench') }}" method="post" class="inline">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input type="hidden" name="tenant_id" value="{{ run.tenant_id }}"/>
                                     <input type="hidden" name="current_year_end" value="{{ run.year_end }}"/>
@@ -81,8 +81,8 @@
                                     </button>
                                 </form>
                                 {% else %}
-                                <a href="{{ url_for('report_stream', run_id=run.run_id) }}" class="inline-flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-colors">
-                                    View Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                <a href="{{ url_for('report.report_stream', run_id=run.run_id) }}" class="inline-flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-colors">
+                                    View Notes <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
                                 {% endif %}
                             </td>
@@ -94,33 +94,33 @@
             {% else %}
             <div class="flex-grow flex flex-col items-center justify-center p-20 text-center">
                 <span class="material-symbols-outlined text-outline-variant text-6xl mb-6">analytics</span>
-                <p class="text-primary font-black uppercase tracking-[0.2em] text-xs">No Historical Intelligence Discovered</p>
-                <p class="text-on-surface-variant text-sm mt-2 font-medium">Initiate a new analysis to populate the ledger.</p>
+                <p class="text-primary font-black uppercase tracking-[0.2em] text-xs">No previous reviews</p>
+                <p class="text-on-surface-variant text-sm mt-2 font-medium">Start a new review to begin building this client's history.</p>
             </div>
             {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Simple Modal for New Analysis (Year Selection) -->
+<!-- Modal: New Review (year selection) -->
 <div id="new-analysis-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
     <div class="absolute inset-0 bg-primary/20 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
-    <div class="bg-white border border-outline-variant/30 rounded-sm shadow-2xl w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-300">
+    <div class="bg-white border border-outline-variant/30 rounded-sm shadow-2xl w-full max-w-md relative z-10">
         <div class="p-8 border-b border-outline-variant/10">
-            <h2 class="text-2xl font-extrabold text-primary tracking-tight uppercase">Initialise Mandate</h2>
-            <p class="text-on-surface-variant text-sm font-medium mt-1">Configure analysis period parameters.</p>
+            <h2 class="text-2xl font-extrabold text-primary tracking-tight uppercase">New Review</h2>
+            <p class="text-on-surface-variant text-sm font-medium mt-1">Choose the year ends to compare.</p>
         </div>
-        
-        <form action="{{ url_for('workbench') }}" method="post" class="p-8 space-y-8">
+
+        <form action="{{ url_for('workbench.workbench') }}" method="post" class="p-8 space-y-8">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
-            
+
             <div class="space-y-3">
                 <label for="comparison_year_end" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2">
                     <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
                     Comparison Year End
                 </label>
-                <input type="date" id="comparison_year_end" name="comparison_year_end" 
+                <input type="date" id="comparison_year_end" name="comparison_year_end"
                        class="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all text-sm font-semibold">
             </div>
 
@@ -129,14 +129,14 @@
                     <span class="w-1.5 h-1.5 bg-secondary-container rounded-full"></span>
                     Current Year End
                 </label>
-                <input type="date" id="current_year_end" name="current_year_end" required 
+                <input type="date" id="current_year_end" name="current_year_end" required
                        class="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all text-sm font-semibold">
             </div>
-            
+
             <div class="pt-4 flex flex-col gap-4">
                 <button type="submit" class="w-full py-5 bg-primary text-white rounded-sm font-extrabold tracking-[0.2em] uppercase text-xs hover:bg-primary-container transition-all flex items-center justify-center gap-4 group">
-                    Launch Workbench
-                    <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">rocket_launch</span>
+                    Open Working Papers
+                    <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
                 <button type="button" onclick="document.getElementById('new-analysis-modal').classList.add('hidden')" class="w-full py-4 text-outline text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-surface-container transition-all">
                     Cancel

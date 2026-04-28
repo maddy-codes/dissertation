@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} Workbench | PHM Portal {% endblock %}
+{% block title %} Working Papers | PHM Portal {% endblock %}
 
 {% block main %}
 <div class="w-full">
@@ -7,49 +7,49 @@
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-outline-variant/20">
         <div class="flex items-start gap-5">
-            <a href="{{ url_for('upload') }}"
-               class="mt-1 text-primary hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container transition-all">
+            <a href="{{ url_for('main.dashboard') }}"
+               class="mt-1 text-primary hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container">
                 <span class="material-symbols-outlined text-2xl">arrow_back</span>
             </a>
             <div>
                 <nav class="flex mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
                     <span class="text-secondary">Portal</span>
                     <span class="mx-2 text-outline-variant">/</span>
-                    <span>Analysis Workbench</span>
+                    <span>Working Papers</span>
                 </nav>
-                <h1 class="text-4xl font-extrabold text-primary tracking-tight">Analysis Workbench</h1>
+                <h1 class="text-4xl font-extrabold text-primary tracking-tight">Working Papers</h1>
                 <p class="mt-2 text-on-surface-variant text-sm font-bold uppercase tracking-wider flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm">business</span>
-                    Institutional ID: <code class="text-xs font-mono bg-surface-container-high px-3 py-1 rounded-sm text-primary border border-outline-variant/20">{{ tenant_id }}</code>
+                    Xero Reference: <code class="text-xs font-mono bg-surface-container-high px-3 py-1 rounded-sm text-primary border border-outline-variant/20">{{ tenant_id }}</code>
                 </p>
-            </div>  
+            </div>
         </div>
 
         <!-- Step indicators -->
         <div class="flex items-center gap-2 pl-14 md:pl-0">
-            <div id="pill-1" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-primary text-white transition-all duration-300">1 · Ledger</div>
+            <div id="pill-1" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-primary text-white transition-all duration-300">1 · Trial Balance</div>
             <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-2" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">2 · Scope</div>
+            <div id="pill-2" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">2 · Account Selection</div>
             <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-3" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">3 · Analysis</div>
+            <div id="pill-3" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">3 · Account Review</div>
             <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-4" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">4 · Finalize</div>
+            <div id="pill-4" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">4 · Generate</div>
         </div>
     </div>
 
     <!-- Main Workspace Grid -->
     <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-gutter items-start">
 
-        <!-- Thinking Console -->
+        <!-- Processing Log -->
         <div class="bg-white border border-outline-variant/30 rounded-sm overflow-hidden shadow-sm flex flex-col">
             <div class="flex items-center justify-between px-6 py-5 bg-surface-container-low border-b border-outline-variant/20">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-primary text-xl">memory</span>
-                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Intelligence Stream</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Processing Log</span>
                 </div>
                 <div class="flex items-center gap-2" id="agent-badge">
                     <div class="h-2 w-2 rounded-full bg-secondary-container animate-pulse"></div>
-                    <span id="agent-status-text" class="text-[9px] font-black uppercase tracking-widest text-secondary">Live Scan</span>
+                    <span id="agent-status-text" class="text-[9px] font-black uppercase tracking-widest text-secondary">Live</span>
                 </div>
             </div>
             <div id="thought-stream"
@@ -58,7 +58,7 @@
                 <!-- injected by JS -->
             </div>
             <div class="p-4 bg-surface-container-low border-t border-outline-variant/10 text-center">
-                <span class="text-[9px] font-black uppercase tracking-[0.3em] text-outline/40 italic">System Logic Engine Active</span>
+                <span class="text-[9px] font-black uppercase tracking-[0.3em] text-outline/40 italic">Automated Review Engine Active</span>
             </div>
         </div>
 
@@ -70,9 +70,9 @@
             <div id="stage-tb" class="flex flex-col h-full p-10 transition-opacity duration-700 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10 border-b border-outline-variant/10 pb-8">
                     <div>
-                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Institutional Ledger</span>
+                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Trial Balance</span>
                         <h2 class="text-3xl font-extrabold text-primary tracking-tight">Current Trial Balance</h2>
-                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Review the raw financial position and identify significant variances.</p>
+                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Review the current ledger position and identify movements worth flagging.</p>
                     </div>
                     <div class="flex gap-3">
                          <button id="btn-materiality" class="px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-white border border-outline-variant/30 text-primary hover:bg-surface-container transition-all rounded-sm flex items-center gap-3 shadow-sm">
@@ -84,7 +84,7 @@
 
                 <!-- Flags Section -->
                 <div id="flag-section" class="mb-10 hidden">
-                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-error mb-4 block">Institutional Flags Detected</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-error mb-4 block">Items for Review</span>
                     <div class="flex flex-col gap-4" id="flag-cards"></div>
                 </div>
 
@@ -100,7 +100,7 @@
                     <div class="flex flex-col overflow-y-auto custom-scrollbar" style="max-height: 480px;" id="tb-rows">
                         <div id="tb-loading" class="flex flex-col items-center justify-center p-20 text-center">
                             <span class="material-symbols-outlined text-primary/20 text-6xl animate-spin-slow mb-6">sync</span>
-                            <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Fetching Ledger Data...</p>
+                            <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Loading trial balance…</p>
                         </div>
                     </div>
                 </div>
@@ -108,22 +108,21 @@
                 <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
                     <button id="btn-to-coa"
                         class="inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-primary-container hover:shadow-lg transition-all shadow-md group">
-                        Proceed to Scope Definition
+                        Continue to Account Selection
                         <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                 </div>
             </div>
 
-            <!-- STEP 2: SCOPE DEFINITION -->
+            <!-- STEP 2: ACCOUNT SELECTION -->
             <div id="stage-coa" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10 border-b border-outline-variant/10 pb-8">
                     <div>
-                        <span class="inline-block bg-secondary-container/10 text-primary border border-secondary-container/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Mandate Scope Mapping</span>
-                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Analytical Scope</h2>
-                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Select nominal targets for multi-agent synthesis.</p>
+                        <span class="inline-block bg-secondary-container/10 text-primary border border-secondary-container/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Account Selection</span>
+                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Choose accounts to review</h2>
+                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Tick the nominal accounts you want included in the review notes.</p>
                     </div>
                     <div class="flex gap-3 shrink-0">
-                        
                         <button id="btn-approve-all" class="px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-primary text-white border border-transparent hover:bg-primary-container transition-all rounded-sm flex items-center gap-3 shadow-sm">
                             <span class="material-symbols-outlined text-sm">done_all</span>
                             Select All
@@ -135,7 +134,7 @@
                     <div class="grid grid-cols-[auto_80px_1fr_100px_100px_200px_40px] gap-4 bg-surface-container-low px-8 py-4 border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.2em] text-primary">
                         <div class="w-5"></div>
                         <div>Code</div>
-                        <div>Nominal Identity</div>
+                        <div>Nominal Account</div>
                         <div class="text-right">Prior Yr</div>
                         <div class="text-right">Current</div>
                         <div class="text-right">Recommendation</div>
@@ -146,53 +145,53 @@
                 <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
                     <button id="btn-to-analysis"
                         class="inline-flex items-center gap-4 px-10 py-5 bg-secondary-container text-on-secondary-container rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-secondary-container/90 hover:shadow-lg transition-all group shadow-md">
-                        Confirm Analytical Scope
+                        Confirm Selection
                         <span class="material-symbols-outlined text-base group-hover:scale-110 transition-transform">check_circle</span>
                     </button>
                 </div>
             </div>
 
-            <!-- STAGE 3: ANALYSIS -->
+            <!-- STAGE 3: ACCOUNT REVIEW -->
             <div id="stage-analysis" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 flex-1 relative z-10">
                 <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-outline-variant/10 pb-8">
                     <div class="max-w-2xl">
-                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Deep Extraction</span>
-                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Agent Breifing</h2>
-                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Locking in nominal identities for the Multi-Agent Crew.</p>
+                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Account Review</span>
+                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Reviewing selected accounts</h2>
+                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Reviewing transactions and identifying items to comment on.</p>
                     </div>
                     <div class="shrink-0 bg-surface-container-low border border-outline-variant/20 px-6 py-4 rounded-sm text-center">
-                        <span class="block text-[9px] font-black uppercase tracking-widest text-outline mb-1">Queue Status</span>
+                        <span class="block text-[9px] font-black uppercase tracking-widest text-outline mb-1">Progress</span>
                         <span class="text-2xl font-black text-primary"><span id="analysis-current">0</span>/<span id="analysis-total">0</span></span>
                     </div>
                 </div>
                 <div id="analysis-cards" class="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                     <div id="analysis-empty-state" class="flex flex-col items-center justify-center p-20 text-center">
                         <span class="material-symbols-outlined text-primary/20 text-6xl animate-pulse mb-6">database</span>
-                        <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Awaiting Queue Processing...</p>
+                        <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Waiting to start…</p>
                     </div>
                 </div>
                 <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
-                    <button id="btn-to-final" class="hidden inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-md">Proceed to Finalization <span class="material-symbols-outlined">arrow_forward</span></button>
+                    <button id="btn-to-final" class="hidden inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-md">Continue <span class="material-symbols-outlined">arrow_forward</span></button>
                 </div>
             </div>
 
-            <!-- STAGE 4: FINALIZE -->
+            <!-- STAGE 4: FINALISE -->
             <div id="stage-final" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 items-center justify-center relative z-10 text-center">
                 <div class="w-full max-w-xl mx-auto">
                     <div class="mb-12">
                         <div class="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-8 border border-green-500/20">
                             <span class="material-symbols-outlined text-5xl text-green-600">verified</span>
                         </div>
-                        <h2 class="text-4xl font-extrabold text-primary tracking-tight mb-4">Mandate Ready</h2>
-                        <p class="text-on-surface-variant text-base font-medium leading-relaxed">Dispatch the final multi-agent synthesis to the firm's ledger.</p>
+                        <h2 class="text-4xl font-extrabold text-primary tracking-tight mb-4">Ready to Generate</h2>
+                        <p class="text-on-surface-variant text-base font-medium leading-relaxed">Generate the final review notes for this client file.</p>
                     </div>
-                    <form id="final-form" action="{{ url_for('upload') }}" method="post" class="flex flex-col gap-6">
+                    <form id="final-form" action="{{ url_for('main.dashboard') }}" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
                         <input type="hidden" name="current_year_end" value="{{ current_year_end }}"/>
                         <input type="hidden" name="comparison_year_end" value="{{ comparison_year_end }}"/>
                         <button type="submit" class="w-full py-6 bg-primary text-white rounded-sm font-black tracking-[0.3em] uppercase text-xs hover:shadow-2xl transition-all flex items-center justify-center gap-4 group">
-                            Execute Dispatch <span class="material-symbols-outlined">send</span>
+                            Generate Review Notes <span class="material-symbols-outlined">send</span>
                         </button>
                     </form>
                 </div>
@@ -206,19 +205,19 @@
 <div id="modal-materiality" class="fixed inset-0 z-[100] hidden items-center justify-center bg-primary/40 backdrop-blur-sm transition-all duration-300 opacity-0">
     <div class="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden border border-outline-variant/30 flex flex-col">
         <div class="px-8 py-6 bg-surface-container-low border-b border-outline-variant/20 flex justify-between items-center">
-            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Materiality Configuration</h3>
+            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Materiality Settings</h3>
             <button class="modal-close text-outline hover:text-primary"><span class="material-symbols-outlined">close</span></button>
         </div>
         <div class="p-10 space-y-8">
             <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-outline block mb-3">Global Firm Materiality (£)</label>
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-outline block mb-3">Overall Materiality (£)</label>
                 <input type="number" id="input-global-mat" value="1000" class="w-full bg-surface-container-low border border-outline-variant/30 p-4 rounded-sm font-bold text-primary focus:outline-none focus:border-primary">
             </div>
             <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-outline block mb-3">Nominal Trivial Threshold (£)</label>
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-outline block mb-3">Trivial Threshold per Account (£)</label>
                 <input type="number" id="input-nominal-mat" value="500" class="w-full bg-surface-container-low border border-outline-variant/30 p-4 rounded-sm font-bold text-primary focus:outline-none focus:border-primary">
             </div>
-            <button id="btn-save-mat" class="w-full py-4 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-[10px] shadow-md">Apply Thresholds</button>
+            <button id="btn-save-mat" class="w-full py-4 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-[10px] shadow-md">Save</button>
         </div>
     </div>
 </div>

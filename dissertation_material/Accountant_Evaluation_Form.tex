@@ -1,0 +1,89 @@
+% !TEX root = Accountant_Evaluation_Form.tex
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{amssymb} % For \bigcirc
+\usepackage{setspace}
+
+\title{\vspace{-2cm}\textbf{Accountant Evaluation Form}\\ \large Automating Year-End Accounting Notes}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\section*{Participant Consent and Information}
+\textbf{Researcher:} Jatin Arora \\
+\textbf{Purpose of Study:} To evaluate the quality, accuracy, and professional tone of AI-generated accounting review notes derived from Xero ledger data.
+
+\vspace{0.5cm}
+\noindent \textbf{Participant Declaration:}
+\begin{itemize}
+    \item I understand that my participation is voluntary and that I am free to withdraw at any time.
+    \item I understand that the data collected during this study will be anonymised and used solely for academic research purposes.
+    \item I agree to review the AI-generated financial notes and provide honest, professional feedback based on my accounting expertise.
+\end{itemize}
+
+\vspace{0.5cm}
+\noindent
+Name: \hrulefill \\*[0.5cm]
+Role/Job Title: \hrulefill \\*[0.5cm]
+Signature: \hrulefill \hspace{1cm} Date: \hrulefill
+
+\vspace{1cm}
+\section*{System Evaluation Questionnaire}
+\textit{Please review the anonymised Xero dataset alongside the AI-generated draft notes from the top three models (Model A, Model B, and Model C). Rate each model on a scale of \textbf{1 (Poor)} to \textbf{5 (Excellent)} across the following dimensions:}
+
+\vspace{0.5cm}
+\noindent
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{X c c c}
+\toprule
+\textbf{Evaluation Criteria} & \textbf{Model A} & \textbf{Model B} & \textbf{Model C} \\
+\midrule
+\textbf{1. Numeric Fidelity} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} \\
+\textit{\small Accurate reflections of numbers and variance calculations.} & & & \\
+\addlinespace
+\textbf{2. Accounting Tone \& Style} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} \\
+\textit{\small Professional, client-facing tone appropriate for a UK firm.} & & & \\
+\addlinespace
+\textbf{3. Relevance of Insights} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} \\
+\textit{\small Correctly highlights material variances and key drivers.} & & & \\
+\addlinespace
+\textbf{4. Formatting \& Structure} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} & \rule{1.5cm}{0.4pt} \\
+\textit{\small Follows statutory sequence (Turnover $\rightarrow$ Tax $\rightarrow$ Balance Sheet).} & & & \\
+\bottomrule
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{1cm}
+\section*{Qualitative Feedback}
+\textit{Please provide any comparative or general comments regarding the three models.}
+
+\vspace{0.5cm}
+\noindent \textbf{1. Which model performed the best overall, and why?}
+\vspace{0.2cm}\\
+\noindent\rule{\textwidth}{0.4pt} \\*[0.5cm]
+\noindent\rule{\textwidth}{0.4pt} \\*[0.5cm]
+\noindent\rule{\textwidth}{0.4pt}
+
+\vspace{0.5cm}
+\noindent \textbf{2. What were the most significant weaknesses observed across the models?}
+\vspace{0.2cm}\\
+\noindent\rule{\textwidth}{0.4pt} \\*[0.5cm]
+\noindent\rule{\textwidth}{0.4pt} \\*[0.5cm]
+\noindent\rule{\textwidth}{0.4pt}
+
+\vspace{0.5cm}
+\noindent \textbf{3. Would you be comfortable using the best-performing model as a ``first draft'' generator in your firm? Why or why not?}
+\vspace{0.2cm}\\
+\noindent\rule{\textwidth}{0.4pt} \\*[0.5cm]
+\noindent\rule{\textwidth}{0.4pt} \\*[0.5cm]
+\noindent\rule{\textwidth}{0.4pt}
+
+\end{document}

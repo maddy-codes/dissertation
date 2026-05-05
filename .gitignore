@@ -8,4 +8,16 @@ __pycache__/
 *.pyc
 extra/
 GEMINI.md
-dissertation_material
+tmp/
+.pytest_cache/
+dissertation_material/*.aux
+dissertation_material/*.bbl
+dissertation_material/*.blg
+dissertation_material/*.fdb_latexmk
+dissertation_material/*.fls
+dissertation_material/*.lof
+dissertation_material/*.log
+dissertation_material/*.lot
+dissertation_material/*.out
+dissertation_material/*.toc
+dissertation_material/chapters/*.aux

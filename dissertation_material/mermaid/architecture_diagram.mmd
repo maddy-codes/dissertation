@@ -1,0 +1,36 @@
+flowchart LR
+    subgraph Source["Source Systems"]
+        Excel["Excel ledgers"]
+        Blob["Azure Blob JSON archives"]
+        Xero["Xero API / OAuth2"]
+    end
+
+    subgraph Prep["Deterministic Preparation"]
+        Map["Client mapping"]
+        Mask["PII masking"]
+        Rules["Decimal rules<br/>variance logic<br/>mandatory triggers"]
+        Context["Prompt context builder"]
+    end
+
+    subgraph Agents["AI Review Notes Pipeline"]
+        Analyst["Analyst agent"]
+        Writer["Writer agent"]
+        Reviewer["QC reviewer"]
+    end
+
+    subgraph Output["Output and Audit Trail"]
+        Draft["Draft review note"]
+        Workbench["Accountant workbench"]
+        Audit["generation_log.json"]
+    end
+
+    Excel --> Map
+    Blob --> Map
+    Xero --> Map
+    Map --> Mask --> Rules --> Context
+    Context --> Analyst --> Writer --> Reviewer
+    Reviewer -->|Approved| Draft --> Workbench
+    Reviewer -->|Regenerate| Writer
+    Context --> Audit
+    Writer --> Audit
+    Reviewer --> Audit

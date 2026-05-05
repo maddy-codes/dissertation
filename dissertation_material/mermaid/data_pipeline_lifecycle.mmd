@@ -1,0 +1,9 @@
+flowchart LR
+    Blob["Blob working papers"] --> Transform["JSON extraction<br/>paragraph normalisation"]
+    Xero["Live Xero tenant"] --> Enrich["Re-enrichment<br/>trial balance + transactions"]
+    Transform --> Merge["Chat record builder"]
+    Enrich --> Merge
+    Merge --> Split["Train / validation split"]
+    Split --> Foundry["Azure AI Foundry files"]
+    Foundry --> FT["Three GPT-4.1 fine-tuned configurations"]
+    Split --> Harness["GPT-5.4 validation harness"]

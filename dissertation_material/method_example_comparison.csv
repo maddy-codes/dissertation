@@ -1,0 +1,9 @@
+method_order,method_label,comparison_role,example_id,response_excerpt
+0,Gold accountant note,Reference,val_064,QUERIES CITB Levy - o/s liabilities for previous years are still unadjusted after assessment received - surely the creditor o/s now would be 2022 (to be paid this year to March 2024) and then 2023 which we have estimated and will be assessed for payments in 20
+1,GPT-5.4 Zero-Shot,Prompt engineered GPT-5.4,val_064,- Obtain and review: - final bank statements at year end; - loan statements; - fixed asset register; - dividend paperwork; - payroll year-end reports; - pension support; - VAT returns; - contract accounting support for accrued income / work in progress; - corp
+2,GPT-5.4 Single-Shot,Prompt engineered GPT-5.4,val_064,"- No detailed ledger, prior year comparatives, nominal activity, fixed asset register, loan agreements, dividend paperwork, payroll records, VAT returns, or contract schedules have been provided."
+3,GPT-5.4 Few-Shot,Prompt engineered GPT-5.4,val_064,"- Directors’ remuneration, pension contributions and dividends are all material and should be reviewed together for tax efficiency and compliance."
+4,GPT-4.1 Fine-Tuned 1,Fine-tuned GPT-4.1,val_064,CITB levy – £29k v £28k.
+5,GPT-4.1 Fine-Tuned 2,Fine-tuned GPT-4.1,val_064,"Admin expenses: £400k v £400k (PY), including: - Directors' salaries: £210k v £210k (PY)."
+6,GPT-4.1 Fine-Tuned 3,Fine-tuned GPT-4.1,val_064,### HAS AML BEEN COMPLETED https://www.irishub.co.uk/login?return=%2Fclients%2Fbrowser%2FproductType
+7,GPT-4.1 Fine-Tuned 4,Fine-tuned GPT-4.1,val_064,Directors salaries - £210k in the year.

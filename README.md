@@ -1,47 +1,106 @@
-# ai_review_notes
+# AI Review Notes Dissertation Codebase
 
-This repo contains a Flask + Celery app for generating accountant-style review notes, plus an experiment platform to compare models/techniques and demonstrate context degradation.
+This repository accompanies the dissertation **Automating Year-End Accounting Notes**. It contains:
 
-## Experiments (Multi-Model + Context Degradation)
+- A Flask application for accountant-style year-end review note generation.
+- Deterministic data-processing helpers for Xero-derived trial balance and transaction data.
+- Experiment utilities for context construction, scoring, GPT-5.4 prompt-engineering validation, and dataset preparation.
+- LaTeX dissertation source and generated figures under `dissertation_material/`.
+- Unit tests covering date parsing, scoring, context builders, prompt construction, and the data pipeline.
 
-The app now exposes:
-- `GET /experiments` to configure and start an experiment run
-- `GET /experiments/status/<task_id>` for Celery status
-- `GET /experiments/run/<run_id>` to view results and download CSV/JSON
+## Repository Map
 
-### Required environment variables (Azure Blob dataset)
+- `app.py`, `routes/`, `templates/`, `static/`: Flask web application.
+- `helpers/`: ledger parsing, mapping, utility, Xero processing, and analysis helpers.
+- `agents/`: CrewAI agent orchestration.
+- `experiments/`: reproducible experiment and evaluation code.
+- `tests/`: unit tests for the submitted code.
+- `dissertation_material/`: LaTeX source, report PDF, survey data, validation JSONL, and generated figures.
+- `docs/company_restrictions_privacy_notes.md`: submission note covering firm restrictions, GDPR/privacy concerns, and where the real generated examples come from.
+- `generate_graphs.py`: regenerates dissertation graphs from local data files.
+
+## Setup
+
+Use Python 3.10+.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+The checked-in `pyproject.toml` lists the application dependencies. Optional live Azure and Xero integrations require credentials, but local tests and dissertation graph generation do not.
+
+## Environment Variables
+
+Create a local `.env` file from `.env.example`. Do not commit real secrets.
+
+Required only for live Azure OpenAI prompt-engineering validation:
+
+- `AZURE_OPENAI_API_KEY`
+- `AZURE_EXISTING_AIPROJECT_ENDPOINT`
+- `AZURE_OPENAI_DEPLOYMENT`
+
+Required only for Azure Blob/Xero enrichment workflows:
+
 - `AZURE_STORAGE_CONNECTION_STRING`
-- `EXAMPLES_CONTAINER`
-- `EXAMPLES_PREFIX` (optional)
-
-### Fetch details directly from Xero API (optimised mode)
-If your corpus JSON is a lightweight descriptor with `metadata.tenant_id` and `metadata.year_end_date`, you can fetch fresh `xero_data` directly from Xero at run time:
-- `EXAMPLES_ENRICH_FROM_XERO_API=1`
 - `XERO_CLIENT_ID`
 - `XERO_CLIENT_SECRET`
 - `XERO_REFRESH_TOKEN`
-- `XERO_TOKEN_CACHE_PATH` (optional, recommended so refresh-token rotation is persisted)
 
-### Required environment variables (Azure OpenAI models)
-- `AZURE_OPENAI_ENDPOINT`
-- `AZURE_OPENAI_API_KEY`
-- `AZURE_OPENAI_API_VERSION` (optional, default `2024-02-15-preview`)
-- `EXPERIMENT_AZURE_DEPLOYMENT_PRIMARY` (optional, defaults to `DEPLOYED_MODEL_NAME` from `strings/assistant.py`)
-- `EXPERIMENT_AZURE_DEPLOYMENT_SECONDARY` (optional)
+## Run Tests
 
-### Local development dataset fallback (no Blob)
-If you set:
-- `EXAMPLES_LOCAL_DIR=/absolute/path/to/jsons`
+```bash
+python3 -m unittest discover -s tests -v
+```
 
-then experiments will load `*.json` from that directory (non-recursive) instead of Azure Blob.
+## Generate Dissertation Figures
 
-### Optional open-source models (Transformers)
-If you set:
-- `OSS_MODEL_PATH_BASE` (HF model name or local path)
-- `OSS_LORA_ADAPTER_PATH` (optional, LoRA adapter path)
+```bash
+XDG_CACHE_HOME=/tmp/font-cache MPLCONFIGDIR=/tmp/mpl python3 generate_graphs.py
+```
 
-then those models show up in the Experiments UI. You must also install the optional deps (`torch`, `transformers`, and for adapters `peft`).
+This command does two things:
 
-### Fine-tuning (LoRA)
-There is an optional trainer script at `experiments/train_lora.py` that expects a JSONL file with records:
-`{"prompt": "...", "response": "..."}`.
+- renders the Mermaid workflow diagrams via `render_mermaid_diagrams.mjs`
+- regenerates the Matplotlib / PyPlot figures from local data files
+
+It reads:
+
+- `dissertation_material/survey data/Survey1_Baseline_Data.csv`
+- `dissertation_material/survey data/Survey2_AI_Evaluation_Data.csv`
+- `dissertation_material/exceptional_validation_data.jsonl`
+
+and writes PNG figures into `dissertation_material/figures/`.
+
+## Build Data Pipeline JSONL Files
+
+To transform local Xero/working-paper JSON files into chat-style training and validation JSONL:
+
+```bash
+python3 -m experiments.run_data_pipeline extra --output-dir dissertation_material/generated_datasets
+```
+
+The reusable implementation is in `experiments/data_pipeline.py`. The dissertation-facing wrapper is `dissertation_material/datapipeline_code.py`.
+
+## Run GPT-5.4 Prompt-Engineering Validation
+
+Set `AZURE_OPENAI_API_KEY` first, then run:
+
+```bash
+python3 -m experiments.prompt_engineering_gpt54 \
+  --input dissertation_material/exceptional_validation_data.jsonl \
+  --output dissertation_material/prompt_engineering_results.csv \
+  --deployment gpt-5.4
+```
+
+The harness evaluates zero-shot, single-shot, and few-shot prompt conditions against the same validation corpus. It stores generated outputs and gold responses for subsequent scoring.
+
+## Build Dissertation PDF
+
+```bash
+cd dissertation_material
+latexmk -pdf -interaction=nonstopmode -halt-on-error 22830110_dissertation.tex
+```
+
+The current built report is `dissertation_material/22830110_dissertation.pdf`.

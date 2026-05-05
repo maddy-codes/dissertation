@@ -1,0 +1,1818 @@
+method_id,method_label,method_family,deployment_name,prompt_strategy,example_id,latency_seconds,output_text,gold_text,error
+gpt54_zero_shot,GPT-5.4 Zero-Shot,Prompt engineered GPT-5.4,gpt-5.4,zero-shot,val_001,64.295,"Below are suggested **year-end working paper review notes**, grouped under standard accounts production / audit-style headings, based on the trial balance provided and noting that **no transactional ledger detail has been supplied**.
+
+---
+
+# Year-End Working Paper Review Notes
+
+## 1. Financial Statements / Overall Review
+- Trial balance reviewed for reasonableness based on account descriptions and balances provided.
+- No sales/income codes appear within the trial balance extract. Confirm that this is a **partial TB only** or obtain the full profit and loss and balance sheet nominal listing before finalisation.
+- No creditors, accruals, PAYE/NI liabilities, pension liabilities, VAT control, or corporation tax creditor/debtor balances are visible on the balance sheet extract. Confirm whether:
+  - these are omitted from the extract, or
+  - year-end liabilities have not yet been posted.
+- Dividends of **£120,000.00** are substantial relative to payroll costs and should be checked against:
+  - distributable reserves,
+  - board minutes / dividend vouchers,
+  - correct allocation to equity rather than P&L.
+- Corporation tax expense of **£31,105.47** posted to P&L; corresponding balance sheet provision not visible in extract. Confirm tax creditor/provision has been recognised.
+
+---
+
+## 2. Bank and Cash
+Balances per TB:
+- Barclays Business Banking Savi: **£50,001.64**
+- Business Savings Account: **£18,330.22**
+- Current Account (600): **£39,226.75**
+- Petty Cash (601): **£20.00**
+
+Review notes:
+- Obtain and agree all year-end bank statements to nominal ledger balances.
+- Review and file bank reconciliations for all accounts at year end.
+- Check for uncleared items, stale cheques, duplicate lodgements, and unusual transfers between current and savings accounts around year end.
+- Confirm whether any of the savings accounts are subject to notice periods or restrictions; if so, consider separate disclosure.
+- Petty cash balance of **£20.00** is immaterial but should still be supported by count sheet or petty cash reconciliation.
+
+---
+
+## 3. Prepayments and Accruals
+Balance per TB:
+- Prepayments (551): **£8,576.81**
+
+Review notes:
+- Obtain schedule supporting the prepayments balance and verify:
+  - nature of each item,
+  - coverage period,
+  - mathematical accuracy,
+  - reversal in the next accounting period where applicable.
+- Likely candidates include rent, insurance, subscriptions, rates, and service contracts. Confirm split is appropriate.
+- No accruals appear in the balance sheet extract. Review expenses for completeness of year-end accruals, particularly:
+  - accountancy,
+  - professional fees,
+  - wages,
+  - employers’ NI,
+  - pension costs,
+  - utilities,
+  - rent,
+  - repairs and maintenance,
+  - corporation tax.
+
+---
+
+## 4. Fixed Assets
+Balances per TB:
+- Fixtures and Fittings (500): **£6,680.87**
+- Leasehold Property Improvements (525): **£40,391.00**
+- Short Leasehold (520): **£20,641.00**
+- Goodwill (505): **£87,500.00**
+
+Depreciation / amortisation:
+- Depreciation - Fixtures and Fittings (238): **£789.68**
+- Depreciation - Leasehold Property Improvements (248): **£4,039.10**
+- Goodwill Amortisation (237): **£7,150.65**
+
+Review notes:
+- Obtain fixed asset register and agree opening balances, additions, disposals, depreciation, and closing NBVs to the TB.
+- For **Fixtures and Fittings**, verify additions are supported by invoices and correctly capitalised.
+- For **Leasehold Property Improvements**, confirm useful economic life and that depreciation policy is consistent with lease term and prior year treatment.
+- **Short Leasehold** appears as a separate fixed asset category but no corresponding amortisation/depreciation charge is visible in the TB extract. Confirm:
+  - whether amortisation/depreciation has been omitted,
+  - whether this asset is included within another depreciation code, or
+  - whether the classification is incorrect.
+- **Goodwill** balance of **£87,500.00** with amortisation charge **£7,150.65** should be reviewed for:
+  - origin of goodwill,
+  - acquisition documentation,
+  - remaining useful life,
+  - consistency with accounting policy under FRS 102/Section 1A if applicable.
+- Consider impairment review for goodwill and leasehold-related assets if there are any indicators of impairment.
+- Ensure accumulated depreciation/amortisation presentation is correct in final accounts.
+
+---
+
+## 5. Intangible Assets
+- Goodwill held at **£87,500.00**.
+
+Review notes:
+- Confirm goodwill is historic purchased goodwill rather than internally generated.
+- Review prior year accounts and acquisition documentation to verify:
+  - original cost,
+  - amortisation commencement date,
+  - useful life adopted,
+  - whether amortisation period remains appropriate.
+- Check if annual impairment review or management consideration has been documented.
+
+---
+
+## 6. Directors / Related Parties / Loan Accounts
+Balance per TB:
+- Mr M Turney (568): **£1,550.06**
+
+Review notes:
+- Confirm whether this balance represents:
+  - a director’s loan account,
+  - expenses owing to director,
+  - overdrawn balance, or
+  - amount due from director.
+- Obtain year-end director’s loan reconciliation.
+- If overdrawn at year end, assess:
+  - Companies Act implications,
+  - beneficial loan issues,
+  - s455 tax exposure.
+- Agree directors’ salary of **£17,360.00** to payroll records/P60 and board approval where relevant.
+- Review dividends of **£120,000.00**:
+  - ensure posted to equity/drawings rather than P&L reserve movement,
+  - inspect dividend vouchers and minutes,
+  - confirm shareholder allocation and payment dates,
+  - verify sufficient distributable reserves existed at each declaration date.
+- Consider related party disclosure requirements.
+
+---
+
+## 7. Taxation
+P&L balance:
+- Corporation Tax (242): **£31,105.47**
+
+Review notes:
+- Recalculate corporation tax based on taxable profit once final accounts are complete.
+- Confirm whether the **£31,105.47** is:
+  - current year estimated tax charge only, or
+  - includes prior year true-up.
+- Balance sheet tax liability is not visible in extract; ensure corporation tax payable is posted at year end.
+- Review disallowable expenditure in tax computation, including likely adjustments for:
+  - entertaining/gifts,
+  - charity donations (depending on nature and treatment),
+  - depreciation,
+  - goodwill amortisation (tax treatment depends on acquisition date/regime),
+  - possibly certain professional/legal costs if capital in nature.
+- Consider deferred tax only if applicable under reporting framework and material.
+
+---
+
+## 8. Payroll
+P&L balances:
+- Wages: **£275,082.43**
+- Directors Salary: **£17,360.00**
+- Employers NI: **£16,853.84**
+- Employers Pensions: **£3,518.02**
+
+Review notes:
+- Agree payroll totals to year-end payroll summary/P32/P60 records.
+- Check whether any unpaid wages, PAYE/NIC, or pension contributions at year end require accruals or balance sheet creditors.
+- Review reasonableness of wages and on-costs against prior year and staffing levels.
+- Ensure directors’ remuneration disclosure is considered where required.
+- Confirm pension costs are fully paid or accrued and consistent with pension provider statements.
+
+---
+
+## 9. Profit and Loss – Administrative and Operating Expenses
+Expenses noted include:
+- Food: **£17,654.47**
+- Teaching Resources: **£5,423.62**
+- Cleaning Materials: **£2,041.22**
+- Maintenance & Garden: **£6,044.22**
+- Property Repairs: **£4,950.00**
+- Rent: **£19,607.30**
+- Electricity: **£2,342.08**
+- Water Rates: **£750.00**
+- Heating and Fuel: **£1,050.00**
+- Rates: **£1,500.00**
+- Office Costs: **£13,733.86**
+- Telephone: **£926.48**
+- Insurance: **£2,151.85**
+- Website/Advertising: **£255.00**
+- Waste Collection: **£1,658.43**
+- Bin Hire: **£87.48**
+- Uniform: **£801.25**
+- Staff Training: **£1,638.60**
+- Professional Fees: **£1,496.50**
+- Accountancy: **£4,011.60**
+- Subscriptions: **£1,395.85**
+- Mileage: **£1,337.80**
+
+Review notes:
+- Perform analytical review against prior year and expectation, especially for:
+  - Office Costs (**£13.7k**) – request breakdown due to size and broad heading.
+  - Rent (**£19.6k**) – agree to lease/licence and review prepayment/accrual treatment.
+  - Food (**£17.7k**) – ensure wholly business related and consistent with nature of business.
+  - Maintenance & Garden / Property Repairs – review for potential capital items incorrectly expensed.
+- Distinguish capital vs revenue expenditure, particularly within:
+  - repairs,
+  - maintenance,
+  - office costs,
+  - teaching resources,
+  - website costs.
+- Check for private or non-business expenditure within mileage, food, telephone, and office costs.
+- Review accountancy and professional fees to ensure any costs relating to capital transactions, financing, or acquisitions are treated appropriately.
+
+---
+
+## 10. Disallowable / Sensitive Expense Areas
+Balances:
+- Entertaining/Gifts: **£1,996.80**
+- Charity Donations: **£280.05**
+- Dividends: **£120,000.00**
+
+Review notes:
+- **Entertaining/Gifts** should be reviewed for corporation tax add-back unless clearly allowable staff entertainment.
+- **Charity Donations**: confirm whether paid to registered charities and whether treatment in tax comp is correct.
+- **Dividends** must not be presented as an expense in the profit and loss account. Confirm nominal code maps to reserves/equity in final accounts.
+- Review **Mileage** for approved mileage basis and ensure no duplication with fuel or reimbursed expenses.
+- Consider whether any element of **Food**, **Gifts**, or **Uniform** is staff welfare, client entertaining, or non-deductible expenditure.
+
+---
+
+## 11. Loans, Finance, and Interest
+Balance:
+- Bank Interest: **£437.77**
+- Bank Charges: **£153.33**
+
+Review notes:
+- Confirm bank interest is correctly classified as receivable or payable; based on available cash balances it may represent deposit interest income.
+- If interest received, ensure it is presented as other income/interest receivable rather than offset against charges.
+- Check whether gross or net interest treatment is appropriate.
+- No borrowings appear on balance sheet extract; confirm business has no loans, HP, leases, or finance agreements outstanding.
+
+---
+
+## 12. Liabilities and Completeness of Balance Sheet
+Review notes:
+- Extract does not show trade creditors, other creditors, accruals, PAYE/NI creditor, pension creditor, VAT, or corporation tax liability. This is unusual given the level of expenses and payroll.
+- Confirm full balance sheet has been extracted and that liabilities are not omitted.
+- Specifically review for completeness of:
+  - trade creditors,
+  - deferred income,
+  - payroll liabilities,
+  - pension liabilities,
+  - VAT payable/receivable,
+  - corporation tax payable,
+  - other taxes and social security.
+- If this is a cash-based bookkeeping file, year-end journals may still be required to achieve accruals basis accounts.
+
+---
+
+## 13. Equity / Reserves
+Review notes:
+- Dividends of **£120,000.00** indicate likely significant reserve movements.
+- Need to reconcile:
+  - opening retained earnings,
+  - current year profit after tax,
+  - dividends declared/paid,
+  - closing reserves.
+- Confirm no unlawful dividends were paid.
+- Ensure dividends are separately disclosed within equity statement and not included within administrative expenses.
+
+---
+
+## 14. Presentation and Disclosure
+Review notes:
+- Ensure nominal codes are mapped correctly for statutory accounts, especially:
+  - dividends,
+  - corporation tax,
+  - goodwill amortisation,
+  - depreciation,
+  - bank interest.
+- Review whether charity donations and entertaining are separately disclosed only where material or required internally.
+- Check whether any balances with directors/shareholders require separate balance sheet disclosure.
+- If prepared under FRS 102 Section 1A, ensure related party and directors’ advances disclosures are considered.
+- Consider whether “Short Leasehold” should be shown within tangible fixed assets or reclassified depending on nature.
+
+---
+
+## 15. Information Still Required
+Because no ledger detail has been provided, the following should be requested before sign-off:
+1. Full nominal ledger / transaction detail.
+2. Year-end bank statements and reconciliations.
+3. Fixed asset register.
+4. Prepayment schedule.
+5. Director’s loan account reconciliation.
+6. Payroll year-end reports (P32/P60/P11 where applicable).
+7. Pension provider statements.
+8. Corporation tax computation.
+9. Dividend paperwork: minutes and vouchers.
+10. Prior year statutory accounts and comparative TB.
+11. Details of goodwill origin/acquisition.
+12. Confirmation of any year-end accruals and creditors omitted from the extract.
+
+---
+
+# Key Priority Review Points
+If preparing manager/reviewer notes, the main points to raise would be:
+
+1. **Obtain full TB / confirm completeness**, as liabilities and income appear absent from extract.
+2. **Confirm dividend treatment** – must be equity, not P&L.
+3. **Post/verify corporation tax liability** corresponding to tax charge.
+4. **Review director’s loan balance** and determine whether overdrawn or creditor.
+5. **Check fixed assets**, especially missing amortisation/depreciation on Short Leasehold.
+6. **Review prepayments** and assess whether accruals are also required.
+7. **Review disallowables** for tax: entertaining, depreciation, potentially goodwill amortisation, and charity donations.
+8. **Assess repairs vs capital** for property and maintenance expenditure.
+9. **Reconcile payroll liabilities** and ensure PAYE/pension creditors are complete.
+10. **Verify goodwill support and amortisation policy**.
+
+If you want, I can also turn this into:
+- a **client query list**,
+- a **manager review points memo**, or
+- a more formal **year-end working paper checklist** in Excel-style format.","### P&L
+Sales - down £13k from £505k last year. As expected with closure through the year for Covid, despite the increase in Government funding (£6k increase).
+Cost of sales - on par with last year. Including:-
+Purchases - down £12k from £35k. Reduction with closure during the pandemic.
+Wages and NI - up £12k from £279k. Increased staff numbers through the year and continued to pay on furlough scheme.
+Result is gross profit of £177k compared to £191k last year, a drop of £14k.
+GP% of 35.90% compared to 37.82% last year.
+Other income - £77k. Including:-
+JRS grant income - £52k. Including accrued income for July 2020 received in August 2020.
+Other income - £25k. NBC Grant of £10k and £15k insurance monies to cover loss of earnings.
+Admin costs - down £13k from £103k last year. Including:-
+Rent - up £1k from £18k. Increase in quarterly costs from £4,500 to £4,750 half way through last year.
+Repairs and renewals - down £17k from £27k. Last year included costs for new nursery roof £17k, this year only costs for property repairs are CCTV installation £4k
+Hire of office equipment - NIL. Finished payments for leased photcopier.
+Office costs - up £9k from £4k. Increase in costs this year across the board and to prepare for covid regulations. Cathy accepts there might be some crossover/confusion with teaching resources but is okay with this.
+Advertising - down £2k from £3k. No annual fee paid to Brixworth Directory this year.
+Motor - down £1k from £2.5k. Cathy stopped claiming her mileage from April 2020 with nursery closed.
+Refuse collecting and cleaning - down £3k from £7k. Previously paid Pristine cleaners, now brought back in house.
+Staff training - up £1k. Additional courses and £700 YMCA training.
+Bookkeeping costs - NIL. No bookkeeping charges from Cathy this year due to economic climate.
+Legal and professional - £1,497 for HR fees, DBS checks and small costs for staff recruitment.
+Donations - £280. Macmillan and Children in Need.
+Entertainment - £1,997. All staff.
+Bank interest - £478 all for interest on Barclaycard (April and June 2020)
+Goodwill  - £7,151. One year of amortisation remaining.
+Depreciation (property improvements) - up £1.2k from £2.8k. Full years depreciation on work done in the 2nd half of the previous year.
+Result is net profit of £152k compared to £76k last year, an increase of £76k. Essentially the difference being the grant income and insurance monies received in the year.
+Profit before directors remuneration of £169k compared to £93k, an increase of £76k.
+Dividends voted of £120k compared to £71k last year. Split 51/49 between Cathy / Mark to ensure loan account balances remain positive.
+
+### CORPORATION TAX
+After adjustments for Depreciation there are taxable profits of £163,713 which give a liability @19% of £31,105.47 due on 1st May 2021.
+This compares to taxable profits last year of £54,988 and a liability of £10,455.13.
+As well as the increased trading profits this year there were capital allowances (AIA) of £32k last year.
+
+### BALANCE SHEET
+Fixed assets - down £12k. Depreciation in the year. Mainly comprimises £33k property improvements.
+Debtors - up £5.5k. Prepayment for rent in line with last year and accrued income (£5.5k) for the JRS grant for July 2020 received in August 2020.
+Cash at bank - up £88k. Including £50k bounce back loan.
+Creditors - up £81k. Including:-
+Bank loans - £50k. Bounce back loan to be used as back up, if they have to close again!
+Corporation tax - up £21k. Increase in trading profits and no AIA this year.
+Social Security - up £4k. PAYE for July 2020 as per P32 for the month. Paid August 2020.
+Other creditors - up £6k. £582 pension provider for July 2020 and Fees income in advance of £5.7k as agreed with Cathy.
+DLA - b/fwd of £594. You have drawn £128k against wages due of £17k. In addition you have repaid Maureen £7.5k and have private expenses of £1.5k. We have voted dividends of £120k to ensure loan balance isn't overdrawn, leaving c/fwd of £953.
+Net current assets of £22k compared to £10k last year, an increase of £12k.
+Shareholders funds of £58,692 compared to £57,960 last year, an increase of just £732
+
+### WHERE HAS THE PROFIT GONE?
+Profit of £120k. Dividends voted of £120k.
+Increase in debtors and bank balances against the fixed asset depreciation and increase in creditors.
+
+### PERSONAL TAX
+Cathy - liability of £13,411 compared to £3,883 last year due to the £32k increase in dividends (£27k taxed at a higher rate this year) and CGT of £1,961 on the sale of Lesson Road
+Deferral of July 2020 POA means approx. £17.1k due in January 2021.
+POA for July 2021 of £5,725.
+Mark - use of losses from partnership (£21k) means only £53k taxable income. Liability of £5,895 compared to £3,880 last year due to the increase in dividend income (£31K) against the use of partnership losses and reduced partnership income and rental income. Includes CGT of £1,961.20 due on sale of Lesson Road.
+Using the averaging method, the liability is reduced by the overpaid tax from previous year (£1,253). This and the deferral of July 2020 POA leaves a payment due of approx. £4.6k in January 2021.
+POA for July 2021 of £1,967
+CGT for 16 Lesson Road - cost of £140k in 2006 and sale in March 2020 for £188k (split 50/50 between Mark and Cathy) results in £22k share each less their annual exemption of £12k means a gain of just under £10k at 20% - £1,961.70 each.
+With the joint loan account balance at 5th April 2020 overdrawn by £77,500 there isn’t scope to defer enough dividends to ensure Cathy and Mark both avoid the HRT band and as a result reduce the CGT liability as well.
+Richard and Maureen Turney tax returns are on IRIS Openspace - already approved 02/09/20 and will be submitted once meeting taken place.
+
+### OUR RECOMMENDATIONS
+Receipt Bank - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Any plans to continue the growth of the business?
+Short term contingency plans in place in current pandemic?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Currently paying £334.30 per month (including Xero). Current GoProposal (no previous one prepared!) shows £359 per month (including Xero) based on turnover remaining on a similar level (below £500k).
+An increase of £25 + VAT",
+ft_1,GPT-4.1 Fine-Tuned 1,Fine-tuned GPT-4.1,gpt-4-1-2025-04-14-ft-621db5f4136c47e488062f369f905953,fine-tuned,val_001,14.721,"### ACCOUNTS REVIEW
+Net profit before tax: £155,309
+Profit excluding depreciation and directors' remuneration: £180,699
+
+### ACCOUNTING SYSTEMS
+Spreadsheet-based system reconciled against bank statements and payroll records.
+
+### BUSINESS TAX
+Add-back adjustments: depreciation and business entertainment.
+Leasehold property improvements added during the year — no capital allowances applicable.
+
+### CORPORATION TAX
+Losses b/fwd: £40,972. Losses utilised this period: £39,042 against current-year profit.
+Adjustments to accounting profit: depreciation and business entertainment add-backs; goodwill amortisation deduction.
+Taxable income: £160,413. Tax due: £31,105.47 — due 1 April 2022.
+CT rate increased from 19% to 25% from 1 April 2023 for profits over £250,000.
+A further £1,930 in losses carried forward.
+
+### BALANCE SHEET
+Net assets: £108,131, an increase of £104,133.
+Dividends voted this year equal to after-tax profit.
+Cash at bank: £62,597 — an increase of £37,242 year-on-year, consistent with the increased profitability.
+Other debtors: £860 — comprises HMRC and Early Years funding debts.
+Creditors: £24,024 — comprises trade creditors £4,880 in respect of services provided by Turney & Turney (settled shortly after year-end) and director's loan account £19,144. A dividend payment of £60,000 voted at year-end.
+A further £14,856 in dividends voted as at 5 April 2022.
+Deferred tax (goodwill): £16,986 — amortisation charge causing annual reduction.
+
+### TAX SAVED
+Corporation tax saved on salary drawn in year.
+Any additional salary withdrawn would result in increased Corporation Tax via ER NIC exceeding any tax saving.
+Profit after tax of £124,215 fully distributed by dividends. Salary of approximately £90,000 produces a similar net personal income figure (subject to employment status and pension treatment).
+Company retains a profit of £39,565 after salary.
+Of the remaining £103,151 available for dividends, a further £14,856 was voted to 5 April 2022. £88,295 remains distributable.
+Any dividends voted 6 April 2022 onwards would be allocated against Company B tax liabilities.
+Provision of smart TV estimated cost: approximately £250; estimated tax saving: £47.50.
+Share issue — petition submitted.
+
+### PERSONAL TAX
+Total taxable income: £176,053; tax due: £61,271.44.
+Salary drawn in Company A: £17,360.
+Dividend income: £146,156. Interest (Harpenden BS): £444. Share of rental profits: £12,121.
+Property allowance of £2,000 applied — reduces tax by £800.
+Capital gain on BF Holdings dividends: £1,972.71.
+£14,856 voted and allocated to 5 April 2022 — full utilisation of basic rate band.
+Full basic rate band of £14,730 (i.e. £37,700 × 12/12) utilised at 31 October 2022 between existing salary and dividend income to date, reducing tax liability by £5,892.
+Payments on account applied for: £25,700.55.
+2021 tax previously estimated based on 2020 return filed May 2020 — comprising salary, dividends, and £10,000 of miscellaneous income as a balancing figure (£5,000 estimated in 2020).
+
+### FEES
+2021 statutory accounts and CT: £1,068.
+2021 personal tax return: £320.
+2022 statutory accounts and CT: £1,068.
+2022 personal tax return: £254.
+New fee structure drafted based on current company activities; includes £200 of out-of-pocket expenses but excludes agreement fees and legal fees on any share sale.
+Current capital structure eligible for any disposal at £3m, outside of the pensions review.","### P&L
+Sales - down £13k from £505k last year. As expected with closure through the year for Covid, despite the increase in Government funding (£6k increase).
+Cost of sales - on par with last year. Including:-
+Purchases - down £12k from £35k. Reduction with closure during the pandemic.
+Wages and NI - up £12k from £279k. Increased staff numbers through the year and continued to pay on furlough scheme.
+Result is gross profit of £177k compared to £191k last year, a drop of £14k.
+GP% of 35.90% compared to 37.82% last year.
+Other income - £77k. Including:-
+JRS grant income - £52k. Including accrued income for July 2020 received in August 2020.
+Other income - £25k. NBC Grant of £10k and £15k insurance monies to cover loss of earnings.
+Admin costs - down £13k from £103k last year. Including:-
+Rent - up £1k from £18k. Increase in quarterly costs from £4,500 to £4,750 half way through last year.
+Repairs and renewals - down £17k from £27k. Last year included costs for new nursery roof £17k, this year only costs for property repairs are CCTV installation £4k
+Hire of office equipment - NIL. Finished payments for leased photcopier.
+Office costs - up £9k from £4k. Increase in costs this year across the board and to prepare for covid regulations. Cathy accepts there might be some crossover/confusion with teaching resources but is okay with this.
+Advertising - down £2k from £3k. No annual fee paid to Brixworth Directory this year.
+Motor - down £1k from £2.5k. Cathy stopped claiming her mileage from April 2020 with nursery closed.
+Refuse collecting and cleaning - down £3k from £7k. Previously paid Pristine cleaners, now brought back in house.
+Staff training - up £1k. Additional courses and £700 YMCA training.
+Bookkeeping costs - NIL. No bookkeeping charges from Cathy this year due to economic climate.
+Legal and professional - £1,497 for HR fees, DBS checks and small costs for staff recruitment.
+Donations - £280. Macmillan and Children in Need.
+Entertainment - £1,997. All staff.
+Bank interest - £478 all for interest on Barclaycard (April and June 2020)
+Goodwill  - £7,151. One year of amortisation remaining.
+Depreciation (property improvements) - up £1.2k from £2.8k. Full years depreciation on work done in the 2nd half of the previous year.
+Result is net profit of £152k compared to £76k last year, an increase of £76k. Essentially the difference being the grant income and insurance monies received in the year.
+Profit before directors remuneration of £169k compared to £93k, an increase of £76k.
+Dividends voted of £120k compared to £71k last year. Split 51/49 between Cathy / Mark to ensure loan account balances remain positive.
+
+### CORPORATION TAX
+After adjustments for Depreciation there are taxable profits of £163,713 which give a liability @19% of £31,105.47 due on 1st May 2021.
+This compares to taxable profits last year of £54,988 and a liability of £10,455.13.
+As well as the increased trading profits this year there were capital allowances (AIA) of £32k last year.
+
+### BALANCE SHEET
+Fixed assets - down £12k. Depreciation in the year. Mainly comprimises £33k property improvements.
+Debtors - up £5.5k. Prepayment for rent in line with last year and accrued income (£5.5k) for the JRS grant for July 2020 received in August 2020.
+Cash at bank - up £88k. Including £50k bounce back loan.
+Creditors - up £81k. Including:-
+Bank loans - £50k. Bounce back loan to be used as back up, if they have to close again!
+Corporation tax - up £21k. Increase in trading profits and no AIA this year.
+Social Security - up £4k. PAYE for July 2020 as per P32 for the month. Paid August 2020.
+Other creditors - up £6k. £582 pension provider for July 2020 and Fees income in advance of £5.7k as agreed with Cathy.
+DLA - b/fwd of £594. You have drawn £128k against wages due of £17k. In addition you have repaid Maureen £7.5k and have private expenses of £1.5k. We have voted dividends of £120k to ensure loan balance isn't overdrawn, leaving c/fwd of £953.
+Net current assets of £22k compared to £10k last year, an increase of £12k.
+Shareholders funds of £58,692 compared to £57,960 last year, an increase of just £732
+
+### WHERE HAS THE PROFIT GONE?
+Profit of £120k. Dividends voted of £120k.
+Increase in debtors and bank balances against the fixed asset depreciation and increase in creditors.
+
+### PERSONAL TAX
+Cathy - liability of £13,411 compared to £3,883 last year due to the £32k increase in dividends (£27k taxed at a higher rate this year) and CGT of £1,961 on the sale of Lesson Road
+Deferral of July 2020 POA means approx. £17.1k due in January 2021.
+POA for July 2021 of £5,725.
+Mark - use of losses from partnership (£21k) means only £53k taxable income. Liability of £5,895 compared to £3,880 last year due to the increase in dividend income (£31K) against the use of partnership losses and reduced partnership income and rental income. Includes CGT of £1,961.20 due on sale of Lesson Road.
+Using the averaging method, the liability is reduced by the overpaid tax from previous year (£1,253). This and the deferral of July 2020 POA leaves a payment due of approx. £4.6k in January 2021.
+POA for July 2021 of £1,967
+CGT for 16 Lesson Road - cost of £140k in 2006 and sale in March 2020 for £188k (split 50/50 between Mark and Cathy) results in £22k share each less their annual exemption of £12k means a gain of just under £10k at 20% - £1,961.70 each.
+With the joint loan account balance at 5th April 2020 overdrawn by £77,500 there isn’t scope to defer enough dividends to ensure Cathy and Mark both avoid the HRT band and as a result reduce the CGT liability as well.
+Richard and Maureen Turney tax returns are on IRIS Openspace - already approved 02/09/20 and will be submitted once meeting taken place.
+
+### OUR RECOMMENDATIONS
+Receipt Bank - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Any plans to continue the growth of the business?
+Short term contingency plans in place in current pandemic?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Currently paying £334.30 per month (including Xero). Current GoProposal (no previous one prepared!) shows £359 per month (including Xero) based on turnover remaining on a similar level (below £500k).
+An increase of £25 + VAT",
+ft_2,GPT-4.1 Fine-Tuned 2,Fine-tuned GPT-4.1,gpt-4-1-2025-04-14-ft-766f7a70490b435db60bdad055459478,fine-tuned,val_001,20.043,"### ACCOUNTING SYSTEMS RECOMMENDATIONS
+Client uses Xero software.
+
+### QUERIES
+Estimates are included for CT computation purposes, as not all months' invoices are available (5 months recorded out of 12).
+
+### P&L
+**Revenue:** £500,839 v £392,312 — £108,527 increase (28%). Full year included v 8 months in prior year.
+
+**Cost of Sales:** £22,174 v £19,290 — £2,884 increase (15%). Full year included v 8 months in prior year.
+
+**Cosmetics Supplies / Bin Hire / Laundry:** £11,480 v £10,016 — £1,464 increase (15%). Full year included v 8 months in prior year.
+
+**Food:** £35,711 v £23,927 — £11,784 increase (49%). Full year included v 8 months in prior year.
+
+**Wages:** £308,296 v £202,640 — £105,656 increase (52%). Full year included v 8 months in prior year.
+
+**Cost of Sales — Other:** £1,550 v £0 — £1,550 increase. Supplier identified in current year not present in prior year.
+
+**Cost of Sales — Other:** £15,182 v £10,614 — £4,568 increase (43%). Full year included v 8 months in prior year.
+
+**Gross Profit:** £106,446 v £125,825 — £19,379 decrease (−15%).
+
+### GP%
+19% v 32%. Reduced by inclusion of full year cost of sales v 8 months in prior year.
+
+**Sales & Marketing / Advertising:** £315 v £135 — £180 increase (133%).
+
+**Charitable Donations:** £280 v £0 — £280 increase.
+
+**Directors' Salaries — Director 1:** £10,712 v £9,529 — £1,183 increase. Per payroll records.
+
+**Directors' Salaries — Director 2:** £4,306 v £3,545 — £761 increase. Per payroll records.
+
+**Employers NI Contributions:** £18,854 v £11,691 — £7,163 increase (61%). Increase in average staff numbers across 12 months v 8 months in prior year.
+
+**Pensions:** £4,549 v £1,249 — £3,300 increase (264%). Consistent with NI movement.
+
+### NET PROFIT
+£41,246 v £57,656 — £16,410 decrease (−28%).
+
+### CORPORATION TAX
+**Profit per financial statements:** £41,246
+**Add back: Amortisation:** £7,151
+**Add back: Depreciation:** £4,829
+**Less: Super-deduction on capital additions:** (£723)
+**Less: Small companies relief:** reduced rate applied to first £18,019 of taxable profits
+
+**Taxable profits:** £52,503
+**Corporation tax:** £11,853.52
+**Payment due 1 August 2025**
+
+### BALANCE SHEET
+**Fixed Assets:** £109k v £113k. Additions of £2k in the year; depreciation charge.
+
+**Debtors:** £7k v £6k. Included in prior year IFRS conversion; no movement during the year.
+
+**Prepayments:** £9k v £8k. Increase per schedule. Insurance-related prepayments and one utility prepayment.
+
+**Cash at Bank:** £107k v £97k. Increased per bank statements at balance sheet date.
+
+**Creditors (due within one year):** £38k v £45k. Reduction primarily driven by movement in Corporation Tax liability: £11,801 v £32,822. Reduced taxable profits year-on-year; reduced rate applied to first £18,019 of profits.
+
+**VAT Creditor:** £1,948 — reconciled to VAT returns; timing variance. Outstanding issue with HMRC relating to pre-registration input VAT reclaim (£2k).
+
+**Net Creditors:** £41k v £63k.
+
+### PROFIT RECONCILIATION
+Profit of £41k redistributed as dividends.
+
+### PERSONAL TAX
+Director 1:
+- Director's salary: £10,430
+- Dividend income: £20,000
+- Tax deducted at source: (£2,181)
+- **Total due:** £1,098
+- Balancing payment due 31 January 2025: £1,098
+- Payment on account: £549
+- Total due 31 January 2025: £1,647
+- Payment due 31 July 2025: £549
+
+Director 2:
+- Director's salary: £3,600
+- Dividend income: £100,000
+- Dividends: £250
+- P11D benefit (2019): £185
+- Child benefit: £2,503
+- Tax deducted at source: (£13,653)
+- Payments on account refunded: (£3,588)
+- **Total due:** £6,839
+- Payments on account required: £3,419.50
+- Total due 31 January 2025: £10,258.50
+- Payment due 31 July 2025: £3,419.50
+
+### FEES
+- Current fees: £331.20 + VAT monthly
+- Fee proposal: £377 + VAT monthly — includes full bookkeeping services (previously £35 monthly) and cover improvements.
+- Fee basis: Turnover bracket.","### P&L
+Sales - down £13k from £505k last year. As expected with closure through the year for Covid, despite the increase in Government funding (£6k increase).
+Cost of sales - on par with last year. Including:-
+Purchases - down £12k from £35k. Reduction with closure during the pandemic.
+Wages and NI - up £12k from £279k. Increased staff numbers through the year and continued to pay on furlough scheme.
+Result is gross profit of £177k compared to £191k last year, a drop of £14k.
+GP% of 35.90% compared to 37.82% last year.
+Other income - £77k. Including:-
+JRS grant income - £52k. Including accrued income for July 2020 received in August 2020.
+Other income - £25k. NBC Grant of £10k and £15k insurance monies to cover loss of earnings.
+Admin costs - down £13k from £103k last year. Including:-
+Rent - up £1k from £18k. Increase in quarterly costs from £4,500 to £4,750 half way through last year.
+Repairs and renewals - down £17k from £27k. Last year included costs for new nursery roof £17k, this year only costs for property repairs are CCTV installation £4k
+Hire of office equipment - NIL. Finished payments for leased photcopier.
+Office costs - up £9k from £4k. Increase in costs this year across the board and to prepare for covid regulations. Cathy accepts there might be some crossover/confusion with teaching resources but is okay with this.
+Advertising - down £2k from £3k. No annual fee paid to Brixworth Directory this year.
+Motor - down £1k from £2.5k. Cathy stopped claiming her mileage from April 2020 with nursery closed.
+Refuse collecting and cleaning - down £3k from £7k. Previously paid Pristine cleaners, now brought back in house.
+Staff training - up £1k. Additional courses and £700 YMCA training.
+Bookkeeping costs - NIL. No bookkeeping charges from Cathy this year due to economic climate.
+Legal and professional - £1,497 for HR fees, DBS checks and small costs for staff recruitment.
+Donations - £280. Macmillan and Children in Need.
+Entertainment - £1,997. All staff.
+Bank interest - £478 all for interest on Barclaycard (April and June 2020)
+Goodwill  - £7,151. One year of amortisation remaining.
+Depreciation (property improvements) - up £1.2k from £2.8k. Full years depreciation on work done in the 2nd half of the previous year.
+Result is net profit of £152k compared to £76k last year, an increase of £76k. Essentially the difference being the grant income and insurance monies received in the year.
+Profit before directors remuneration of £169k compared to £93k, an increase of £76k.
+Dividends voted of £120k compared to £71k last year. Split 51/49 between Cathy / Mark to ensure loan account balances remain positive.
+
+### CORPORATION TAX
+After adjustments for Depreciation there are taxable profits of £163,713 which give a liability @19% of £31,105.47 due on 1st May 2021.
+This compares to taxable profits last year of £54,988 and a liability of £10,455.13.
+As well as the increased trading profits this year there were capital allowances (AIA) of £32k last year.
+
+### BALANCE SHEET
+Fixed assets - down £12k. Depreciation in the year. Mainly comprimises £33k property improvements.
+Debtors - up £5.5k. Prepayment for rent in line with last year and accrued income (£5.5k) for the JRS grant for July 2020 received in August 2020.
+Cash at bank - up £88k. Including £50k bounce back loan.
+Creditors - up £81k. Including:-
+Bank loans - £50k. Bounce back loan to be used as back up, if they have to close again!
+Corporation tax - up £21k. Increase in trading profits and no AIA this year.
+Social Security - up £4k. PAYE for July 2020 as per P32 for the month. Paid August 2020.
+Other creditors - up £6k. £582 pension provider for July 2020 and Fees income in advance of £5.7k as agreed with Cathy.
+DLA - b/fwd of £594. You have drawn £128k against wages due of £17k. In addition you have repaid Maureen £7.5k and have private expenses of £1.5k. We have voted dividends of £120k to ensure loan balance isn't overdrawn, leaving c/fwd of £953.
+Net current assets of £22k compared to £10k last year, an increase of £12k.
+Shareholders funds of £58,692 compared to £57,960 last year, an increase of just £732
+
+### WHERE HAS THE PROFIT GONE?
+Profit of £120k. Dividends voted of £120k.
+Increase in debtors and bank balances against the fixed asset depreciation and increase in creditors.
+
+### PERSONAL TAX
+Cathy - liability of £13,411 compared to £3,883 last year due to the £32k increase in dividends (£27k taxed at a higher rate this year) and CGT of £1,961 on the sale of Lesson Road
+Deferral of July 2020 POA means approx. £17.1k due in January 2021.
+POA for July 2021 of £5,725.
+Mark - use of losses from partnership (£21k) means only £53k taxable income. Liability of £5,895 compared to £3,880 last year due to the increase in dividend income (£31K) against the use of partnership losses and reduced partnership income and rental income. Includes CGT of £1,961.20 due on sale of Lesson Road.
+Using the averaging method, the liability is reduced by the overpaid tax from previous year (£1,253). This and the deferral of July 2020 POA leaves a payment due of approx. £4.6k in January 2021.
+POA for July 2021 of £1,967
+CGT for 16 Lesson Road - cost of £140k in 2006 and sale in March 2020 for £188k (split 50/50 between Mark and Cathy) results in £22k share each less their annual exemption of £12k means a gain of just under £10k at 20% - £1,961.70 each.
+With the joint loan account balance at 5th April 2020 overdrawn by £77,500 there isn’t scope to defer enough dividends to ensure Cathy and Mark both avoid the HRT band and as a result reduce the CGT liability as well.
+Richard and Maureen Turney tax returns are on IRIS Openspace - already approved 02/09/20 and will be submitted once meeting taken place.
+
+### OUR RECOMMENDATIONS
+Receipt Bank - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Any plans to continue the growth of the business?
+Short term contingency plans in place in current pandemic?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Currently paying £334.30 per month (including Xero). Current GoProposal (no previous one prepared!) shows £359 per month (including Xero) based on turnover remaining on a similar level (below £500k).
+An increase of £25 + VAT",
+ft_3,GPT-4.1 Fine-Tuned 3,Fine-tuned GPT-4.1,gpt-4.1-2025-04-14.ft-96504f9ad0d3400bb0b22bd63bb89851,fine-tuned,val_001,59.354,"### P&L
+Turnover - Up from £485k. Includes receipt of £20k for Community Grant from Central Beds Council and 4 amounts from Little Treasures totalling £74.2k!
+Overheads & wages - Up from £341k last year, including:-
+Wages - Up from £243k. Up slightly as expected.
+Directors salaries - £17,360.
+Class 1 NI - Up from £16k.
+Pensions - Up from £3k.
+Secretarial fees - £1.5k for CoSec to Kirsty.
+Food - Up from £15k.
+Cleaning materials - Down from £11k. No B&M and Aston & Fincher costs like previous year.
+Waste collection and bin hire - Down from £4k. Fewer payments to Central Beds Council for bin collections.
+Office costs - Down from £24k, includes:
+Other property repairs - £4.9k paid to Network Auctions for Wall Clock.
+Purchases - £11k, mainly AoC £1k, Argos £1k, B&M £1k, B & Q £1k, Dunelm £1k, Ebuyer £1k, Junglegym £1k, Halfords £1k.
+Staff training - £1.6k (£3.2k) including Aspect Group £500, The Insightful Coach £250, St Johns Ambulance £70, Sarah Wadsworth £50.
+Teaching resources - Down from £7k. Various materials.
+Subscriptions - £1,395 (£1,852) including British Identity Television £118 (£315), Ofsted £220 (£220), Para Plan £312 (£468), PSLA £268 (£246), Companies House £13 £13 and other small costs.
+Entertaining - £2,026 (£922) for Scallywaggs £393, Linzi Bereton £335, Sarah £121, Riana £107, Lisa £100, Tracey £100, Gail Poundsley £187 and other small amounts.
+Legal and professional fees - £1,496 for Brethertons LLP £472 and Ellacotts share issue costs £1,024.
+Charity donations - £280 to Clarks Shoes £79, Heart of Bucks £100 and own brand donations £89.
+Electricity - Down from £2.9k.
+Water and sewerage - Upto from £120. New regular payment £250 including payment towards deposit.
+Telephone - Upto from £382. Now includes HON and logging of personal (Lisa) expenses to Xero.
+Freight & delivery - NIL (£20) last year for Feed back One delivery.
+Heating and light - Upto £742 for Calor Gas.
+Rent - Upto from £16.7k!
+Rates and council tax - Upto from £1,426.
+Hire of plant and machinery - NIL (£50).
+Insurance - All paid to W H Churchman, per last year.
+Accountancy - Includes £185 addition per new fees (Apr 21) £274 + 115 + £132 + £185 = £706.49 per month (including VAT). Posting made now to reflect accrual.
+Advertising - Down from £1k.
+Donations to schools and nurseries - NIL (£400).
+Sundry expenses - NIL (£111).
+Bank interest - Up from £228 last year.
+Bank charges - Up from £122 last year.
+Depreciation - £4,828 being Leasehold (£3k) and F&F (£1,789).
+Net profit - £63k compared to £136k last year. A drop of over £60k, mainly due to the increase in wages (to accommodate increase in work load) despite a 13% increase in turnover. Does this highlight a drop in net profits for the next few years, as wages and other overheads increase, along with a potential decrease in turnover given the pandemic?
+Dividends - £120k voted being £30k per shareholder to match last years.
+
+### CORPORATION TAX
+After adjustments for amortisation & depreciation there are taxable profits of £98,127 (2020 - £143,999) with no allowances for capital expenditure (new F & F treated in line with previous years policy of <£2k being written off under P&L - unless you have any objections)
+Result is a Corporation Tax liability of £18,644.13 (2020 - £27,078.26) which is a reduction of £8,434.13 on last year - due to the drop in taxable profits.
+
+### BALANCE SHEET
+Fixed Assets - Up from £36k, asside from depreciation, new F&F additions of £11k.
+Goodwill - Down from £14k. Amortised at 10% pa as per previous years.
+Current assets - Down from £90k.
+Prepayments - £8,577 for rent, all as per lease.
+Accrued Income - NIL (£10.8k). All included in invoices within sales this year, no Anne Sylvia accruals.
+Cash at bank - Balances agree with client, down from £90k last year including new 95 Day Notice Business Saver Account which has current balance of £18k. All Barclays interest (previously posted elsewhere) moved to relevant accounts on Xero this year.
+Current liabilities - Up from £46k.
+Trade creditors - Down from £4k. All paid since year-end and agree to records.
+Corporation tax - £18,644 as per return.
+VAT - £31k up from £20k last year! Issue as Lisa was apparently aware that the last years VAT returns (roughly 3 returns created on Xero in the last fiscal year) had input VAT missed out, however, Lisa has confirmed with Ross that she didn’t want to go back and amend the dates of the invoices, as it would have been too much work to undertake. As a result, the input VAT was added in the new fiscal year which explains the irregular input VAT numbers. There is surprise that this hasn’t been picked up in the VAT returns previously. Monies due from HMRC on Change of Use included!
+PAYE - £1k as per current liabilities and payroll agesnt record.
+Other creditors - Includes prepayments from previous years when Central Beds Council had funded parents not eligible for 30 hours through the school via Free Childcare Funding. Need to extend this each year when monies are owed over once child leaves school. Central Beds Council prepayments all dealt with now through invoices.
+DLA - Up from £4k for Mark, Lisa and Andrew.
+Other loans - Up from £14k. Includes £10,000 bounce back loan (£10,500 with interest accrued) and £10,000. Laura M-ccall loan for 12.5% she will be receiving.
+Shareholders' funds - Down to £61k from £66k last year.
+
+### TAX SAVED
+No capital expenditure provided by Lisa.
+
+### WHERE HAS THE PROFIT GONE?
+Profit after tax of £44,232. Dividends voted of £120k result in a net loss of £75.8k. £33k reflected in the drop of current assets, and the remaining  £42k shown in the increase in creditors.
+
+### PERSONAL TAX
+Paye - £8,680
+Dividends - £30k
+Profit  - £16,840
+Taxable income - £38,840
+Less PA - 12,500
+Total liable - £26,340
+Liable to tax at
+£2k @ 0% - NIL
+£24,340 @ 7.5% £1,825.50
+All divis voted as per last year (to new shareholding) to ensure £2k was held as tax free.
+Previous year tax outstanding - £676.21
+Payments to HMRC
+Liability due 31/01/2021 £2,501.71
+POA £912.75
+Liability due 31/07/2021 £912.75
+
+### OUR RECOMMENDATIONS
+Have you set up the Pension Auto-Enrolment scheme for all employees now?
+Review healtcheck report - comments re VAT overclaims.
+PAYE Difference between Lisa's payroll and our payroll each month - made up with tax-free allowance on Mileage & petty cash posting from book keeping however a difference still remains were 12 members on Lisa's payroll and ours are 14 on Worrell's , includes NI difference - see supporting documentation.
+Depending on borderline turnover November 2021, should meals included be vatable?
+How is the nursery coping in these difficult times? What do you need moving forward? Might need to consider issuing further shares or would this effect the funding received?
+Any future plans?
+Do they want / need management reports?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+What are the plans moving forward.
+Happy with the service?
+
+### OUR SERVICES & FEES
+September 2020 - £706.49 per month (including VAT). Posting made now to reflect accrual.
+Next years draft PHM prepared to new Lisa modelling draft - but with new wages level - weekly and monthly, pensions & employers NI couloured individually for full effect.
+Will want payroll figures confirmed once quarterly returns submitted to Cowans continue Employers Allowance claims and Net PAYE / NI ""claimed"" PTD give us gross figures on Xero and we can continue posting them.
+
+### RECOMMENDATIONS?
+Can you recommend anyone to us?","### P&L
+Sales - down £13k from £505k last year. As expected with closure through the year for Covid, despite the increase in Government funding (£6k increase).
+Cost of sales - on par with last year. Including:-
+Purchases - down £12k from £35k. Reduction with closure during the pandemic.
+Wages and NI - up £12k from £279k. Increased staff numbers through the year and continued to pay on furlough scheme.
+Result is gross profit of £177k compared to £191k last year, a drop of £14k.
+GP% of 35.90% compared to 37.82% last year.
+Other income - £77k. Including:-
+JRS grant income - £52k. Including accrued income for July 2020 received in August 2020.
+Other income - £25k. NBC Grant of £10k and £15k insurance monies to cover loss of earnings.
+Admin costs - down £13k from £103k last year. Including:-
+Rent - up £1k from £18k. Increase in quarterly costs from £4,500 to £4,750 half way through last year.
+Repairs and renewals - down £17k from £27k. Last year included costs for new nursery roof £17k, this year only costs for property repairs are CCTV installation £4k
+Hire of office equipment - NIL. Finished payments for leased photcopier.
+Office costs - up £9k from £4k. Increase in costs this year across the board and to prepare for covid regulations. Cathy accepts there might be some crossover/confusion with teaching resources but is okay with this.
+Advertising - down £2k from £3k. No annual fee paid to Brixworth Directory this year.
+Motor - down £1k from £2.5k. Cathy stopped claiming her mileage from April 2020 with nursery closed.
+Refuse collecting and cleaning - down £3k from £7k. Previously paid Pristine cleaners, now brought back in house.
+Staff training - up £1k. Additional courses and £700 YMCA training.
+Bookkeeping costs - NIL. No bookkeeping charges from Cathy this year due to economic climate.
+Legal and professional - £1,497 for HR fees, DBS checks and small costs for staff recruitment.
+Donations - £280. Macmillan and Children in Need.
+Entertainment - £1,997. All staff.
+Bank interest - £478 all for interest on Barclaycard (April and June 2020)
+Goodwill  - £7,151. One year of amortisation remaining.
+Depreciation (property improvements) - up £1.2k from £2.8k. Full years depreciation on work done in the 2nd half of the previous year.
+Result is net profit of £152k compared to £76k last year, an increase of £76k. Essentially the difference being the grant income and insurance monies received in the year.
+Profit before directors remuneration of £169k compared to £93k, an increase of £76k.
+Dividends voted of £120k compared to £71k last year. Split 51/49 between Cathy / Mark to ensure loan account balances remain positive.
+
+### CORPORATION TAX
+After adjustments for Depreciation there are taxable profits of £163,713 which give a liability @19% of £31,105.47 due on 1st May 2021.
+This compares to taxable profits last year of £54,988 and a liability of £10,455.13.
+As well as the increased trading profits this year there were capital allowances (AIA) of £32k last year.
+
+### BALANCE SHEET
+Fixed assets - down £12k. Depreciation in the year. Mainly comprimises £33k property improvements.
+Debtors - up £5.5k. Prepayment for rent in line with last year and accrued income (£5.5k) for the JRS grant for July 2020 received in August 2020.
+Cash at bank - up £88k. Including £50k bounce back loan.
+Creditors - up £81k. Including:-
+Bank loans - £50k. Bounce back loan to be used as back up, if they have to close again!
+Corporation tax - up £21k. Increase in trading profits and no AIA this year.
+Social Security - up £4k. PAYE for July 2020 as per P32 for the month. Paid August 2020.
+Other creditors - up £6k. £582 pension provider for July 2020 and Fees income in advance of £5.7k as agreed with Cathy.
+DLA - b/fwd of £594. You have drawn £128k against wages due of £17k. In addition you have repaid Maureen £7.5k and have private expenses of £1.5k. We have voted dividends of £120k to ensure loan balance isn't overdrawn, leaving c/fwd of £953.
+Net current assets of £22k compared to £10k last year, an increase of £12k.
+Shareholders funds of £58,692 compared to £57,960 last year, an increase of just £732
+
+### WHERE HAS THE PROFIT GONE?
+Profit of £120k. Dividends voted of £120k.
+Increase in debtors and bank balances against the fixed asset depreciation and increase in creditors.
+
+### PERSONAL TAX
+Cathy - liability of £13,411 compared to £3,883 last year due to the £32k increase in dividends (£27k taxed at a higher rate this year) and CGT of £1,961 on the sale of Lesson Road
+Deferral of July 2020 POA means approx. £17.1k due in January 2021.
+POA for July 2021 of £5,725.
+Mark - use of losses from partnership (£21k) means only £53k taxable income. Liability of £5,895 compared to £3,880 last year due to the increase in dividend income (£31K) against the use of partnership losses and reduced partnership income and rental income. Includes CGT of £1,961.20 due on sale of Lesson Road.
+Using the averaging method, the liability is reduced by the overpaid tax from previous year (£1,253). This and the deferral of July 2020 POA leaves a payment due of approx. £4.6k in January 2021.
+POA for July 2021 of £1,967
+CGT for 16 Lesson Road - cost of £140k in 2006 and sale in March 2020 for £188k (split 50/50 between Mark and Cathy) results in £22k share each less their annual exemption of £12k means a gain of just under £10k at 20% - £1,961.70 each.
+With the joint loan account balance at 5th April 2020 overdrawn by £77,500 there isn’t scope to defer enough dividends to ensure Cathy and Mark both avoid the HRT band and as a result reduce the CGT liability as well.
+Richard and Maureen Turney tax returns are on IRIS Openspace - already approved 02/09/20 and will be submitted once meeting taken place.
+
+### OUR RECOMMENDATIONS
+Receipt Bank - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Any plans to continue the growth of the business?
+Short term contingency plans in place in current pandemic?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Currently paying £334.30 per month (including Xero). Current GoProposal (no previous one prepared!) shows £359 per month (including Xero) based on turnover remaining on a similar level (below £500k).
+An increase of £25 + VAT",
+ft_4,GPT-4.1 Fine-Tuned 4,Fine-tuned GPT-4.1,gpt-4.1-2025-04-14.ft-bea5176101d44166aa91ae4563c0756e,fine-tuned,val_001,8.122,"### HAS AML BEEN COMPLETED
+https://www.irishub.co.uk/login?return=%2Fclients%2Fbrowser%2FproductType
+
+### P&L
+£613,030 v £602,318 - £10,712 increase (2%)
+£623,922 v £496,037 - £127,885 increase (26%) - increase due to higher wages and directors salary this year
+£691 v £56,281 - £55,590 decrease (99%) - due to overall increase in costs while sales remained relatively constant
+
+### CORPORATION TAX
+Due 30 December 2024 - due to no further interest included this year
+
+### BALANCE SHEET
+£120,195 v £146,074 - £25,879 decrease (18%)
+£296,411 v £376,233 - £79,822 decrease (21%)
+Remains unchanged at £69,000
+£243,113 v £243,113 - no change - This should be reviewed as over 3 times profits which is large
+
+### OUR RECOMMENDATIONS
+All included
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+What are the short-term and long-term plans for the business?
+Happy with the service?
+
+### OUR SERVICES & FEES
+GoProposal suggested £545.00 + VAT per month, but we are currently charging £401.00 + VAT
+
+### RECOMMENDATIONS?
+Can you recommend anyone to us?","### P&L
+Sales - down £13k from £505k last year. As expected with closure through the year for Covid, despite the increase in Government funding (£6k increase).
+Cost of sales - on par with last year. Including:-
+Purchases - down £12k from £35k. Reduction with closure during the pandemic.
+Wages and NI - up £12k from £279k. Increased staff numbers through the year and continued to pay on furlough scheme.
+Result is gross profit of £177k compared to £191k last year, a drop of £14k.
+GP% of 35.90% compared to 37.82% last year.
+Other income - £77k. Including:-
+JRS grant income - £52k. Including accrued income for July 2020 received in August 2020.
+Other income - £25k. NBC Grant of £10k and £15k insurance monies to cover loss of earnings.
+Admin costs - down £13k from £103k last year. Including:-
+Rent - up £1k from £18k. Increase in quarterly costs from £4,500 to £4,750 half way through last year.
+Repairs and renewals - down £17k from £27k. Last year included costs for new nursery roof £17k, this year only costs for property repairs are CCTV installation £4k
+Hire of office equipment - NIL. Finished payments for leased photcopier.
+Office costs - up £9k from £4k. Increase in costs this year across the board and to prepare for covid regulations. Cathy accepts there might be some crossover/confusion with teaching resources but is okay with this.
+Advertising - down £2k from £3k. No annual fee paid to Brixworth Directory this year.
+Motor - down £1k from £2.5k. Cathy stopped claiming her mileage from April 2020 with nursery closed.
+Refuse collecting and cleaning - down £3k from £7k. Previously paid Pristine cleaners, now brought back in house.
+Staff training - up £1k. Additional courses and £700 YMCA training.
+Bookkeeping costs - NIL. No bookkeeping charges from Cathy this year due to economic climate.
+Legal and professional - £1,497 for HR fees, DBS checks and small costs for staff recruitment.
+Donations - £280. Macmillan and Children in Need.
+Entertainment - £1,997. All staff.
+Bank interest - £478 all for interest on Barclaycard (April and June 2020)
+Goodwill  - £7,151. One year of amortisation remaining.
+Depreciation (property improvements) - up £1.2k from £2.8k. Full years depreciation on work done in the 2nd half of the previous year.
+Result is net profit of £152k compared to £76k last year, an increase of £76k. Essentially the difference being the grant income and insurance monies received in the year.
+Profit before directors remuneration of £169k compared to £93k, an increase of £76k.
+Dividends voted of £120k compared to £71k last year. Split 51/49 between Cathy / Mark to ensure loan account balances remain positive.
+
+### CORPORATION TAX
+After adjustments for Depreciation there are taxable profits of £163,713 which give a liability @19% of £31,105.47 due on 1st May 2021.
+This compares to taxable profits last year of £54,988 and a liability of £10,455.13.
+As well as the increased trading profits this year there were capital allowances (AIA) of £32k last year.
+
+### BALANCE SHEET
+Fixed assets - down £12k. Depreciation in the year. Mainly comprimises £33k property improvements.
+Debtors - up £5.5k. Prepayment for rent in line with last year and accrued income (£5.5k) for the JRS grant for July 2020 received in August 2020.
+Cash at bank - up £88k. Including £50k bounce back loan.
+Creditors - up £81k. Including:-
+Bank loans - £50k. Bounce back loan to be used as back up, if they have to close again!
+Corporation tax - up £21k. Increase in trading profits and no AIA this year.
+Social Security - up £4k. PAYE for July 2020 as per P32 for the month. Paid August 2020.
+Other creditors - up £6k. £582 pension provider for July 2020 and Fees income in advance of £5.7k as agreed with Cathy.
+DLA - b/fwd of £594. You have drawn £128k against wages due of £17k. In addition you have repaid Maureen £7.5k and have private expenses of £1.5k. We have voted dividends of £120k to ensure loan balance isn't overdrawn, leaving c/fwd of £953.
+Net current assets of £22k compared to £10k last year, an increase of £12k.
+Shareholders funds of £58,692 compared to £57,960 last year, an increase of just £732
+
+### WHERE HAS THE PROFIT GONE?
+Profit of £120k. Dividends voted of £120k.
+Increase in debtors and bank balances against the fixed asset depreciation and increase in creditors.
+
+### PERSONAL TAX
+Cathy - liability of £13,411 compared to £3,883 last year due to the £32k increase in dividends (£27k taxed at a higher rate this year) and CGT of £1,961 on the sale of Lesson Road
+Deferral of July 2020 POA means approx. £17.1k due in January 2021.
+POA for July 2021 of £5,725.
+Mark - use of losses from partnership (£21k) means only £53k taxable income. Liability of £5,895 compared to £3,880 last year due to the increase in dividend income (£31K) against the use of partnership losses and reduced partnership income and rental income. Includes CGT of £1,961.20 due on sale of Lesson Road.
+Using the averaging method, the liability is reduced by the overpaid tax from previous year (£1,253). This and the deferral of July 2020 POA leaves a payment due of approx. £4.6k in January 2021.
+POA for July 2021 of £1,967
+CGT for 16 Lesson Road - cost of £140k in 2006 and sale in March 2020 for £188k (split 50/50 between Mark and Cathy) results in £22k share each less their annual exemption of £12k means a gain of just under £10k at 20% - £1,961.70 each.
+With the joint loan account balance at 5th April 2020 overdrawn by £77,500 there isn’t scope to defer enough dividends to ensure Cathy and Mark both avoid the HRT band and as a result reduce the CGT liability as well.
+Richard and Maureen Turney tax returns are on IRIS Openspace - already approved 02/09/20 and will be submitted once meeting taken place.
+
+### OUR RECOMMENDATIONS
+Receipt Bank - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Any plans to continue the growth of the business?
+Short term contingency plans in place in current pandemic?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Currently paying £334.30 per month (including Xero). Current GoProposal (no previous one prepared!) shows £359 per month (including Xero) based on turnover remaining on a similar level (below £500k).
+An increase of £25 + VAT",
+gpt54_zero_shot,GPT-5.4 Zero-Shot,Prompt engineered GPT-5.4,gpt-5.4,zero-shot,val_002,51.884,"## Year-end working paper review notes
+
+Below are the suggested year-end review notes based on the trial balance provided and the limited information available.
+
+---
+
+# 1. Bank and cash
+
+### Accounts noted
+- Barclays Business Banking Savi: **£15,511.05**
+- Business Savings Account: **£28,589.17**
+- Current Account: **£28,066.15**
+- Petty Cash: **£20.00**
+
+### Review notes
+- Obtain and agree all bank balances to year-end bank statements.
+- Confirm whether bank reconciliations have been prepared for all accounts at the year end and review for any unusual or old reconciling items.
+- Verify whether there are any unpresented cheques, outstanding receipts, or transfers between accounts around the year end requiring adjustment.
+- Petty cash balance is low at **£20.00**; agree to cash count or petty cash reconciliation.
+- Review bank interest received (**£119.98**) and bank charges (**£178.75**) for completeness and correct classification.
+- Confirm whether any restricted or designated cash exists.
+
+---
+
+# 2. Trade debtors, other debtors and prepayments
+
+### Accounts noted
+- Prepayments: **£4,398.35**
+- Mr M Turney: **£3,460.66**
+
+### Review notes
+- No trade debtors balance appears on the trial balance summary; confirm whether all income is received in advance/cash basis or whether debtor balances are omitted from this extract.
+- Review prepayments balance of **£4,398.35** and obtain schedule supporting the amounts carried forward. Ensure only costs relating to the next accounting period are included.
+- Check post year-end invoices and supporting documents for validity of prepayments.
+- Investigate **Mr M Turney £3,460.66**:
+  - determine whether this is a director’s loan account, staff loan, expense advance, or creditor/debtor balance;
+  - confirm whether recoverable by the company;
+  - consider Companies Act disclosures if director-related;
+  - consider s455 tax implications if this is an overdrawn participator/director loan at year end;
+  - agree to supporting transactions and post year-end settlement if applicable.
+
+---
+
+# 3. Fixed assets and depreciation/amortisation
+
+### Accounts noted
+- Fixtures and Fittings: **£14,079.04**
+- Leasehold Property Improvements: **£40,391.00**
+- Short Leasehold: **£20,641.00**
+- Goodwill: **£87,500.00**
+
+### Depreciation/amortisation charged
+- Depreciation - Fixtures and Fittings: **£1,279.83**
+- Depreciation - Leasehold Property Improvements: **£4,039.10**
+- Goodwill Amortisation: **£7,131.05**
+
+### Review notes
+- Obtain fixed asset register and agree closing balances to the trial balance.
+- Confirm whether the fixed asset balances shown are cost only or net book value. No accumulated depreciation/amortisation balances are visible in the extract, so presentation should be checked carefully.
+- Review additions in year and inspect invoices for capital nature, especially within:
+  - Leasehold Property Improvements
+  - Fixtures and Fittings
+  - Short Leasehold
+- Confirm depreciation and amortisation policies are consistent with prior year and appropriate for useful economic lives.
+- Leasehold improvements depreciation of **£4,039.10** appears to be exactly 10% of cost, suggesting a 10-year life; confirm this is appropriate to remaining lease term.
+- Goodwill amortisation of **£7,131.05** should be reviewed against company policy and FRS 102 treatment. Confirm:
+  - origin of goodwill;
+  - acquisition documentation;
+  - useful life adopted;
+  - whether impairment review is required.
+- Clarify the nature of **Short Leasehold £20,641.00**:
+  - whether this is a tangible fixed asset category;
+  - whether depreciation/amortisation has been posted;
+  - whether any reclassification is needed.
+- Consider whether any repairs-type expenditure currently capitalised should instead be expensed, particularly where property-related spend also exists in P&L.
+
+---
+
+# 4. Creditors, accruals and tax liabilities
+
+### Accounts noted
+- Corporation Tax: **£26,999.00**
+- Deferred Tax: **£395.00**
+
+### Review notes
+- No trade creditors, accruals, PAYE/NI, VAT, or pension creditor balances appear in the extract; confirm whether balance sheet liabilities are incomplete in this report.
+- Corporation tax provision of **£26,999.00** should be agreed to draft tax computation.
+- Confirm whether the corporation tax balance represents current year liability only, and whether prior year liabilities have been settled.
+- Deferred tax balance of **£395.00** should be supported by a clear calculation, likely on timing differences relating to capital allowances and/or accelerated depreciation.
+- Review whether any year-end accruals are required for accountancy, professional fees, wages, utilities, pension contributions, or other unbilled costs.
+- Review payroll-related liabilities at year end, particularly given significant wages and employer costs:
+  - Wages **£319,673.36**
+  - Employers NI **£18,102.15**
+  - Employers Pensions **£2,721.91**
+- Confirm whether pension contributions due but unpaid at year end need to be accrued separately.
+
+---
+
+# 5. Loans and finance
+
+### Accounts noted
+- Loan interest: **£207.19**
+
+### Review notes
+- No loan liability appears on the trial balance despite loan interest being charged.
+- Confirm whether there is an outstanding director, bank, or other loan omitted from the summary, or whether the interest relates to a short-term finance facility already repaid.
+- Obtain loan statements and review:
+  - principal outstanding at year end;
+  - interest accrued;
+  - repayment terms;
+  - security;
+  - split between amounts due within and after one year.
+- If the loan is from a director or connected party, ensure related party disclosures are considered.
+
+---
+
+# 6. Payroll and staff costs
+
+### Accounts noted
+- Directors Salary: **£17,608.00**
+- Wages: **£319,673.36**
+- Employers NI: **£18,102.15**
+- Employers Pensions: **£2,721.91**
+- Uniform: **£963.58**
+- Staff Training: **£1,358.10**
+
+### Review notes
+- Agree payroll totals to year-end payroll reports/P32/P60 records.
+- Review whether directors’ remuneration disclosures are required in the statutory accounts.
+- Check PAYE/NI liabilities at year end and ensure any unpaid amounts are included in creditors.
+- Review pension contributions for correct cut-off and payment after year end.
+- Consider whether any benefits-in-kind or staff entertaining items need separate tax treatment.
+- Compare wages and staffing costs to prior year and expectations for reasonableness.
+
+---
+
+# 7. Profit and loss review / nominal ledger analytical points
+
+### Key expense headings noted
+- Food: **£28,700.77**
+- Teaching Resources: **£19,012.14**
+- Office Costs: **£18,546.07**
+- Maintenance & Garden: **£13,445.33**
+- Property Repairs: **£6,292.79**
+- Rent: **£19,000.00**
+- Cleaning Materials: **£2,678.51**
+- Electricity: **£2,620.00**
+
+### Review notes
+- Perform analytical review against prior year and expectations, especially for the larger discretionary or operational cost headings.
+- Review split between:
+  - Maintenance & Garden
+  - Property Repairs
+  - Leasehold Property Improvements
+  to ensure correct capital/revenue treatment.
+- Review Office Costs **£18,546.07** as this is relatively high and may include capital, private, or reclassifiable items.
+- Review Food and Teaching Resources for business purpose and whether all costs are wholly and exclusively for trade.
+- Ensure charity donations **£76.95** are treated correctly for corporation tax purposes, depending on nature of payment.
+- Entertaining/Gifts **£423.31** should be reviewed for business entertaining disallowance in tax computation.
+- Dividends **£151,000.00** should not be charged through the profit and loss account; confirm posting is to reserves/equity and not included in profit before tax.
+- Corporation Tax and Deferred Tax should also be presented below profit before tax in statutory accounts, not within operating expenses.
+- Check whether Accountancy **£4,011.60** includes work relating partly to prior year compliance or personal matters.
+- Professional Fees **£1,054.55** should be reviewed for any capital or non-deductible elements.
+
+---
+
+# 8. Equity, reserves and distributions
+
+### Accounts noted
+- Dividends: **£151,000.00**
+
+### Review notes
+- Confirm dividends were properly declared and supported by board minutes/dividend vouchers.
+- Ensure dividends are posted through equity and not treated as an expense in the profit and loss account.
+- Review availability of distributable reserves at each dividend date.
+- Consider whether any part of the drawings/dividend balance should instead be treated as director’s loan movements if paperwork is incomplete.
+- If **Mr M Turney £3,460.66** relates to director drawings, review interaction with dividends and loan account disclosures.
+
+---
+
+# 9. Taxation
+
+### Accounts noted
+- Corporation Tax: **£26,999.00**
+- Deferred Tax: **£395.00**
+- Entertaining/Gifts: **£423.31**
+- Charity Donations: **£76.95**
+- Goodwill Amortisation: **£7,131.05**
+
+### Review notes
+- Prepare corporation tax computation and review for disallowable items, including:
+  - entertaining;
+  - certain gifts;
+  - depreciation;
+  - amortisation of goodwill depending on acquisition date and tax treatment.
+- Confirm whether goodwill amortisation is deductible for tax purposes.
+- Review capital expenditure and compute capital allowances.
+- Reconcile tax charge to profit before tax.
+- Ensure deferred tax is supported and disclosed correctly if material.
+- Consider any benefit-in-kind or payroll tax issues arising from staff costs or director-related expenditure.
+
+---
+
+# 10. Related parties / directors
+
+### Accounts noted
+- Directors Salary: **£17,608.00**
+- Dividends: **£151,000.00**
+- Mr M Turney: **£3,460.66**
+
+### Review notes
+- Confirm whether Mr M Turney is a director/shareholder and whether the balance is a related party balance.
+- Review director remuneration, dividends, and any loan/current account transactions for disclosure.
+- If overdrawn at any point or at year end, consider:
+  - s455 tax;
+  - benefit-in-kind implications;
+  - disclosure requirements.
+- Ensure related party balances are recoverable and appropriately authorised.
+
+---
+
+# 11. Presentation and disclosure points
+
+### Review notes
+- Trial balance summary appears incomplete from a full balance sheet perspective, as no obvious sales/income, trade creditors, VAT, PAYE/NI, or equity balances are shown. Confirm that this is a partial extract only.
+- Ensure statutory accounts presentation is corrected for:
+  - dividends not in P&L;
+  - corporation tax/deferred tax below profit before tax;
+  - fixed assets shown net of accumulated depreciation/amortisation;
+  - proper split of current and long-term liabilities.
+- Review whether comparative figures and notes are available and consistent with current classifications.
+- Confirm accounting framework applied, likely **FRS 102 Section 1A** for a small company, and tailor disclosures accordingly.
+
+---
+
+# 12. Missing information / queries for client
+
+### Information required
+1. Full nominal ledger / general ledger export.
+2. Year-end bank statements and bank reconciliations for all bank accounts.
+3. Fixed asset register with additions/disposals and depreciation policy.
+4. Loan statements and details of any finance arrangements.
+5. Payroll reports, P32s, pension schedules, and year-end liabilities.
+6. Corporation tax computation and prior year tax settlement details.
+7. Breakdown of prepayments.
+8. Explanation and transaction history for **Mr M Turney £3,460.66**.
+9. Dividend paperwork and evidence of sufficient reserves.
+10. Confirmation of any accruals, creditors, VAT, and PAYE balances omitted from the summary.
+
+---
+
+## Priority review flags
+
+1. **Mr M Turney balance £3,460.66** — needs urgent clarification for director loan/related party/tax implications.
+2. **Dividends £151,000.00** — confirm correct equity treatment and legality of distributions.
+3. **Loan interest with no corresponding liability** — investigate missing loan balance.
+4. **Fixed asset presentation** — confirm whether assets are shown at cost and where accumulated depreciation sits.
+5. **Potential incomplete balance sheet extract** — several expected liability/equity balances are not visible.
+6. **Capital vs revenue review** — particularly property and office-related expenditure.
+7. **Corporation tax and deferred tax** — obtain support and reconcile to draft accounts/tax comp.
+
+If you want, I can also turn these into a more formal **year-end accountant’s review points schedule** in a tabular format with columns for **Area / Observation / Risk / Action Required / Client Query**.","### P&L
+Sales - £624k v £492k. Increase in child numbers and nursery was closed for last 4 months of previous year during lockdown. Government funding comparable to previous year.
+Cost of sales - £385k v £315k including:-
+Purchases - £47k v £23k. Increase in food costs - more children in but also limited to number of items on shopping deliveries during pandemic so more frequent and costly deliveries. They have also upgraded a lot of the teaching resources this year as well as creating a ""forest school"" - small items but all added up.
+Wages and NI - £337k v £291k. Increase in staff numbers this year and increased hours of work, along with increased pay across the board.
+Result is gross profit of £238k v £178k last year, an improvement of £60k.
+GP% of 37.66% compared to 36.18% last year, although can't comare due to last year having furlough income within other income
+Other income - £10k v £77k including:-
+Grant income - £9k v £52k. JRS grant income reduced this year.
+Other income - £1k v £25k. Last year included covid support grants from local government. This year £1k for an apprenticeship grant.
+Overheads £98k v £90k including:-
+Directors salaries - £18k v £17k. Salaries for Cathy and Mark.
+Pensions - £2.7k v £3.5k. Number of refunds this year as staff withdrew from the scheme.
+Rates and water - £737 v £2,250. All water rates this year. Received relief on business rates.
+Insurance - £1k v £2.1k. Nursery insurance. Prepayment taken this year which was missed in 2020.
+Repairs and renewals - £19k v £10k. Increased costs this year with work done on the driveway and drainage system around the property.
+Office costs - £18k v £14k. Increase in costs this year to make the premises covid safe. Extra cleaning costs, extra costs for flowers etc to ""cheer people up"" and new curtains.
+Motor expenses - £NIL v £1,338. Mileage costs. No travel this year so no mileage. Everything was done online.
+Legal and professional fees - £1,055 for DBS checks, recruitment fees and companies house annual return.
+Donations - £77 for children in need.
+Entertainment (staff) - £423 for staff xmas lunch and gifts.
+Bank loan interest is start of BBL repayments
+Result is net profit of £137,587 v £151,733 last year, an drop of £14,146.
+Before directors remuneration it’s a profit of £153,731 v £169,093, a drop of £15,362.
+Dividends voted of £151k (last year £120k) to ensure DLA balances are not overdrawn at the year-end. Dividends issued in correct share split between Cathy and Mark.
+
+### CORPORATION TAX
+After adjustments for depreciation and capital allowances (F&F) there are taxable profits of £142,100.
+Result is a liability @ 19% of £26,999 due 1st May 2022.
+This compares to a liability of £31,105.47 last year when trading profits were higher and there were no capital allowances.
+
+### BALANCE SHEET
+Fixed assets - £38k v £43k including:-
+Goodwill - £NIL v £7k. Fully amoritised.
+Tangible assets - £37k v £35k. Additions in the year for dishwasher, hoover, washing machine, interactive white board and office furniture (£7k in total) against depreciation in the year.
+Debtors - £4.3k v £8.5k for prepayments on rent and insurance. No JRS accrued income this year (£6k last year).
+Cash at bank and in hand - £72k v £108k. Increased cash drawn through the year by directors. Balances agreed to statements.
+Creditors (within one year) - £51k v £54k.
+Bank loans - £10k for bounce back loan due within one year.
+Trade creditors - £1,875 for one o/s invoice from the farm partnership paid in September 2021.
+Corporation tax - £27k v £31k. Reduced trading profits this year.
+Social security - £3,359 v £5,256. PAYE liability as per PHM payroll for July 2021. Paid August 2021.
+Other creditors - £8,711 v £6,326. Pension provider £791 as per payroll (paid August 21) and Sales received in advance £7,920 as per Cathy - reports from the external software reconciled.
+DLA - £152 v £954. All transactions split 50/50 between Cathy and Mark other than the dividends voted - split 51 Cathy and 49 Mark.
+B/fwd of £953. Repayments of £7.4k made to Maureen for share purchase, private expenses of £120 and cash drawn of £162k in the year. Against this you are due salary of £17k and we have voted dividends of £151k to ensure the balance is not overdrawn at the year-end. c/fwd of £152.
+Net current assets of £25k v £62k last year, a drop of £37k.
+Creditors (after one year) - £38k v £40k for bounce back loan. Repayments started June 2021.
+Shareholders funds of £18k v £59k last year, a drop of £41k.
+
+### TAX SAVED
+Super deduction allowance of 130% on additions of £1,795 is £2,334 - saves you £443 in tax.
+AIA of £5,603 saves you £1,065 in tax.
+
+### WHERE HAS THE PROFIT GONE?
+Profit after tax of £110k. Dividends voted of £151k.
+Shortfall reflected in the reduced bank balances (£34k) and the drop in value of goodwill (£7k to NIL).
+
+### PERSONAL TAX
+Cathy - employment income from the partnership and Sunnysocks. Dividends from Sunnysocks.
+Taxable income - £88,194.
+Result is liability of £18,345.55.
+You have made payments on account of £14,663 against this so balancing payment due in Jan 2022 of £3,682.55.
+Payments on account for Jan 22 and July 22 of £9,172.77 each.
+Total amount due January 22 of £12,855.32.
+This compares to liability last year of £14,663 when dividend income was £13k less (taxed at 32.5%).
+Mark - employment income from Sunnysocks. Dividends from Sunnysocks and partnership income from the farm.
+Taxable income - £92,266.
+Result is liability of £20,549.55.
+You have made payments on account of £4k against this so balancing payment due in Jan 2022 of £18,795.11 (including the tax due for last year with avergaging method and the repayment of child benefit charge).
+Payments on account for Jan 22 and July 22 of £10,195.47
+Total amount due January 22 of £28,990.58.
+This compares to liability last year of £3.9k when dividend income was £13k less (taxed at 32.5%) and you received £20k tax relief from losses on partnership.
+
+### OUR RECOMMENDATIONS
+Dext - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Company pension contributions for Mark / Cathy to reduce CT liabilities.
+Be prepared for tax payments due in January 2022 - £40k due between you both.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Plans for the business short term and long term?
+Plans to continue the growth?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Current annual fee of £3,055 plus VAT (plus Xero monthly).
+Slight issues with the original proposal, but current one shows £371 plus VAT per month is the cost.
+Partly increased with the increased turnover, but client did receive reduced fees previously.
+Conversation to be had!",
+gpt54_single_shot,GPT-5.4 Single-Shot,Prompt engineered GPT-5.4,gpt-5.4,single-shot,val_002,69.633,"## Year-end working paper review notes
+
+### 1. Overall / file completion
+- Only a trial balance summary has been provided; no nominal ledger, sales data, purchase ledger, payroll reports, fixed asset register movements, loan statements, VAT returns, or bank reconciliations are available.
+- Review below is therefore based on TB-level analytical review only.
+- Several balance sheet captions appear incomplete from the extract, in particular:
+  - trade debtors / other debtors
+  - accruals
+  - PAYE/NIC creditor
+  - pension creditor
+  - deferred / accrued income
+  - bank loans / Bounce Back Loan / other borrowings
+  - share capital / reserves / retained earnings
+  - corporation tax payable movement
+- Recommend obtaining the full balance sheet and lead schedules before final sign-off.
+
+---
+
+## 2. Profit and loss review
+
+### Turnover / income
+- No turnover or other income nominal codes are included in the TB extract.
+- Cannot perform full income analytical review or confirm consistency with prior year expectations.
+- Need to confirm:
+  - sales by funding stream / nursery fees / grants
+  - any CJRS or other grant income
+  - insurance claims / exceptional income
+  - deferred income at year end
+  - cut-off around year end.
+
+**Follow-up**
+- Obtain detailed P&L with income lines.
+- Review monthly income trend against prior year and post year end.
+- Confirm whether any grant income has been correctly recognised and whether any accrual/deferred income entries are required.
+
+---
+
+## 3. Cost of sales / direct costs
+Likely direct operating costs include Food £28,700.77 and Teaching Resources £19,012.14, though classification depends on management reporting.
+
+### Review notes
+- Food increased materially compared with prior year data previously seen; ensure increase is consistent with pupil numbers / occupancy / trading pattern.
+- Teaching Resources also appears significantly higher; confirm no capital items or general consumables included in this code.
+- Cleaning Materials £2,678.51 appears reasonable for a childcare / nursery environment but should be checked for any non-routine spend.
+
+**Follow-up**
+- Run detailed nominal review for Food, Teaching Resources and Cleaning Materials.
+- Check for:
+  - one-off bulk purchases near year end
+  - personal / disallowable items
+  - capital expenditure misposted to revenue
+  - prepayments where stock/consumables cover post year-end period.
+
+---
+
+## 4. Staffing costs
+### Balances
+- Wages: £319,673.36
+- Directors Salary: £17,608.00
+- Employers NI: £18,102.15
+- Employers Pensions: £2,721.91
+- Uniform: £963.58
+- Staff Training: £1,358.10
+
+### Review notes
+- Total payroll-related costs remain the most significant expense area.
+- Directors salary of £17,608 should be agreed to payroll records / board approval and tax planning position.
+- Wages have increased against prior year figures previously provided; likely due to staffing levels / reopening / inflationary pressures, but needs corroboration.
+- Employers pension cost of £2,721.91 appears relatively low against wages; ensure year-end pension creditor is recorded if unpaid contributions remain due.
+- Uniform should be checked for any non-logo clothing or staff personal items.
+
+**Follow-up**
+- Agree payroll totals to year-end payroll summary / P32 / FPS submissions.
+- Confirm PAYE/NIC and pension control balances are included elsewhere on the balance sheet.
+- Review directors remuneration for voting/minute support.
+- Check for any furlough income or payroll grants if relevant to period.
+- Confirm whether holiday pay accrual is required.
+
+---
+
+## 5. Premises and occupancy costs
+### Balances
+- Rent: £19,000.00
+- Electricity: £2,620.00
+- Heating and Fuel: £1,137.29
+- Water Rates: £737.26
+- Waste Collection: £1,539.96
+- Bin Hire: £87.14
+- Property Repairs: £6,292.79
+- Maintenance & Garden: £13,445.33
+- Insurance: £1,034.54
+
+### Review notes
+- Premises costs are substantial and should be reviewed closely.
+- Maintenance & Garden at £13,445.33 is high relative to some other overheads; needs breakdown to determine whether:
+  - repairs should be capitalised
+  - any landlord vs tenant responsibilities affect treatment
+  - any private / non-trade element exists
+- Property Repairs £6,292.79 also needs review for capital/revenue split.
+- Insurance appears lower than expected if this is full annual business cover; verify no prepayment / timing issue or reclassification.
+- Rent at £19,000 should be agreed to tenancy terms and prepayment/accrual reviewed.
+
+**Follow-up**
+- Inspect detailed nominal postings for repairs and maintenance.
+- Identify any expenditure enhancing the leasehold property that should be capitalised.
+- Check cut-off for utilities and rent around year end.
+- Confirm insurance prepayment included within Prepayments £4,398.35.
+
+---
+
+## 6. Administrative expenses
+### Balances
+- Office Costs: £18,546.07
+- Telephone: £855.54
+- Subscriptions: £1,553.43
+- Accountancy: £4,011.60
+- Professional Fees: £1,054.55
+- Website/Advertising: £363.40
+- Bank Charges: £178.75
+- Entertaining/Gifts: £423.31
+- Charity Donations: £76.95
+
+### Review notes
+- Office Costs is material and should be reviewed in detail; potential for mixed posting with teaching resources, small equipment or capital items.
+- Accountancy fees appear reasonable; confirm whether any amount relates to prior year adjustment, payroll, tax, or bookkeeping services and whether accrual/prepayment is appropriate.
+- Professional Fees should be analysed for legal, HR, DBS, consultancy etc., and any capital/legal costs separated if relevant.
+- Entertaining/Gifts and Charity Donations are likely disallowable for corporation tax depending on nature.
+- Bank Charges are low and appear reasonable.
+
+**Follow-up**
+- Obtain nominal detail for Office Costs and Professional Fees.
+- Review for capital items, personal items, and tax disallowables.
+- Confirm whether subscriptions include software/licences spanning year end and whether prepayment is needed.
+
+---
+
+## 7. Finance costs and investment income
+### Balances
+- Bank Interest: £119.98
+- Loan interest: £207.19
+
+### Review notes
+- Need to confirm nature of Bank Interest:
+  - if this is bank deposit interest receivable, present as finance income
+  - if actually card/bank borrowing interest, classification should be finance cost
+- Loan interest suggests borrowings exist, but no corresponding loan liability is visible on the TB extract provided.
+- Given cash balances total c.£72k, existence of loan interest implies retained debt or specific finance arrangements.
+
+**Follow-up**
+- Obtain loan statements and balance sheet liabilities.
+- Confirm whether any Bounce Back Loan / other borrowing remains outstanding.
+- Reconcile interest expense to lender statements.
+- Check accrual for unpaid interest if applicable.
+
+---
+
+## 8. Fixed assets, depreciation and amortisation
+### Balances
+- Fixtures and Fittings (cost): £14,079.04
+- Leasehold Property Improvements (cost): £40,391.00
+- Short Leasehold: £20,641.00
+- Goodwill: £87,500.00
+- Depreciation - Fixtures and Fittings: £1,279.83
+- Depreciation - Leasehold Property Improvements: £4,039.10
+- Goodwill Amortisation: £7,131.05
+
+### Review notes
+- Need full fixed asset register to reconcile opening balances, additions, disposals and depreciation.
+- Fixtures and fittings have increased significantly from prior year data previously seen (£6.7k to £14.1k cost), indicating additions of c.£7.4k. Need to confirm:
+  - additions agree to invoices
+  - correct capitalisation
+  - AIA / capital allowances treatment
+- Leasehold property improvements appear unchanged in cost, with annual depreciation consistent with prior year.
+- Short Leasehold remains at £20,641; unclear whether this is a separate tangible asset category or historic lease premium. Need basis for amortisation/depreciation and expected useful life.
+- Goodwill amortisation of £7,131.05 should be checked against amortisation policy and remaining life. Goodwill cost unchanged at £87,500.
+- Deferred Tax £395.00 likely relates to timing differences, probably capital allowances vs depreciation or goodwill/tax base differences; supporting computation required.
+
+**Follow-up**
+- Obtain fixed asset register and prior year closing schedule.
+- Verify additions in fixtures and fittings and assess for capital allowances.
+- Confirm whether any repairs nominal postings should instead be capitalised to leasehold improvements or fixtures.
+- Recalculate depreciation and amortisation.
+- Prepare / review deferred tax computation and basis.
+
+---
+
+## 9. Prepayments and accruals
+### Balances
+- Prepayments: £4,398.35
+
+### Review notes
+- Prepayments have reduced from prior year data previously seen.
+- Need support for composition, likely rent, insurance, software, subscriptions or service contracts.
+- No accruals are visible on the extract, which is unusual given accountancy fees, payroll liabilities, utilities and pensions.
+
+**Follow-up**
+- Obtain prepayment schedule with invoice dates and coverage periods.
+- Consider accruals for:
+  - accountancy / payroll / tax fees
+  - utilities
+  - payroll / NIC
+  - pension contributions
+  - holiday pay
+  - any professional fees incurred not yet billed.
+
+---
+
+## 10. Cash and bank
+### Balances
+- Barclays Business Banking Savi: £15,511.05
+- Business Savings Account: £28,589.17
+- Current Account: £28,066.15
+- Petty Cash: £20.00
+
+### Review notes
+- Total cash balances per TB are £72,186.37 excluding petty cash, indicating strong liquidity.
+- Need year-end bank reconciliations and statements for all accounts.
+- Cash has reduced compared with prior year figures previously provided, but still remains healthy.
+- Petty cash at £20 is immaterial but should still be agreed to count.
+
+**Follow-up**
+- Agree all cash balances to bank statements at year end.
+- Review bank reconciliations for uncleared items.
+- Confirm any restricted funds or designated savings accounts.
+- Review post year-end transactions for unusual items.
+
+---
+
+## 11. Directors’ loan / related parties
+### Balances
+- Mr M Turney: £3,460.66
+- Dividends: £151,000.00
+
+### Review notes
+- The Mr M Turney balance requires confirmation whether debit or credit on the TB and whether it represents an asset due from director or liability owed to director.
+- Dividends of £151,000 are substantial relative to the rest of the balance sheet and should be supported by:
+  - board minutes / dividend vouchers
+  - sufficient distributable reserves
+  - allocation between shareholders
+- If the DLA went overdrawn at any point, consider:
+  - s455 tax
+  - beneficial loan implications
+  - overdrawn director disclosure
+- Need to assess interaction between dividends, directors salary and current year profitability.
+
+**Follow-up**
+- Obtain director loan account movement schedule.
+- Confirm legal validity of dividends and whether interim/final dividends were properly documented.
+- Check if any personal expenditure has been posted through the company.
+- Consider related party disclosures.
+
+---
+
+## 12. Taxation
+### Balances
+- Corporation Tax: £26,999.00
+- Deferred Tax: £395.00
+
+### Review notes
+- Corporation tax charge appears lower than prior year extract previously seen, despite higher wage and operating cost profile; however no turnover figure is available, so reasonableness cannot yet be assessed.
+- Need full tax comp to validate:
+  - depreciation add-back
+  - capital allowances
+  - entertaining disallowance
+  - donations treatment
+  - amortisation of goodwill treatment depending on acquisition date / tax rules
+  - any non-deductible client/staff entertaining split
+- Deferred tax requires support and consistency with FRS 102 section 29 policy.
+
+**Follow-up**
+- Prepare/review corporation tax computation from draft accounts.
+- Confirm corporation tax payable in balance sheet and payments on account / prior year settlement.
+- Agree deferred tax movement to timing differences schedule.
+
+---
+
+## 13. Balance sheet presentation / missing liabilities
+### Review notes
+From the TB extract, significant liabilities/equity balances are missing. This prevents full review of solvency, reserves, and balance sheet integrity.
+
+Likely missing items include:
+- share capital
+- profit and loss reserves
+- trade creditors
+- PAYE/NIC creditor
+- pension creditor
+- VAT creditor/debtor
+- accruals and deferred income
+- loans/finance liabilities
+- corporation tax liability
+- deferred tax provision presentation
+- potentially director loan creditors/debtors for other individuals
+
+**Follow-up**
+- Obtain complete TB / draft statutory balance sheet.
+- Reconcile all control accounts.
+- Confirm no suspense or unreconciled balances remain.
+
+---
+
+## 14. Corporation tax add-backs / disallowables to consider
+Based on TB headings, likely tax adjustments include:
+- Depreciation - Fixtures and Fittings: add back
+- Depreciation - Leasehold Property Improvements: add back
+- Goodwill Amortisation: treatment depends on tax profile of goodwill
+- Entertaining/Gifts: likely disallowable unless staff entertainment and trivial qualifying items
+- Charity Donations: usually not deductible in CT comp as trading expense; instead treated separately if qualifying charitable donation
+- Potential private element review for:
+  - telephone
+  - office costs
+  - repairs/maintenance
+  - uniform
+  - professional fees
+
+**Follow-up**
+- Analyse nominal detail and identify exact adjustments.
+- Ensure charitable donations are reflected correctly in CT computation.
+
+---
+
+## 15. Analytical observations / fluctuations from prior year extract
+Based on the earlier TB previously supplied and this current TB:
+- Dividends increased from £120,000 to £151,000.
+- Wages increased from £275,082 to £319,673.
+- Food increased materially from £17,654 to £28,701.
+- Teaching Resources increased materially from £5,424 to £19,012.
+- Maintenance & Garden increased from £6,044 to £13,445.
+- Office Costs increased from £13,734 to £18,546.
+- Fixtures & Fittings cost increased from £6,681 to £14,079.
+- Cash balances reduced overall from prior total c.£107.6k to c.£72.2k.
+- Prepayments reduced from £8,577 to £4,398.
+- Corporation tax charge reduced from £31,105 to £26,999.
+
+These movements need explanation through:
+- turnover trends
+- occupancy and staffing changes
+- capital spend
+- inflation
+- timing / reclassification changes
+- dividend policy.
+
+---
+
+## 16. Suggested year-end working paper points by lead schedule
+
+### Income
+- Obtain sales/grant income breakdown.
+- Review cut-off and deferred income.
+- Confirm completeness of income.
+
+### Payroll
+- Agree wages/NIC/pensions to payroll records.
+- Reconcile PAYE and pension liabilities.
+- Check directors remuneration support.
+
+### Overheads
+- Review office costs, maintenance, teaching resources, food and repairs in detail.
+- Identify disallowable, personal and capital items.
+
+### Fixed assets
+- Update FAR for additions.
+- Recalculate depreciation/amortisation.
+- Review capital allowances and deferred tax.
+
+### Banks
+- Obtain year-end statements and reconciliations for all accounts.
+- Check uncleared items.
+
+### Prepayments/accruals
+- Support existing prepayments.
+- Post missing accruals if required.
+
+### Directors / dividends
+- Reconcile DLA.
+- Confirm dividend paperwork and reserves.
+- Review s455 risk.
+
+### Tax
+- Prepare CT comp.
+- Review deferred tax support.
+- Ensure correct treatment of donations and entertaining.
+
+---
+
+## 17. Potential adjusting journal areas
+Possible journals to consider once support is received:
+- reclassify capital items from repairs / office costs / teaching resources to fixed assets
+- accrue payroll taxes / pensions / fees / utilities
+- adjust prepayments for rent, insurance, subscriptions
+- correct director loan postings / dividends
+- tax journals for current and deferred tax
+- reclassify bank interest / loan interest if miscategorised.
+
+---
+
+## 18. Final reviewer conclusion
+At TB level, the accounts appear broadly plausible for a nursery/childcare business with strong cash reserves, substantial payroll costs and meaningful dividend extraction. However, the file is not ready for final sign-off based on the current information because:
+- income figures are absent
+- several key balance sheet liabilities/equity accounts are missing
+- no supporting schedules are available
+- a number of material expense headings need detailed review for capital/disallowable/cut-off treatment.
+
+If you want, I can turn this into a cleaner **standard working paper review memo format** under headings such as **Income, Payroll, Tax, Fixed Assets, Debtors, Bank, Creditors, DLA and Disclosure**, suitable for putting straight into the year-end file.","### P&L
+Sales - £624k v £492k. Increase in child numbers and nursery was closed for last 4 months of previous year during lockdown. Government funding comparable to previous year.
+Cost of sales - £385k v £315k including:-
+Purchases - £47k v £23k. Increase in food costs - more children in but also limited to number of items on shopping deliveries during pandemic so more frequent and costly deliveries. They have also upgraded a lot of the teaching resources this year as well as creating a ""forest school"" - small items but all added up.
+Wages and NI - £337k v £291k. Increase in staff numbers this year and increased hours of work, along with increased pay across the board.
+Result is gross profit of £238k v £178k last year, an improvement of £60k.
+GP% of 37.66% compared to 36.18% last year, although can't comare due to last year having furlough income within other income
+Other income - £10k v £77k including:-
+Grant income - £9k v £52k. JRS grant income reduced this year.
+Other income - £1k v £25k. Last year included covid support grants from local government. This year £1k for an apprenticeship grant.
+Overheads £98k v £90k including:-
+Directors salaries - £18k v £17k. Salaries for Cathy and Mark.
+Pensions - £2.7k v £3.5k. Number of refunds this year as staff withdrew from the scheme.
+Rates and water - £737 v £2,250. All water rates this year. Received relief on business rates.
+Insurance - £1k v £2.1k. Nursery insurance. Prepayment taken this year which was missed in 2020.
+Repairs and renewals - £19k v £10k. Increased costs this year with work done on the driveway and drainage system around the property.
+Office costs - £18k v £14k. Increase in costs this year to make the premises covid safe. Extra cleaning costs, extra costs for flowers etc to ""cheer people up"" and new curtains.
+Motor expenses - £NIL v £1,338. Mileage costs. No travel this year so no mileage. Everything was done online.
+Legal and professional fees - £1,055 for DBS checks, recruitment fees and companies house annual return.
+Donations - £77 for children in need.
+Entertainment (staff) - £423 for staff xmas lunch and gifts.
+Bank loan interest is start of BBL repayments
+Result is net profit of £137,587 v £151,733 last year, an drop of £14,146.
+Before directors remuneration it’s a profit of £153,731 v £169,093, a drop of £15,362.
+Dividends voted of £151k (last year £120k) to ensure DLA balances are not overdrawn at the year-end. Dividends issued in correct share split between Cathy and Mark.
+
+### CORPORATION TAX
+After adjustments for depreciation and capital allowances (F&F) there are taxable profits of £142,100.
+Result is a liability @ 19% of £26,999 due 1st May 2022.
+This compares to a liability of £31,105.47 last year when trading profits were higher and there were no capital allowances.
+
+### BALANCE SHEET
+Fixed assets - £38k v £43k including:-
+Goodwill - £NIL v £7k. Fully amoritised.
+Tangible assets - £37k v £35k. Additions in the year for dishwasher, hoover, washing machine, interactive white board and office furniture (£7k in total) against depreciation in the year.
+Debtors - £4.3k v £8.5k for prepayments on rent and insurance. No JRS accrued income this year (£6k last year).
+Cash at bank and in hand - £72k v £108k. Increased cash drawn through the year by directors. Balances agreed to statements.
+Creditors (within one year) - £51k v £54k.
+Bank loans - £10k for bounce back loan due within one year.
+Trade creditors - £1,875 for one o/s invoice from the farm partnership paid in September 2021.
+Corporation tax - £27k v £31k. Reduced trading profits this year.
+Social security - £3,359 v £5,256. PAYE liability as per PHM payroll for July 2021. Paid August 2021.
+Other creditors - £8,711 v £6,326. Pension provider £791 as per payroll (paid August 21) and Sales received in advance £7,920 as per Cathy - reports from the external software reconciled.
+DLA - £152 v £954. All transactions split 50/50 between Cathy and Mark other than the dividends voted - split 51 Cathy and 49 Mark.
+B/fwd of £953. Repayments of £7.4k made to Maureen for share purchase, private expenses of £120 and cash drawn of £162k in the year. Against this you are due salary of £17k and we have voted dividends of £151k to ensure the balance is not overdrawn at the year-end. c/fwd of £152.
+Net current assets of £25k v £62k last year, a drop of £37k.
+Creditors (after one year) - £38k v £40k for bounce back loan. Repayments started June 2021.
+Shareholders funds of £18k v £59k last year, a drop of £41k.
+
+### TAX SAVED
+Super deduction allowance of 130% on additions of £1,795 is £2,334 - saves you £443 in tax.
+AIA of £5,603 saves you £1,065 in tax.
+
+### WHERE HAS THE PROFIT GONE?
+Profit after tax of £110k. Dividends voted of £151k.
+Shortfall reflected in the reduced bank balances (£34k) and the drop in value of goodwill (£7k to NIL).
+
+### PERSONAL TAX
+Cathy - employment income from the partnership and Sunnysocks. Dividends from Sunnysocks.
+Taxable income - £88,194.
+Result is liability of £18,345.55.
+You have made payments on account of £14,663 against this so balancing payment due in Jan 2022 of £3,682.55.
+Payments on account for Jan 22 and July 22 of £9,172.77 each.
+Total amount due January 22 of £12,855.32.
+This compares to liability last year of £14,663 when dividend income was £13k less (taxed at 32.5%).
+Mark - employment income from Sunnysocks. Dividends from Sunnysocks and partnership income from the farm.
+Taxable income - £92,266.
+Result is liability of £20,549.55.
+You have made payments on account of £4k against this so balancing payment due in Jan 2022 of £18,795.11 (including the tax due for last year with avergaging method and the repayment of child benefit charge).
+Payments on account for Jan 22 and July 22 of £10,195.47
+Total amount due January 22 of £28,990.58.
+This compares to liability last year of £3.9k when dividend income was £13k less (taxed at 32.5%) and you received £20k tax relief from losses on partnership.
+
+### OUR RECOMMENDATIONS
+Dext - to help consistency and reduce Cathy's time on bookeeping @ £10 per month for less than 30 transactions (payments!).
+Higher rate tax inevitable with current level of drawings and no excess DLA balance. £1k of income @ HRT band means £325 of tax! Are the current drawing levels required? Are any of the drawings invested for the future? Consider personal pension contributions to extend the basic rate tax band if spare funds available.
+Company pension contributions for Mark / Cathy to reduce CT liabilities.
+Be prepared for tax payments due in January 2022 - £40k due between you both.
+Do you have wills in place? Life cover?
+
+### YOUR FUTURE BUSINESS & PERSONAL PLAN (5YR)?
+Plans for the business short term and long term?
+Plans to continue the growth?
+Happy with the service?
+
+### OUR SERVICES & FEES
+Current annual fee of £3,055 plus VAT (plus Xero monthly).
+Slight issues with the original proposal, but current one shows £371 plus VAT per month is the cost.
+Partly increased with the increased turnover, but client did receive reduced fees previously.
+Conversation to be had!",

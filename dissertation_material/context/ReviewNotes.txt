@@ -1,0 +1,164 @@
+Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+Automating Year-End Accounting Notes
+An AI System to Generate Audit-Ready Financial Statement Notes from
+Xero Data
+Name:Jatin Arora
+Course:B.Sc. (Hons) Artificial Intelligence & Data Science
+Student ID:22830110
+Abstract
+This dissertation investigates whether an AI-driven system can increase produc-
+tivity and consistency in year-end accounting note preparation while maintaining
+professional quality, auditability, and ethical compliance. The project explores an
+end-to-end workflow that integrates Xero accounting data with an AI-assisted note
+generation system. The approach combines deterministic numeric reconciliation,
+provenance tracking, and constrained natural language generation to automate the
+drafting of key financial statement notes. The research evaluates productivity gains,
+factual accuracy, and professional acceptability through a human-in-the-loop review
+with accountants, while addressing anonymisation, ethical boundaries, and general
+research risk assessment.
+1. Introduction
+Research question:To what extent can an AI-driven system improve productivity and
+consistency in the preparation of year-end accounting notes while maintaining professional
+quality, auditability, and ethical compliance?
+Short motivation:Preparing year-end notes is time-consuming and judgement-
+heavy. An automated system that reliably produces draft notes with clear provenance
+could materially increase efficiency for accounting firms, reduce routine work for ac-
+countants, and improve consistency across clients—while preserving human oversight for
+judgemental items.
+2. Background / Literature Review (summary)
+Why the problem is significant:
+•Year-end notes (fixed assets, accruals, loans, related parties, contingencies, etc.)
+are mandatory and require reconciliation of ledger balances, explanations of move-
+ments, and disclosure of judgemental events. Producing these notes manually
+consumes many billable hours.
+1Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+•Recent advances in large language models (LLMs) and retrieval-augmented gener-
+ation (RAG) make high-quality text generation from structured data feasible, but
+challenges remain: factual accuracy, provenance, accounting rules enforcement,
+and regulatory compliance.
+•Studies show AI systems can enhance productivity and output quality when used
+alongside human professionals rather than as replacements (Brynjolfsson & McAfee,
+2017; Kokina & Davenport, 2017). However, audit and accounting automation in-
+troduces new ethical and trust-related risks (Issa et al., 2016; Mittelstadt et al.,
+2016).
+Key literature / contextual domains to review:
+•Accounting standards and disclosure practice (IFRS / local GAAP guidance on
+notes).
+•Xero API / bookkeeping system data models and constraints.
+•Data engineering for financial data (ETL, reconciliation, traceability).
+•NLP/LLM methods for data-to-text, retrieval-augmented generation, and halluci-
+nation mitigation.
+•Explainable AI and human-in-the-loop evaluation in professional decision support
+systems.
+3. Aim and Objectives
+Aim:Design, implement and evaluate a prototype system that automatically generates
+year-end accounting notes from Xero data, providing auditable numeric reconciliations,
+explanatory narrative, and provenance sufficient for an accountant to review and sign-off.
+Objectives:
+1. Select and define 3–5 target note types to automate (e.g., Fixed Assets; Trade
+Receivables; Loans & Borrowings; Revenue Recognition; Prepayments/Accruals).
+2. Build a reproducible ETL pipeline to extract, transform and store relevant Xero
+data.
+3. Define accounting mapping tables and deterministic rules to compute the numeric
+backbone for each note.
+4. Develop a provenance model linking every computed figure to the source transac-
+tions/journal entries.
+2Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+5. Implement a note generation module using an LLM (or RAG) with constrained
+prompts and templates.
+6. Design and run a human evaluation with professional accountants to measure
+factual accuracy, acceptability, and time savings.
+7. Analyze results, document limitations, and propose improvements for explainabil-
+ity, ethics, and compliance.
+4. Methodology
+Approach:Mixed-methods engineering research combining systems engineering (ETL,
+rules), AI/NLP (LLM / RAG), and human evaluation.
+Methods:
+•Data acquisition & pre-processing:Use Xero sandbox or anonymised firm
+data. Implement OAuth2 extraction and normalize for deterministic queries.
+•Rules & analytics layer:Encode accounting rules in Python/dbt. Compute
+balances, movements, and adjustments with full traceability metadata.
+•LLM integration:Use a high-quality model (API or hosted) with constrained
+prompts to ensure numeric and factual consistency.
+•Hallucination mitigation & explainability:Only permit the model to state
+numeric facts present in structured input; require provenance for each numeric
+statement.
+•Human-in-the-loop review:Accountants review AI-generated drafts, marking
+edits and feedback to evaluate trust and productivity.
+•Evaluation methodology:Measure factual accuracy, completeness, edit dis-
+tance, time savings, and qualitative trust ratings.
+5. Implementation
+High-level architecture:
+1. Data Layer: Xero API→ETL→PostgreSQL / Parquet.
+2. Rules Engine: Python/dbt transformations for note computations.
+3. Provenance Store: Mapping from computed figures to source transactions.
+4. LLM Service: Receives JSON and returns draft notes with provenance.
+3Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+5. Review UI: Flask/Django web app for accountants to edit and approve.
+6. Audit Logging: Records model version, input snapshot, and final output.
+Tech stack:
+•Python, pandas, SQLAlchemy, Airflow/Prefect.
+•PostgreSQL (or parquet data lake).
+•Xero Python SDK for API.
+•LLM provider (GPT-based or hosted open model).
+•Django + React (or server-rendered templates).
+•Docker + Git for reproducibility.
+6. Testing / Evaluation
+Quantitative tests:
+•Numeric accuracy (≥99% match with inputs).
+•Completeness of required disclosures.
+•Edit distance between AI draft and human final.
+•Time savings: manual vs. AI-assisted.
+Qualitative tests:
+•Readability, acceptability, trust (Likert-scale ratings).
+•Error categorisation: omissions, numeric mismatches, hallucinations.
+User study:
+•6–10 accountants reviewing anonymised datasets and AI drafts.
+•Measure perceived usefulness and efficiency gains.
+4Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+7. Research Risk Assessment
+•Data privacy:Use anonymised/sandbox data; encrypt local storage.
+•Model hallucination:Use deterministic numeric rules and provenance-enforced
+generation.
+•Ethical non-compliance:Restrict to draft generation; human approval required.
+•Bias or misrepresentation:Human review and transparency logs.
+•Technical risk:Use SDKs and fallback models.
+A general institutional Research Risk Assessment form (low-risk category) will ac-
+company the dissertation submission.
+8. Professional, Social, Economic and Legal Issues
+Ethical considerations, anonymisation, and boundaries
+All datasets are anonymised or sourced from Xero sandbox. The system’s boundary ends
+atdraft note generation— it does not perform audits or final sign-off. Human accoun-
+tants retain full professional responsibility. Data handling complies with UK GDPR and
+institutional ethics guidelines.
+Professional, social, and economic implications
+•Productivity improvements free accountants for higher-value work.
+•Role shifts toward judgement and advisory tasks.
+•Ethical deployment requires transparency and accountability.
+Legal and compliance
+•Adherence to IFRS/UK GAAP disclosure standards.
+•GDPR-compliant anonymisation and consent.
+•Final liability lies with the professional reviewer.
+9. Resource Requirements
+•Xero sandbox access or anonymised data.
+•LLM API or local model environment.
+5Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+•PostgreSQL, Python environment, and basic web hosting.
+•Access to professional accountants for evaluation.
+10. References / Information Sources
+•Brynjolfsson, E., & McAfee, A. (2017).The Business of Artificial Intelligence.
+Harvard Business Review.
+•Kokina, J., & Davenport, T. H. (2017).The emergence of AI in accounting.
+Journal of Emerging Technologies in Accounting.
+•Issa, H., Sun, T., & Vasarhelyi, M. (2016).Research Ideas for Artificial Intelligence
+in Auditing.
+•Mittelstadt, B. D. et al. (2016).The ethics of algorithms: Mapping the debate.
+Big Data & Society.
+•Doshi-Velez, F., & Kim, B. (2017).Towards a rigorous science of interpretable
+machine learning.arXiv preprint.
+•IFRS and UK GAAP disclosure standards.
+•Xero developer documentation.
+6Jatin Arora – B.Sc. (Hons) AI & Data Science Automating Year-End Accounting Notes
+Appendix 1 — Project milestones (Gantt / activity plan)
+Figure 1: Gantt Chart
+7

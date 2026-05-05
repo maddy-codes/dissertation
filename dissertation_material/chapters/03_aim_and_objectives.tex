@@ -1,0 +1,27 @@
+% !TEX root = ../22830110_dissertation.tex
+\chapter{Aim and Objectives}
+\label{chap:aim_and_objectives}
+
+\section{Aim}
+The primary aim of this project is to design, implement, and evaluate a prototype system—\textit{ai\_review\_notes}—that automatically generates year-end accounting notes from Xero data, providing auditable numeric reconciliations, explanatory narrative, and strict provenance sufficient for an accountant to efficiently review and sign-off.
+
+\section{Objectives}
+To achieve this aim, the project is broken down into seven concrete objectives:
+\begin{enumerate}
+    \item \textbf{Target Selection:} Select and define 3–5 target note types to automate, including critical areas such as Fixed Assets, Directors' Remuneration, and Debtors/Creditors.
+    \item \textbf{Data Pipeline Setup:} Build a reproducible ETL pipeline to extract, transform, and securely store relevant bookkeeping data directly from the Xero API.
+    \item \textbf{Deterministic Rules Engine:} Define accounting mapping tables and deterministic rules to compute the numeric backbone for each note, strictly adhering to the ``Decimal Mandate'' (avoiding floating-point errors).
+    \item \textbf{Provenance Modelling:} Develop a provenance model linking every computed figure and variance (>10\% materiality threshold) to its source transactions or journal entries.
+    \item \textbf{LLM Synthesis Generation:} Implement a note generation module using a multi-agentic LLM framework (CrewAI) with heavily constrained prompts and templates to enforce firm-standard narrative styling.
+    \item \textbf{Human-in-the-Loop Evaluation:} Design and execute a human evaluation study involving professional accountants to systematically measure factual accuracy, professional acceptability, edit distances, and time savings.
+    \item \textbf{Analysis and Compliance Review:} Analyse the results, meticulously document system limitations, and propose improvements regarding explainability, ethical boundaries, and UK GAAP compliance.
+\end{enumerate}
+
+\section{Research Questions}
+To guide the investigation and achieve the aforementioned aim and objectives, this dissertation addresses the following core research questions:
+\begin{enumerate}[label=\textbf{RQ\arabic*:}]
+    \item \textbf{Efficiency and Fidelity:} To what extent can an AI-driven, multi-agentic system automate the drafting of year-end accounting notes, and can it maintain 100\% numeric accuracy through strict deterministic constraints (the ``Decimal Mandate'')?
+    \item \textbf{Hallucination Mitigation:} How effectively does the integration of a verifiable provenance model and pre-synthesis data reconciliation mitigate the risk of Large Language Model (LLM) hallucinations in high-stakes financial reporting?
+    \item \textbf{Model Comparative Performance:} Among current state-of-the-art LLMs (e.g., GPT-4o, Claude 3.5 Sonnet, Llama 3), which architectures yield the most reliable, accurate, and stylistically appropriate outputs for UK GAAP/IFRS compliance?
+    \item \textbf{Professional Acceptability:} How do human-in-the-loop professional accountants evaluate the readability, professional tone, and overall utility of the AI-generated drafts as viable starting points for audit sign-offs?
+\end{enumerate}

@@ -41,7 +41,7 @@ def make_iris_dict(NL_PATH, TB_PATH):
     xero_names = []
     xero_codes = []
 
-    # TODO: The NL file should be CSV but it is an excel file. CSV gives error atm
+    # The nominal ledger export is supplied as Excel in the dissertation dataset.
     df = pd.read_excel(NL_PATH)
     tb = make_stable(TB_PATH)
     iris = []

@@ -1,0 +1,11 @@
+User_ID,PartA_Q1_Professional,PartA_Q2_Stylistic,PartA_Q3_Flow,PartB_Q4_Variances,PartB_Q5_Mandatory,PartB_Q6_Trust,PartC_Primary_Edit_Reason
+U01,5,4,5,4,5,5,No edits were required
+U02,5,5,4,5,5,4,Formatting
+U03,4,4,5,4,4,4,Stylistic Mismatch
+U04,4,3,4,4,5,3,Stylistic Mismatch
+U05,5,4,4,4,4,4,Formatting
+U06,4,4,5,5,4,3,Omission
+U07,4,4,4,4,5,3,Omission
+U08,3,3,3,3,4,2,Numeric Error / Hallucination
+U09,4,3,4,4,5,2,Stylistic Mismatch
+U10,4,4,4,4,4,3,Stylistic Mismatch

@@ -1,0 +1,120 @@
+% !TEX root = ../22830110_dissertation.tex
+\chapter{Controls, Code Examples, and Real Generated Outputs}
+\label{app:controls_examples}
+
+\section{Company-Specific Restrictions and Review Triggers}
+\label{app:sec:company_restrictions}
+
+The application was not designed as a generic summariser. It was shaped around firm-specific review rules repeatedly observed in the training and validation corpus. The most important restrictions and mandatory review triggers were:
+\begin{itemize}
+    \item \textbf{Materiality threshold:} variances above 10\% should normally be explained, but immaterial noise should be suppressed.
+    \item \textbf{Mandatory comment accounts:} directors' remuneration, legal and professional fees, donations, entertaining, and bad debts require commentary even where the variance is small.
+    \item \textbf{Directors' loan accounts and related parties:} overdrawn balances, repayments, and private expenditure require explicit narrative because they can have tax and disclosure consequences.
+    \item \textbf{Share issue and investment events:} where equity movements occur, the note must not guess. It should instead request supporting paperwork, reconcile share capital/share premium, and align with Companies House filings.
+    \item \textbf{Mileage, P11D, and benefits in kind:} where director or staff motoring costs look personal or unusual, the system should raise this as a review prompt rather than silently accept it.
+    \item \textbf{R\&D and specialist adjustments:} where an accountant note depends on a future R\&D report, tax claim, or legal finalisation, the narrative should preserve that uncertainty rather than present the figure as settled fact.
+\end{itemize}
+
+These restrictions came directly from the firm's working-paper style rather than from academic prompt design alone. They reflect the issues that the firm expects a reviewer to notice and raise.
+
+\section{Submission Code Examples}
+\label{app:sec:code_examples}
+
+Two concise code examples are included here because the submitted repository is expected to support the dissertation claims directly.
+
+\subsection{GPT-5.4 Prompt-Engineering Harness}
+
+Listing \ref{lst:gpt54_harness} shows the live validation call used for zero-shot, single-shot, and few-shot testing. The dissertation version reads credentials from environment variables only and records outputs for later scoring.
+
+\begin{lstlisting}[language=Python,caption={Core GPT-5.4 validation call used by the prompt-engineering harness.},label={lst:gpt54_harness}]
+from openai import OpenAI
+
+client = OpenAI(base_url=endpoint, api_key=api_key)
+
+completion = client.chat.completions.create(
+    model=deployment,
+    messages=build_messages(strategy, example, shots),
+)
+
+output_text = completion.choices[0].message.content or ""
+\end{lstlisting}
+
+\subsection{Training and Validation Data Pipeline}
+
+Listing \ref{lst:data_pipeline_example} shows the transformation from raw Xero-style JSON into a chat-format record suitable for fine-tuning or prompt validation.
+
+\begin{lstlisting}[language=Python,caption={Core transformation used by the dissertation data pipeline.},label={lst:data_pipeline_example}]
+def process_xero_json(raw_json: dict[str, Any]) -> ChatRecord | None:
+    assistant_response = original_note_to_markdown(raw_json)
+    if not assistant_response:
+        return None
+    return ChatRecord(
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {
+                "role": "user",
+                "content": (
+                    "Please draft the working papers based on this Xero "
+                    f"data summary:\n\n{build_user_context(raw_json)}"
+                ),
+            },
+            {"role": "assistant", "content": assistant_response},
+        ]
+    )
+\end{lstlisting}
+
+\section{GDPR and Privacy Concerns Raised by the System}
+\label{app:sec:gdpr_concerns}
+
+The dissertation raises GDPR and privacy concerns explicitly because the underlying accounting notes often contain personal and commercially sensitive data. The most relevant concerns are:
+\begin{itemize}
+    \item \textbf{Purpose limitation:} the data is collected to support year-end accounting review, not broad downstream reuse.
+    \item \textbf{Data minimisation:} prompts should include only the fields needed to draft the note; unnecessary names, addresses, or narrative attachments should be removed.
+    \item \textbf{Storage limitation:} temporary exports, prompt logs, and generated CSV results should be deleted or archived under firm retention rules rather than retained indefinitely.
+    \item \textbf{Integrity and confidentiality:} accountant-only access, authenticated Xero/Azure channels, and secret management via environment variables are baseline controls rather than optional extras.
+    \item \textbf{Accountability:} a human reviewer remains responsible for the final working paper because even a well-grounded output can still misstate a legal, tax, or disclosure point.
+\end{itemize}
+
+These concerns were checked against current official guidance from the ICO and Microsoft Azure OpenAI at the time of writing (4 May 2026): \url{https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/data-protection-principles/a-guide-to-the-data-protection-principles/} and \url{https://learn.microsoft.com/en-us/legal/cognitive-services/openai/data-privacy}.
+
+\subsection{Submission Note on Credentials and Demonstration}
+
+Because the live system connects to protected Azure and Xero resources that may expose confidential company information, the submitted dissertation repository does not include active \texttt{.env} files, API keys, refresh tokens, or connection strings. This omission is deliberate and follows the same confidentiality logic that motivated the use of Azure-hosted services in the first place: the company data should remain inside an enterprise-controlled boundary rather than being redistributed through academic submission artefacts. The source code, evaluation harnesses, and pipeline logic are still included so that the technical design can be inspected. A live demonstration of the connected system is available on request.
+
+\section{Redacted Real Generated Examples}
+\label{app:sec:real_examples}
+
+The following excerpts are taken from the real validation corpus and lightly redacted for dissertation use. They are not fabricated examples.
+
+\subsection{Example A: Share Issue and Investment Control}
+
+\textbf{Validation case:} technology company with new investment rounds and unresolved equity paperwork.
+
+\textbf{Redacted generated excerpt:}
+\begin{quote}
+We have chased and are still waiting on details / confirmation of the investment / share issue back in June 2023, as well as further investment and share issues since the year-end. These are crucial to ensure we have the share capital / share premium account accurate in the final accounts.
+\end{quote}
+
+\textbf{Why this matters:} this example shows the system raising an accounting control point rather than only summarising totals. The output asks for documentation instead of inventing a final reconciliation.
+
+\subsection{Example B: GDPR and Professional-Fee Context}
+
+\textbf{Validation case:} digital-services company with unusually detailed overhead and compliance spend.
+
+\textbf{Redacted generated excerpt:}
+\begin{quote}
+Staff training - \pounds562 v \pounds4,181 - \pounds-3,619 decrease (-87\%). Costs this year with Gravitas HR (\pounds500) and GDPR compliance. Last year included \pounds3k for external training as well as ITIL and online certification courses.
+\end{quote}
+
+\textbf{Why this matters:} the note preserves the compliance-related explanation in a way that is realistic for working papers, while still keeping the comment anchored to an actual movement in spend.
+
+\subsection{Example C: Director and Loan-Account Governance}
+
+\textbf{Validation case:} agency business with significant director drawings and year-end adjustments.
+
+\textbf{Redacted generated excerpt:}
+\begin{quote}
+Directors loan accounts - [Director A] overdrawn by approximately \pounds252k due to monies taken out for the property purchase. For both directors the monthly cash drawings are covered by the dividends issued, but the balances require monitoring and timely clearance after the year-end.
+\end{quote}
+
+\textbf{Why this matters:} this example shows the kind of sensitive personal-finance narrative that makes human review and privacy controls essential. It is precisely the type of text that should be pseudonymised before experimentation and reviewed carefully before any client-facing use.

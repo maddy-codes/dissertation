@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant Ledger as Ledger line / transaction
+    participant Engine as Decimal rules engine
+    participant Prompt as Prompt context
+    participant Model as LLM draft
+    participant Reviewer as Accountant reviewer
+
+    Ledger->>Engine: Account code, amount, date
+    Engine->>Prompt: Material variance + source support
+    Prompt->>Model: Constrained accounting facts
+    Model->>Reviewer: Draft sentence / paragraph
+    Reviewer->>Engine: Trace value back to source
+    Reviewer->>Model: Accept or request edit

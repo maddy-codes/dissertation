@@ -1,0 +1,7 @@
+flowchart LR
+    Corpus["85-record validation corpus"] --> Conditions["Zero-shot<br/>Single-shot<br/>Few-shot"]
+    Conditions --> Runs["255 planned generations"]
+    Runs --> Outputs["CSV outputs<br/>latency + text"]
+    Outputs --> Scores["Scoring module<br/>fidelity, completeness,<br/>edit distance"]
+    Scores --> Survey["Human survey comparison"]
+    Survey --> Findings["Quantitative and qualitative findings"]

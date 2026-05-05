@@ -26,7 +26,7 @@ INSTRUCTION = """You are an expert accounting partner at Phipps Henson McAlliste
                                Do not say things like sure! or feel free to ask more. Just do the work!"""
 
 # Deployment Metadata
-DEPLOYED_MODEL_NAME = "gpt-4o-auto-update"
+DEPLOYED_MODEL_NAME = "gpt-5.4"
 API_VERSION = "2024-02-15-preview"
 
 # Legacy Constants (Retained for backwards compatibility where necessary)
@@ -34,5 +34,5 @@ ASSISTANT_ID = "asst_Q3o1FUlx9P89Py9EOrUbDljn"
 TEMPRATURE = 0.01
 NAME = "PHM_BOT"
 TOP_P = 0.9
-MODEL = "gpt-4o"
+MODEL = "gpt-5.4"
 MAX_BATCH_SIZE = 256000

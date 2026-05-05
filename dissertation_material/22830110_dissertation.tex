@@ -1,0 +1,109 @@
+% !TEX root = 22830110_dissertation.tex
+\documentclass[12pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{tocbibind}
+\usepackage{setspace}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[round]{natbib}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Formatting
+\onehalfspacing
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=blue,
+    pdftitle={Automating Year-End Accounting Notes},
+    pdfauthor={Jatin Arora}
+}
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    keywordstyle=\color{blue!60!black},
+    commentstyle=\color{green!40!black},
+    stringstyle=\color{red!50!black}
+}
+
+% Document Info
+\title{
+    \vspace{2cm}
+    \textbf{Automating Year-End Accounting Notes}\\
+    \Large An AI System to Generate Audit-Ready Financial Statement Notes from Xero Data
+}
+\author{
+    \textbf{Jatin Arora}\\
+    Student ID: 22830110\\
+    Course: B.Sc. (Hons) Artificial Intelligence \& Data Science\\
+    Supervisor: Dr. Mu. Mu.
+}
+\date{\today}
+
+\begin{document}
+
+% Title Page
+\maketitle
+\pagenumbering{roman}
+
+% Abstract
+\include{chapters/00_abstract}
+
+% Acknowledgements
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+I would like to express my deepest appreciation to my academic supervisors and the professionals at Phipps Henson McAllister (PHM) UK for their invaluable guidance and domain expertise throughout this project. Their insights into the intricacies of audit compliance and financial workflows were instrumental in shaping the requirements and evaluating the effectiveness of the ``ai\_review\_notes'' system.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\clearpage
+\pagenumbering{arabic}
+
+% ---------------------------------------------------------
+\include{chapters/01_introduction}
+\include{chapters/02_literature_review}
+\include{chapters/03_aim_and_objectives}
+\include{chapters/04_analysis_design}
+\include{chapters/05_methodology}
+\include{chapters/06_implementation}
+\include{chapters/07_testing_evaluation}
+\include{chapters/08_conclusions}
+
+% ---------------------------------------------------------
+\renewcommand{\bibname}{References}
+\bibliographystyle{plainnat}
+\nocite{*}
+\bibliography{references}
+
+% ---------------------------------------------------------
+\appendix
+\chapter{Project Milestones}
+The initial activity plan and Gantt chart were instrumental in tracking the delivery of the ingestion layer, multi-agent synthesis, and final user evaluation studies. The continuous integration and task tracking were managed meticulously within the \texttt{docs/fixed} architectural records.
+
+\include{chapters/09_appendix_testing}
+\include{chapters/10_appendix_controls_examples}
+
+\end{document}

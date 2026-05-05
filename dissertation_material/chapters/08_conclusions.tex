@@ -1,0 +1,18 @@
+% !TEX root = ../22830110_dissertation.tex
+\chapter{Conclusions and Future Developments}
+\label{chap:conclusions}
+
+\section{Conclusion}
+This research demonstrates that a multi-agentic, AI-driven system can significantly enhance productivity and consistency in the preparation of year-end accounting notes. By hybridizing deterministic rule engines with constrained Large Language Models, the \textit{ai\_review\_notes} system overcomes the traditional limitations of AI in accounting—namely factual hallucination and lack of traceability. The strict adherence to software engineering best practices, such as the Decimal Mandate and an anonymisation layer, ensures the system meets the high standards required for auditability and UK GAAP compliance.
+
+The human-in-the-loop evaluation strategy, validation corpus analysis, and live seven-method benchmark confirm that while the AI cannot—and ethically should not—replace the judgement of a professional accountant, it can serve as a capable drafting assistant. The benchmark also shows that raw speed is not enough: some fine-tuned deployments were fast but brittle, while one deployment became extremely verbose on a difficult case. That pattern reinforces the dissertation's central point that deterministic controls, live evaluation, and reviewer oversight matter as much as model choice itself.
+
+Within the current evidence base, \textbf{GPT-4.1 Fine-Tuned 2} is the strongest deployment candidate for professional use because it gave the best balance of latency, bounded output length, and note structure without the instability seen in the slower checkpoints.
+
+\section{Recommendations and Future Work}
+While the prototype is designed to be successful for core notes (Fixed Assets, Remuneration, etc.), future developments should consider:
+\begin{enumerate}
+    \item \textbf{Expanded Scope:} Extending the deterministic rules engine to cover highly complex financial instruments and consolidated group accounts.
+    \item \textbf{Real-Time Synchronization:} Implementing bi-directional syncing with Xero, allowing adjustments made during the note review to automatically post back as adjusting journals.
+    \item \textbf{Continuous Benchmarking:} Expanding the \texttt{experiments/} module to continuously benchmark emerging open-source LLMs against proprietary models to optimize for cost, latency, and on-premise privacy requirements.
+\end{enumerate}

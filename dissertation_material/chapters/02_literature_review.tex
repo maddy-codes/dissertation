@@ -1,0 +1,52 @@
+% !TEX root = ../22830110_dissertation.tex
+\chapter{Literature Review}
+\label{chap:literature_review}
+
+\section{Introduction to the Literature}
+Financial reporting forms the cornerstone of corporate accountability, ensuring stakeholders can assess organisational health through transparent disclosures mandated by standards such as International Financial Reporting Standards (IFRS) and Generally Accepted Accounting Principles (GAAP). Year-end accounting notes, particularly those detailing fixed assets, accruals, and related-party transactions, are essential for compliance. However, preparing these notes manually is labour-intensive, consuming numerous billable hours due to meticulous data verification, reconciliation across sources, and alignment with evolving regulatory requirements. 
+
+The advent of artificial intelligence (AI) promises to transform this landscape by automating data extraction, numeric reconciliation, and text generation. Advances in natural language processing (NLP), including large language models (LLMs) and retrieval-augmented generation (RAG), enable the conversion of structured bookkeeping data into compliant narrative disclosures. Yet, AI outputs must adhere to strict accounting rules to avoid hallucinations, while ethical concerns demand robust frameworks. Existing studies often focus on isolated components like anomaly detection or fraud prevention, but rarely integrate deterministic data engineering with constrained generative techniques.
+
+This chapter synthesizes evidence on automating year-end accounting notes through AI systems that generate compliant financial statement disclosures from sources like Xero. It examines accounting standards, financial data engineering, NLP innovations for data-to-text generation, and ethical considerations in explainable AI (XAI).
+
+\section{Methodology of the Review}
+\subsection{Search Strategy and Study Selection}
+A comprehensive search was performed across academic databases employing hybrid semantic and keyword-based retrieval to maximise coverage. Search queries targeted IFRS/GAAP compliance, Xero API and ETL data engineering, NLP and LLM data-to-text generation, and AI ethics in accounting.
+
+Initial searching identified 360 records. After duplicate removal and relevance-based filtering, 100 records were screened against eligibility criteria, resulting in 20 papers included in the final synthesis. Eligibility criteria demanded a focus on accounting practices, AI technology integration, publication post-2010, evidence quality, and practical application.
+
+\subsection{Data Extraction and Synthesis}
+Data extraction focused on accounting standards, data engineering methods (including ETL and numeric reconciliation), NLP and AI techniques (LLMs, RAG, hallucination mitigation), and ethical considerations (XAI, provenance tracking). Thematic analysis identified patterns and synthesized findings across studies. The included studies, spanning 2020 to 2025, predominantly feature technical analyses, case studies, and empirical evaluations in financial auditing and accounting contexts \cite{Tripathi2025b, Nath2025b, Zhong2024}.
+
+\section{Thematic Findings}
+
+\subsection{Accounting Standards and Disclosure Practices}
+Mandatory year-end notes under IFRS and GAAP demand extensive verification to ensure transparency, rendering manual preparation highly time-consuming and prone to errors \cite{Rushi2025a, Rushi2025b}. These disclosures require reconciling transaction data with standards to map errors to specific violations. Studies consistently highlight inefficiencies in traditional processes, such as periodic manual sampling, which fail to scale with complex datasets from multiple sources. Manual approaches contrast sharply with automated potentials, where inefficiencies in handling fixed asset valuations and accrual recognitions lead to overlooked irregularities.
+
+\subsection{Financial Data Engineering for Extraction, Reconciliation, and Traceability}
+Robust data reconciliation strategies, including anomaly detection and integration from fragmented sources, enhance numeric accuracy for compliance reports. Cloud-native frameworks enable scalable ETL processes via Python orchestration and SQL validation rules to process transactions at scale \cite{Tripathi2025b, Badugu2025}. These methods ensure traceability through automated exception management and real-time monitoring, outperforming manual reconciliation by reducing error risks in large datasets. Automation tools like Audit Command Language (ACL) and robotic process automation (RPA) facilitate data import, cleaning, and numeric reconciliation \cite{Rout2020a, Rout2020b}. 
+
+\subsection{NLP and Data-to-Text Advances in Accounting with LLM and RAG Integration}
+LLMs automate financial statement auditing by identifying errors in curated datasets, using multi-stage frameworks to assess capabilities, though they sometimes struggle with explaining detections and citing IFRS/GAAP standards \cite{Rushi2025a, Rushi2025b}. RAG agents revolutionize bookkeeping by leveraging vector databases for semantic transaction understanding, achieving superior accuracy in categorization and cross-verification over rule-based systems \cite{Vemulapalli2025}. Human feedback loops mitigate hallucinations through grounded retrieval. These techniques augment professionals by reducing verification time, enabling data-to-text generation for compliant disclosures \cite{Brij2025}.
+
+\subsection{Ethics, Trust, and Explainable AI in Audit Automation}
+XAI enhances trust in auditing by integrating explainability layers for fraud detection, providing interpretable decisions that align with regulations while human-in-the-loop feedback ensures oversight \cite{Zhong2024, Vardhan2021}. Ethical risks, including bias and opacity in AI models, are mitigated through techniques like SHAP and LIME, which build auditor confidence, alongside provenance tracking via traceable datasets \cite{Boggavarapu2025, Bran2024}. Continuous auditing with models like XGBoost and Transformers balances accuracy and interpretability, emphasizing hybrid systems for transparency \cite{Wibowo2025}.
+
+\section{Discussion}
+
+\subsection{Principal Findings and Their Interpretation}
+The synthesis demonstrates that AI integration in financial auditing yields robust efficiency gains, particularly through data reconciliation frameworks that scale numeric verification, enabling seamless transitions to generative text outputs for year-end notes. Automated ETL pipelines create verifiable foundations that LLMs can build upon without fabricating details. The success of RAG in grounding semantic analysis reflects its mechanistic advantage: it enforces factual alignment with transaction records, directly countering LLM hallucinations. XAI's interpretability fosters trust by revealing how inputs influence outputs.
+
+These findings suggest hybrid viability for audit-ready notes: numeric reconciliation acts as a deterministic gatekeeper, ensuring data integrity before constrained LLM generation. The evidence confidently supports AI as an enhancer of professional judgement, aligning with augmentation paradigms.
+
+\subsection{Comparison with Existing Literature}
+The reviewed findings align with prior work emphasizing productivity augmentation, where tools like RAG extend human cognition by providing contextual retrieval. Efficiency gains in transaction categorization consistently outperform rule-based systems, which falter on ambiguity. XAI's reduction of false positives allows auditors to validate outputs against standards, reinforcing trust \cite{Zhong2024}. While earlier studies warned of opacity risks, methodological evolution from RPA-focused automation to Transformer models suggests a progression toward hybrid reliability.
+
+\subsection{Practical Implications}
+Accounting firms stand to benefit most from hybrid AI systems, where numeric reconciliation frameworks preprocess data for RAG-enhanced note generation, cutting billable hours on disclosures by automating verification. Implementing XAI ensures compliance without opacity risks. Practitioners should integrate human oversight in loops for high-stakes related-party notes, validating LLM outputs against standards to mitigate hallucinations. Regulatory bodies could mandate XAI provenance tracking for audits, requiring no-threshold transparency \cite{Maknickiene2025}.
+
+\section{Gaps and Future Directions}
+The synthesis uncovers gaps in integrating numeric reconciliation with constrained LLM generation. Studies emphasize isolated components—reconciliation in cloud frameworks \cite{Badugu2025} or RAG for text \cite{Vemulapalli2025}—but lack end-to-end systems from Xero data to produce IFRS/GAAP-compliant notes. Mechanistic evidence on hallucination propagation in accounting pipelines is absent. Future studies should conduct real-world trials directly testing hybrid prototypes on Xero-extracted datasets for year-end notes, implementing harmonized benchmarks with exact compliance metrics.
+
+\section{Conclusion}
+Automating year-end accounting notes via an AI system that generates audit-ready disclosures from Xero data is feasibly advanced by combining deterministic numeric reconciliation with constrained LLM and RAG techniques. LLMs successfully identify discrepancies, RAG enhances semantic accuracy, and XAI models deliver interpretable results, collectively reducing manual burdens without supplanting professional roles. This review underscores the transformative potential of these systems for regulatory transparency and cost savings in financial reporting.

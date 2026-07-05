@@ -5,88 +5,88 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Sign in | Phipps Henson McAllister</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script id="tailwind-config">
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        "surface": "#f7f9ff",
-                        "on-surface": "#181c20",
-                        "on-surface-variant": "#434750",
-                        "outline": "#737781",
-                        "outline-variant": "#c3c6d1",
-                        "primary": "#003065",
-                        "on-primary": "#ffffff",
-                        "primary-container": "#1c4782",
-                        "secondary": "#835400",
-                        "secondary-container": "#fcab27",
-                        "on-secondary-container": "#694300",
-                        "background": "#f7f9ff",
-                        "error": "#ba1a1a",
-                        "surface-container-low": "#f1f4f9",
-                        "surface-container": "#ebeef3",
+                        "neutral": "#F2EFE6",
+                        "surface": "#FFFFFF",
+                        "primary": "#C5F26E",
+                        "primary-pressed": "#B6E254",
+                        "secondary": "#1B342B",
+                        "secondary-hover": "#244235",
+                        "tertiary": "#2C4A3E",
+                        "on-surface": "#1A2A22",
+                        "on-surface-muted": "#5A6A60",
+                        "on-inverse": "#F2EFE6",
+                        "on-inverse-muted": "#A9B6AE",
+                        "border-hairline": "#DDD7C6",
+                        "border-inverse": "rgba(255, 255, 255, 0.08)",
+                        "error": "#B23A3A"
+                    },
+                    borderRadius: {
+                        sm: "8px", DEFAULT: "8px", md: "14px", lg: "20px", xl: "28px", full: "999px"
                     },
                     fontFamily: {
-                        headline: ["Manrope", "sans-serif"],
-                        body: ["Work Sans", "sans-serif"],
+                        sans: ["Manrope", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+                        headline: ["Manrope", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+                        body: ["Manrope", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+                        mono: ["JetBrains Mono", "ui-monospace", "SF Mono", "Menlo", "monospace"]
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Work Sans', sans-serif; background-color: #f7f9ff; color: #181c20; }
-        h1, h2, h3, h4, h5, h6 { font-family: 'Manrope', sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        /* Typography (font-family, base colors) is owned by styles.css. */
+        [data-lucide] { width: 1em; height: 1em; }
     </style>
 </head>
-<body class="bg-background text-on-surface min-h-screen antialiased flex flex-col md:flex-row">
+<body class="bg-neutral text-on-surface min-h-screen antialiased flex flex-col md:flex-row">
 
     <!-- Left Column: brand identity -->
-    <section class="flex-1 flex flex-col justify-center px-10 md:px-24 py-20 bg-primary text-white relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary-container/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
-
+    <section class="flex-1 flex flex-col justify-center px-10 md:px-24 py-20 bg-secondary text-on-inverse relative overflow-hidden">
         <div class="max-w-2xl relative z-10">
             <header class="mb-12">
-                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-on-primary-container opacity-60">ESTABLISHED 1994</span>
+                <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-on-inverse-muted">Established 1994</span>
                 <h1 class="mt-8 text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
                     The <br/>
-                    <span class="text-secondary-container">AI Review</span> <br/>
+                    <span class="text-primary">AI Review</span> <br/>
                     <span>Notes Portal</span>
                 </h1>
             </header>
             <div class="space-y-8 hidden md:block">
-                <p class="text-xl text-white/80 leading-relaxed max-w-md font-medium">
+                <p class="text-xl text-on-inverse-muted leading-relaxed max-w-md font-medium">
                     Sign in to prepare automated review notes from your clients' Xero data.
                 </p>
                 <div class="flex items-center gap-6">
-                    <span class="h-[2px] w-16 bg-secondary-container"></span>
-                    <span class="text-[10px] font-black tracking-[0.3em] uppercase">Phipps Henson McAllister</span>
+                    <span class="h-[2px] w-16 bg-primary"></span>
+                    <span class="font-mono text-[10px] tracking-[0.3em] uppercase">Phipps Henson McAllister</span>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Right Column: Sign-in form -->
-    <section class="flex-1 flex items-center justify-center px-6 md:px-20 py-10 bg-surface">
+    <section class="flex-1 flex items-center justify-center px-6 md:px-20 py-10 bg-neutral">
         <div class="w-full max-w-md">
-            <div class="bg-white border border-outline-variant/30 p-12 md:p-16 rounded-sm shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-[4px] bg-secondary-container"></div>
+            <div class="bg-surface border border-border-hairline p-12 md:p-16 rounded-lg shadow-ambient relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-primary"></div>
 
                 <div class="mb-12">
-                    <h2 class="text-3xl font-extrabold text-primary tracking-tight">Sign in</h2>
-                    <p class="text-on-surface-variant mt-2 text-sm font-medium">Sign in to access the dashboard.</p>
+                    <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Sign in</h2>
+                    <p class="text-on-surface-muted mt-2 text-sm font-medium">Sign in to access the dashboard.</p>
                 </div>
 
                 {% with messages = get_flashed_messages() %}
                   {% if messages %}
                     <div class="mb-8 space-y-3">
                     {% for message in messages %}
-                      <div class="bg-error/5 text-error border border-error/20 px-5 py-4 rounded-sm text-xs font-bold uppercase tracking-widest flex items-center gap-3">
-                          <span class="material-symbols-outlined text-sm">warning</span>
+                      <div class="bg-error/5 text-error border border-error/20 px-5 py-4 rounded-md text-xs font-bold uppercase tracking-widest flex items-center gap-3">
+                          <i data-lucide="triangle-alert" class="w-4 h-4"></i>
                           {{ message }}
                       </div>
                     {% endfor %}
@@ -98,56 +98,58 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                     <div class="space-y-3">
-                        <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="email">
-                            <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                        <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface flex items-center gap-2" for="email">
                             Email
                         </label>
-                        <div class="flex items-center border border-outline-variant/30 bg-surface-container-low px-5 py-4 rounded-sm focus-within:border-primary transition-all">
-                            <span class="material-symbols-outlined text-outline mr-4 text-xl">mail</span>
-                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-on-surface font-semibold text-sm placeholder:text-outline/60" id="email" name="email" placeholder="email@phm-accountants.co.uk" type="email" required/>
+                        <div class="flex items-center border border-border-hairline bg-neutral px-5 py-4 rounded-md focus-within:border-primary transition-all">
+                            <i data-lucide="mail" class="w-5 h-5 text-on-surface-muted mr-4"></i>
+                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-on-surface font-semibold text-sm placeholder:text-on-surface-muted/60" id="email" name="email" placeholder="email@yourfirm.co.uk" type="email" required/>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <div class="flex justify-between items-end">
-                            <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2" for="password">
-                                <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
-                                Password
-                            </label>
-                        </div>
-                        <div class="flex items-center border border-outline-variant/30 bg-surface-container-low px-5 py-4 rounded-sm focus-within:border-primary transition-all">
-                            <span class="material-symbols-outlined text-outline mr-4 text-xl">lock</span>
-                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-on-surface font-semibold text-sm placeholder:text-outline/60" id="password" name="password" placeholder="••••••••" type="password" required/>
+                        <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface flex items-center gap-2" for="password">
+                            Password
+                        </label>
+                        <div class="flex items-center border border-border-hairline bg-neutral px-5 py-4 rounded-md focus-within:border-primary transition-all">
+                            <i data-lucide="lock" class="w-5 h-5 text-on-surface-muted mr-4"></i>
+                            <input class="w-full bg-transparent border-none focus:ring-0 p-0 text-on-surface font-semibold text-sm placeholder:text-on-surface-muted/60" id="password" name="password" placeholder="••••••••" type="password" required/>
                         </div>
                     </div>
 
                     <div class="pt-4 flex flex-col gap-4">
-                        <button class="w-full py-5 bg-primary text-white rounded-sm font-extrabold tracking-[0.2em] uppercase text-xs hover:bg-primary-container hover:shadow-lg transition-all flex items-center justify-center gap-4 group" type="submit">
+                        <button class="w-full py-4 h-12 bg-primary text-secondary rounded-full font-bold tracking-[0.1em] uppercase text-xs hover:bg-primary-pressed transition-all flex items-center justify-center gap-3 group" type="submit">
                             Sign in
-                            <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                         </button>
 
                         <div class="flex items-center gap-6 py-4">
-                            <div class="h-[1px] flex-1 bg-outline-variant/20"></div>
-                            <span class="text-[9px] font-black text-outline/40 uppercase tracking-[0.3em]">OR</span>
-                            <div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+                            <div class="h-[1px] flex-1 bg-border-hairline"></div>
+                            <span class="font-mono text-[9px] text-on-surface-muted/60 uppercase tracking-[0.3em]">Or</span>
+                            <div class="h-[1px] flex-1 bg-border-hairline"></div>
                         </div>
 
-                        <button onclick="window.location.href='{{ url_for('auth.xero_login') }}'" class="w-full py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all rounded-sm font-extrabold text-[10px] uppercase tracking-widest flex items-center justify-center gap-4" type="button">
-                            <img alt="Xero" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNI5LrBx2tytPl6CghCB0Xv10yUAFcvJ1l6F6kdcNyVK4lG2COms0iFj9snbw_HWxmbp3kFFeKZDl_OdWSJMzbPOwaaUorQEOKDwLjJlfodUbBSi6iFMMxgWof4ZFWmtdMs0FdoyjmPPwcynJ7J3C-p3xTpPSenGLaUZtSOT-mriWX1XocKWqYhwmI9wd1l4R8xJ2Rb1R2hdNK7vMOyat3Ic6ycIXkMmzWe11oXR7qdCIZnb7y0nEdyeaggohvNIcLxwUpOEUUPec"/>
+                        <button onclick="window.location.href='{{ url_for('auth.xero_login') }}'" class="w-full py-4 h-12 border border-border-hairline text-on-surface hover:bg-neutral transition-all rounded-full font-bold text-[11px] uppercase tracking-widest flex items-center justify-center gap-3" type="button">
+                            <svg class="w-5 h-5 shrink-0" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <circle cx="24" cy="24" r="24" fill="#13B5EA"/>
+                                <path d="M24 22.4 18.6 17a1.7 1.7 0 0 0-2.4 2.4l5.4 5.4-5.4 5.4a1.7 1.7 0 1 0 2.4 2.4l5.4-5.4 5.4 5.4a1.7 1.7 0 1 0 2.4-2.4L26.4 24.8l5.4-5.4a1.7 1.7 0 1 0-2.4-2.4z" fill="#fff"/>
+                            </svg>
                             Sign in with Xero
                         </button>
                     </div>
                 </form>
 
                 <footer class="mt-16 text-center">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
-                        New here? <a class="text-secondary font-black hover:text-secondary-container transition-colors" href="{{ url_for('auth.register') }}">Create an account</a>
+                    <p class="font-mono text-[10px] uppercase tracking-widest text-on-surface-muted">
+                        New here? <a class="text-secondary font-bold hover:text-primary-pressed transition-colors" href="{{ url_for('auth.register') }}">Create an account</a>
                     </p>
                 </footer>
             </div>
         </div>
     </section>
 
+    <script>
+      if (window.lucide) { lucide.createIcons(); }
+    </script>
 </body>
 </html>

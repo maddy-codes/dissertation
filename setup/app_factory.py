@@ -128,7 +128,10 @@ def create_app() -> Flask:
 
     # Register all blueprints
     from routes.auth_routes import auth_bp
+    from routes.cash_flow_routes import cash_flow_bp
+    from routes.chat_routes import chat_bp
     from routes.main_routes import main_bp
+    from routes.plan_routes import plan_bp
     from routes.report_routes import report_bp
     from routes.workbench_routes import workbench_bp
 
@@ -136,5 +139,15 @@ def create_app() -> Flask:
     app.register_blueprint(main_bp)
     app.register_blueprint(workbench_bp)
     app.register_blueprint(report_bp)
+    app.register_blueprint(cash_flow_bp)
+    app.register_blueprint(plan_bp)
+    app.register_blueprint(chat_bp)
+
+    # Opt-in autonomous Cash Flow Accelerator rescans (detection + drafting
+    # only, never sends outreach) — a genuine no-op unless
+    # CASH_FLOW_AUTOSCAN_ENABLED is set (see helpers/cash_flow_scheduler.py).
+    from helpers.cash_flow_scheduler import start_cash_flow_autoscan
+
+    start_cash_flow_autoscan(app)
 
     return app

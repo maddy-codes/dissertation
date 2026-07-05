@@ -1,82 +1,89 @@
 {% extends "base.html" %}
-{% block title %} Working Papers | PHM Portal {% endblock %}
+{% block title %} {{ tenant_name }} · Working Papers | Review Portal {% endblock %}
 
 {% block main %}
 <div class="w-full">
 
     <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-outline-variant/20">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-border-hairline">
         <div class="flex items-start gap-5">
             <a href="{{ url_for('main.dashboard') }}"
-               class="mt-1 text-primary hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container">
-                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+               class="mt-1 text-secondary hover:text-primary-pressed transition-colors p-2 rounded-full hover:bg-neutral">
+                <i data-lucide="arrow-left" class="w-6 h-6"></i>
             </a>
             <div>
-                <nav class="flex mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+                <nav class="flex mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
                     <span class="text-secondary">Portal</span>
-                    <span class="mx-2 text-outline-variant">/</span>
+                    <span class="mx-2 text-border-hairline">/</span>
                     <span>Working Papers</span>
                 </nav>
-                <h1 class="text-4xl font-extrabold text-primary tracking-tight">Working Papers</h1>
-                <p class="mt-2 text-on-surface-variant text-sm font-bold uppercase tracking-wider flex items-center gap-2">
-                    <span class="material-symbols-outlined text-sm">business</span>
-                    Xero Reference: <code class="text-xs font-mono bg-surface-container-high px-3 py-1 rounded-sm text-primary border border-outline-variant/20">{{ tenant_id }}</code>
+                <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">{{ tenant_name }}</h1>
+                <p class="mt-2 text-on-surface-muted font-mono text-[11px] uppercase tracking-wider flex items-center gap-2 flex-wrap">
+                    <i data-lucide="building-2" class="w-3.5 h-3.5 shrink-0"></i>
+                    <span class="whitespace-nowrap">Xero Reference:</span>
+                    <code class="text-xs font-mono bg-neutral px-3 py-1 rounded-md text-secondary border border-border-hairline whitespace-nowrap">{{ tenant_id }}</code>
                 </p>
             </div>
         </div>
 
         <!-- Step indicators -->
-        <div class="flex items-center gap-2 pl-14 md:pl-0">
-            <div id="pill-1" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-primary text-white transition-all duration-300">1 · Trial Balance</div>
-            <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-2" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">2 · Account Selection</div>
-            <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-3" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">3 · Account Review</div>
-            <span class="text-outline-variant/40 text-xs">—</span>
-            <div id="pill-4" class="px-4 py-2 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container text-outline border border-outline-variant/20 transition-all duration-300">4 · Generate</div>
+        <div class="flex items-center gap-1 pl-14 md:pl-0 bg-neutral border border-border-hairline rounded-full p-1">
+            <div id="pill-1" class="px-4 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.14em] bg-primary text-secondary transition-all duration-300">1 · Trial Balance</div>
+            <div id="pill-2" class="px-4 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-muted transition-all duration-300">2 · Account Selection</div>
+            <div id="pill-3" class="px-4 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-muted transition-all duration-300">3 · Account Review</div>
+            <div id="pill-4" class="px-4 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-muted transition-all duration-300">4 · Generate</div>
         </div>
     </div>
 
     <!-- Main Workspace Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-gutter items-start">
+    <div id="workbench-grid" class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-gutter items-start">
 
         <!-- Processing Log -->
-        <div class="bg-white border border-outline-variant/30 rounded-sm overflow-hidden shadow-sm flex flex-col">
-            <div class="flex items-center justify-between px-6 py-5 bg-surface-container-low border-b border-outline-variant/20">
+        <div id="processing-log-panel" class="bg-surface border border-border-hairline rounded-lg overflow-hidden shadow-ambient flex flex-col">
+            <div class="flex items-center justify-between px-6 py-5 bg-neutral border-b border-border-hairline">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-xl">memory</span>
-                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Processing Log</span>
+                    <i data-lucide="cpu" class="w-5 h-5 text-secondary"></i>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">Processing Log</span>
                 </div>
                 <div class="flex items-center gap-2" id="agent-badge">
-                    <div class="h-2 w-2 rounded-full bg-secondary-container animate-pulse"></div>
-                    <span id="agent-status-text" class="text-[9px] font-black uppercase tracking-widest text-secondary">Live</span>
+                    <div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
+                    <span id="agent-status-text" class="font-mono text-[9px] uppercase tracking-widest text-secondary">Live</span>
                 </div>
             </div>
             <div id="thought-stream"
-                 class="flex flex-col gap-4 p-6 overflow-y-auto custom-scrollbar bg-white"
+                 class="flex flex-col gap-4 p-6 overflow-y-auto custom-scrollbar bg-surface"
                  style="min-height: 480px; max-height: 580px;">
                 <!-- injected by JS -->
             </div>
-            <div class="p-4 bg-surface-container-low border-t border-outline-variant/10 text-center">
-                <span class="text-[9px] font-black uppercase tracking-[0.3em] text-outline/40 italic">Automated Review Engine Active</span>
+            <div class="p-4 bg-neutral border-t border-border-hairline text-center">
+                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-on-surface-muted/60 italic">Automated Review Engine Active</span>
             </div>
         </div>
 
         <!-- Stage Viewport -->
-        <div class="bg-white border border-outline-variant/30 rounded-sm shadow-sm min-h-[580px] flex flex-col relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-surface-container/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div id="stage-viewport" class="bg-surface border border-border-hairline rounded-lg shadow-ambient min-h-[580px] flex flex-col relative overflow-hidden">
 
             <!-- STEP 1: TRIAL BALANCE -->
             <div id="stage-tb" class="flex flex-col h-full p-10 transition-opacity duration-700 relative z-10">
-                <div class="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10 border-b border-outline-variant/10 pb-8">
+                <div class="absolute top-6 right-6 z-30 flex items-center gap-2">
+                    <button id="btn-expand-tb" type="button" title="Expand to full screen"
+                        class="w-9 h-9 flex items-center justify-center rounded-full border border-border-hairline bg-surface text-secondary hover:bg-neutral transition-all">
+                        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                    </button>
+                    <button id="btn-collapse-tb" type="button" title="Exit full screen"
+                        class="hidden w-9 h-9 items-center justify-center rounded-full border border-border-hairline bg-surface text-secondary hover:bg-neutral transition-all">
+                        <i data-lucide="minimize-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10 border-b border-border-hairline pb-8 pr-16">
                     <div>
-                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Trial Balance</span>
-                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Current Trial Balance</h2>
-                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Review the current ledger position and identify movements worth flagging.</p>
+                        <span class="inline-block bg-primary/10 text-secondary border border-primary/30 rounded-full px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] mb-4">Trial Balance</span>
+                        <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Current Trial Balance</h2>
+                        <p class="text-on-surface-muted text-base mt-2 font-medium leading-relaxed">Review the current ledger position and identify movements worth flagging.</p>
                     </div>
                     <div class="flex gap-3">
-                         <button id="btn-materiality" class="px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-white border border-outline-variant/30 text-primary hover:bg-surface-container transition-all rounded-sm flex items-center gap-3 shadow-sm">
-                            <span class="material-symbols-outlined text-sm">settings_input_component</span>
+                         <button id="btn-materiality" class="h-11 px-5 font-mono text-[10px] uppercase tracking-[0.14em] bg-surface border border-border-hairline text-secondary hover:bg-neutral transition-all rounded-full flex items-center gap-3">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
                             Materiality Settings
                         </button>
                     </div>
@@ -84,12 +91,32 @@
 
                 <!-- Flags Section -->
                 <div id="flag-section" class="mb-10 hidden">
-                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-error mb-4 block">Items for Review</span>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-error mb-4 block">Items for Review</span>
                     <div class="flex flex-col gap-4" id="flag-cards"></div>
                 </div>
 
-                <div class="flex flex-col border border-outline-variant/30 rounded-sm overflow-hidden bg-white shadow-sm flex-1">
-                    <div class="grid grid-cols-[80px_1fr_100px_100px_100px_100px] gap-4 bg-surface-container-low px-8 py-4 border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.2em] text-primary sticky top-0 z-20">
+                <!-- TB Toolbar -->
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <div class="relative flex-1 min-w-[220px]">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-muted"></i>
+                        <input type="text" id="tb-search" placeholder="Search code or account name…"
+                            class="w-full h-11 pl-11 pr-4 bg-surface border border-border-hairline rounded-full font-mono text-[12px] text-on-surface focus:outline-none focus:border-primary">
+                    </div>
+                    <button id="btn-hide-zero" type="button"
+                        class="h-11 px-5 font-mono text-[10px] uppercase tracking-[0.14em] bg-surface border border-border-hairline text-secondary hover:bg-neutral transition-all rounded-full flex items-center gap-3">
+                        <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        Hide Zero Nominals
+                    </button>
+                    <button id="btn-clear-filters" type="button"
+                        class="h-11 px-5 font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-muted hover:text-secondary transition-all rounded-full flex items-center gap-2 hidden">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Clear
+                    </button>
+                    <span id="tb-row-count" class="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted"></span>
+                </div>
+
+                <div class="flex flex-col border border-border-hairline rounded-lg overflow-hidden bg-surface flex-1">
+                    <div class="grid grid-cols-[80px_1fr_100px_100px_100px_100px] gap-4 bg-neutral px-8 py-4 border-b border-border-hairline font-mono text-[10px] uppercase tracking-[0.2em] text-secondary sticky top-0 z-20">
                         <div>Code</div>
                         <div>Account Name</div>
                         <div class="text-right">Prior Yr</div>
@@ -99,39 +126,49 @@
                     </div>
                     <div class="flex flex-col overflow-y-auto custom-scrollbar" style="max-height: 480px;" id="tb-rows">
                         <div id="tb-loading" class="flex flex-col items-center justify-center p-20 text-center">
-                            <span class="material-symbols-outlined text-primary/20 text-6xl animate-spin-slow mb-6">sync</span>
-                            <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Loading trial balance…</p>
+                            <i data-lucide="loader-circle" class="w-14 h-14 text-primary animate-spin-slow mb-6"></i>
+                            <p class="text-secondary font-bold uppercase tracking-[0.2em] text-sm">Loading trial balance…</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
+                <div class="mt-10 flex justify-end pt-8 border-t border-border-hairline">
                     <button id="btn-to-coa"
-                        class="inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-primary-container hover:shadow-lg transition-all shadow-md group">
+                        class="inline-flex items-center gap-4 h-14 px-10 bg-primary text-secondary rounded-full font-bold uppercase tracking-[0.2em] text-xs hover:bg-primary-pressed transition-all group">
                         Continue to Account Selection
-                        <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                     </button>
                 </div>
             </div>
 
             <!-- STEP 2: ACCOUNT SELECTION -->
             <div id="stage-coa" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 relative z-10">
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10 border-b border-outline-variant/10 pb-8">
+                <div class="absolute top-6 right-6 z-30 flex items-center gap-2">
+                    <button id="btn-expand-coa" type="button" title="Expand to full screen"
+                        class="w-9 h-9 flex items-center justify-center rounded-full border border-border-hairline bg-surface text-secondary hover:bg-neutral transition-all">
+                        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                    </button>
+                    <button id="btn-collapse-coa" type="button" title="Exit full screen"
+                        class="hidden w-9 h-9 items-center justify-center rounded-full border border-border-hairline bg-surface text-secondary hover:bg-neutral transition-all">
+                        <i data-lucide="minimize-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10 border-b border-border-hairline pb-8 pr-16">
                     <div>
-                        <span class="inline-block bg-secondary-container/10 text-primary border border-secondary-container/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Account Selection</span>
-                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Choose accounts to review</h2>
-                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Tick the nominal accounts you want included in the review notes.</p>
+                        <span class="inline-block bg-tertiary/10 text-secondary border border-tertiary/20 rounded-full px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] mb-4">Account Selection</span>
+                        <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Choose accounts to review</h2>
+                        <p class="text-on-surface-muted text-base mt-2 font-medium leading-relaxed">Tick the nominal accounts you want included in the review notes.</p>
                     </div>
                     <div class="flex gap-3 shrink-0">
-                        <button id="btn-approve-all" class="px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] bg-primary text-white border border-transparent hover:bg-primary-container transition-all rounded-sm flex items-center gap-3 shadow-sm">
-                            <span class="material-symbols-outlined text-sm">done_all</span>
+                        <button id="btn-approve-all" class="h-11 px-5 font-mono text-[10px] uppercase tracking-[0.14em] bg-primary text-secondary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-3">
+                            <i data-lucide="check-check" class="w-4 h-4"></i>
                             Select All
                         </button>
                     </div>
                 </div>
 
-                <div class="flex flex-col border border-outline-variant/30 rounded-sm overflow-hidden">
-                    <div class="grid grid-cols-[auto_80px_1fr_100px_100px_200px_40px] gap-4 bg-surface-container-low px-8 py-4 border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                <div class="flex flex-col border border-border-hairline rounded-lg overflow-hidden">
+                    <div class="grid grid-cols-[auto_80px_1fr_100px_100px_200px_72px] gap-4 bg-neutral px-8 py-4 border-b border-border-hairline font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">
                         <div class="w-5"></div>
                         <div>Code</div>
                         <div>Nominal Account</div>
@@ -142,36 +179,36 @@
                     <div class="flex flex-col overflow-y-auto custom-scrollbar" style="max-height: 400px;" id="coa-cards"></div>
                 </div>
 
-                <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
+                <div class="mt-10 flex justify-end pt-8 border-t border-border-hairline">
                     <button id="btn-to-analysis"
-                        class="inline-flex items-center gap-4 px-10 py-5 bg-secondary-container text-on-secondary-container rounded-sm font-black uppercase tracking-[0.2em] text-xs hover:bg-secondary-container/90 hover:shadow-lg transition-all group shadow-md">
+                        class="inline-flex items-center gap-4 h-14 px-10 bg-secondary text-on-inverse rounded-full font-bold uppercase tracking-[0.2em] text-xs hover:bg-secondary-hover transition-all group">
                         Confirm Selection
-                        <span class="material-symbols-outlined text-base group-hover:scale-110 transition-transform">check_circle</span>
+                        <i data-lucide="check-circle" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
                     </button>
                 </div>
             </div>
 
             <!-- STAGE 3: ACCOUNT REVIEW -->
             <div id="stage-analysis" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 flex-1 relative z-10">
-                <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-outline-variant/10 pb-8">
+                <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border-hairline pb-8">
                     <div class="max-w-2xl">
-                        <span class="inline-block bg-primary/10 text-primary border border-primary/20 rounded-sm px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Account Review</span>
-                        <h2 class="text-3xl font-extrabold text-primary tracking-tight">Reviewing selected accounts</h2>
-                        <p class="text-on-surface-variant text-base mt-2 font-medium leading-relaxed">Reviewing transactions and identifying items to comment on.</p>
+                        <span class="inline-block bg-primary/10 text-secondary border border-primary/30 rounded-full px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] mb-4">Account Review</span>
+                        <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Reviewing selected accounts</h2>
+                        <p class="text-on-surface-muted text-base mt-2 font-medium leading-relaxed">Reviewing transactions and identifying items to comment on.</p>
                     </div>
-                    <div class="shrink-0 bg-surface-container-low border border-outline-variant/20 px-6 py-4 rounded-sm text-center">
-                        <span class="block text-[9px] font-black uppercase tracking-widest text-outline mb-1">Progress</span>
-                        <span class="text-2xl font-black text-primary"><span id="analysis-current">0</span>/<span id="analysis-total">0</span></span>
+                    <div class="shrink-0 bg-neutral border border-border-hairline px-6 py-4 rounded-lg text-center">
+                        <span class="block font-mono text-[9px] uppercase tracking-widest text-on-surface-muted mb-1">Progress</span>
+                        <span class="font-mono text-2xl font-bold text-on-surface"><span id="analysis-current">0</span>/<span id="analysis-total">0</span></span>
                     </div>
                 </div>
                 <div id="analysis-cards" class="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                     <div id="analysis-empty-state" class="flex flex-col items-center justify-center p-20 text-center">
-                        <span class="material-symbols-outlined text-primary/20 text-6xl animate-pulse mb-6">database</span>
-                        <p class="text-primary font-black uppercase tracking-[0.2em] text-sm">Waiting to start…</p>
+                        <i data-lucide="database" class="w-14 h-14 text-primary/60 animate-pulse mb-6"></i>
+                        <p class="text-secondary font-bold uppercase tracking-[0.2em] text-sm">Waiting to start…</p>
                     </div>
                 </div>
-                <div class="mt-10 flex justify-end pt-8 border-t border-outline-variant/10">
-                    <button id="btn-to-final" class="hidden inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-md">Continue <span class="material-symbols-outlined">arrow_forward</span></button>
+                <div class="mt-10 flex justify-end pt-8 border-t border-border-hairline">
+                    <button id="btn-to-final" class="hidden inline-flex items-center gap-4 h-14 px-10 bg-primary text-secondary rounded-full font-bold uppercase tracking-[0.2em] text-xs">Continue <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
                 </div>
             </div>
 
@@ -179,19 +216,19 @@
             <div id="stage-final" class="hidden flex-col h-full p-10 opacity-0 transition-opacity duration-700 items-center justify-center relative z-10 text-center">
                 <div class="w-full max-w-xl mx-auto">
                     <div class="mb-12">
-                        <div class="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-8 border border-green-500/20">
-                            <span class="material-symbols-outlined text-5xl text-green-600">verified</span>
+                        <div class="w-24 h-24 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-8 border border-success/20">
+                            <i data-lucide="shield-check" class="w-10 h-10 text-success"></i>
                         </div>
-                        <h2 class="text-4xl font-extrabold text-primary tracking-tight mb-4">Ready to Generate</h2>
-                        <p class="text-on-surface-variant text-base font-medium leading-relaxed">Generate the final review notes for this client file.</p>
+                        <h2 class="text-4xl font-extrabold text-on-surface tracking-tight mb-4">Ready to Generate</h2>
+                        <p class="text-on-surface-muted text-base font-medium leading-relaxed">Generate the final review notes for this client file.</p>
                     </div>
                     <form id="final-form" action="{{ url_for('main.dashboard') }}" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
                         <input type="hidden" name="current_year_end" value="{{ current_year_end }}"/>
                         <input type="hidden" name="comparison_year_end" value="{{ comparison_year_end }}"/>
-                        <button type="submit" class="w-full py-6 bg-primary text-white rounded-sm font-black tracking-[0.3em] uppercase text-xs hover:shadow-2xl transition-all flex items-center justify-center gap-4 group">
-                            Generate Review Notes <span class="material-symbols-outlined">send</span>
+                        <button type="submit" class="w-full h-14 bg-primary text-secondary rounded-full font-bold tracking-[0.3em] uppercase text-xs hover:bg-primary-pressed transition-all flex items-center justify-center gap-4 group">
+                            Generate Review Notes <i data-lucide="send" class="w-4 h-4"></i>
                         </button>
                     </form>
                 </div>
@@ -199,25 +236,29 @@
 
         </div>
     </div>
+
+    <!-- Trial Balance fullscreen modal backdrop -->
+    <div id="tb-modal-backdrop" class="hidden fixed inset-0 z-[190] bg-secondary/30 backdrop-blur-sm transition-opacity duration-300" style="opacity: 0;"></div>
 </div>
 
 <!-- Materiality Modal -->
-<div id="modal-materiality" class="fixed inset-0 z-[100] hidden items-center justify-center bg-primary/40 backdrop-blur-sm transition-all duration-300 opacity-0">
-    <div class="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden border border-outline-variant/30 flex flex-col">
-        <div class="px-8 py-6 bg-surface-container-low border-b border-outline-variant/20 flex justify-between items-center">
-            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Materiality Settings</h3>
-            <button class="modal-close text-outline hover:text-primary"><span class="material-symbols-outlined">close</span></button>
+<div id="modal-materiality" class="fixed inset-0 z-[100] hidden items-center justify-center bg-secondary/30 backdrop-blur-sm transition-all duration-300 opacity-0">
+    <div class="bg-surface rounded-lg shadow-lift w-full max-w-md overflow-hidden border border-border-hairline flex flex-col">
+        <div class="px-8 py-6 bg-neutral border-b border-border-hairline flex justify-between items-center">
+            <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">Materiality Settings</h3>
+            <button class="modal-close text-on-surface-muted hover:text-secondary"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <div class="p-10 space-y-8">
             <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-outline block mb-3">Overall Materiality (£)</label>
-                <input type="number" id="input-global-mat" value="1000" class="w-full bg-surface-container-low border border-outline-variant/30 p-4 rounded-sm font-bold text-primary focus:outline-none focus:border-primary">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted block mb-3">Overall Materiality (% of Turnover)</label>
+                <input type="number" id="input-global-mat" value="5" step="0.1" min="0" class="w-full h-12 bg-neutral border border-border-hairline px-4 rounded-md font-bold text-on-surface focus:outline-none focus:border-primary">
+                <p id="computed-mat-note" class="font-mono text-[10px] text-on-surface-muted mt-2 font-medium"></p>
             </div>
             <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-outline block mb-3">Trivial Threshold per Account (£)</label>
-                <input type="number" id="input-nominal-mat" value="500" class="w-full bg-surface-container-low border border-outline-variant/30 p-4 rounded-sm font-bold text-primary focus:outline-none focus:border-primary">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted block mb-3">Trivial Threshold per Account (£)</label>
+                <input type="number" id="input-nominal-mat" value="500" class="w-full h-12 bg-neutral border border-border-hairline px-4 rounded-md font-bold text-on-surface focus:outline-none focus:border-primary">
             </div>
-            <button id="btn-save-mat" class="w-full py-4 bg-primary text-white rounded-sm font-black uppercase tracking-[0.2em] text-[10px] shadow-md">Save</button>
+            <button id="btn-save-mat" class="w-full h-12 bg-primary text-secondary rounded-full font-bold uppercase tracking-[0.2em] text-[10px]">Save</button>
         </div>
     </div>
 </div>
@@ -225,7 +266,7 @@
 <style>
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d7dadf; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #DDD7C6; border-radius: 4px; }
     .animate-spin-slow { animation: spin-slow 8s linear infinite; }
     @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>

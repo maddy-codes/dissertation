@@ -1,4 +1,4 @@
-"""PHM Accountants AI Review Notes Portal — Flask entrypoint."""
+"""AI Review Notes Portal — Flask entrypoint."""
 from __future__ import annotations
 
 import logging
@@ -31,4 +31,7 @@ _ensure_schema()
 
 if __name__ == "__main__":
     debug = os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes")
+    # use_reloader is hard-disabled: Werkzeug's stat-reloader re-execs the
+    # process, which reliably kills it outright under this sandbox's process
+    # backgrounding. Restart manually after code changes instead.
     app.run(host="0.0.0.0", port=5000, debug=debug, use_reloader=False)

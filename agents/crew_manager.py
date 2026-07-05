@@ -2,7 +2,17 @@ import os
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from crewai import Agent, Task, Crew, Process
-from langchain_openai import AzureChatOpenAI
+from openai import AzureOpenAI, OpenAI
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
+
+from helpers.openai_config import (
+    resolve_azure_openai_api_key,
+    resolve_azure_openai_api_version,
+    resolve_azure_openai_endpoint,
+    resolve_final_review_deployment_name,
+    resolve_openai_base_url,
+    resolve_scan_deployment_name,
+)
 
 class AzureChatOpenAIStopFix(AzureChatOpenAI):
     """
@@ -16,7 +26,19 @@ class AzureChatOpenAIStopFix(AzureChatOpenAI):
     async def _agenerate(self, messages, stop=None, **kwargs):
         return await super()._agenerate(messages, stop=None, **kwargs)
 
-# --- Structured Data Models for the Dissertation ---
+
+class ChatOpenAIStopFix(ChatOpenAI):
+    """
+    Equivalent stop-stripping wrapper for OpenAI-compatible base_url routes.
+    """
+
+    def _generate(self, messages, stop=None, **kwargs):
+        return super()._generate(messages, stop=None, **kwargs)
+
+    async def _agenerate(self, messages, stop=None, **kwargs):
+        return await super()._agenerate(messages, stop=None, **kwargs)
+
+# --- Structured Data Models ---
 
 class FinancialAnalysis(BaseModel):
     """The structured output from the Analyst to the Writer."""
@@ -37,52 +59,90 @@ class AuditNote(BaseModel):
 
 # --- Agentic Framework ---
 
-from strings.assistant import DEPLOYED_MODEL_NAME
+def resolve_token_param(deployment_name: str) -> str:
+    """
+    Pick the token-cap parameter name for the installed LangChain/OpenAI stack.
 
-def get_llm():
+    The AI Foundry / OpenAI-compatible base_url route expects
+    `max_completion_tokens` for GPT-5.4, while the older AzureChatOpenAI path
+    in this repo has been more reliable with `max_tokens`. Keep an explicit env
+    override for future upgrades.
+    """
+    override = os.environ.get("LLM_TOKEN_PARAM")
+    if override:
+        return override
+    if resolve_openai_base_url():
+        return "max_completion_tokens"
+    return "max_tokens"
+
+
+def build_llm(deployment_name: str):
     """
     Initialise Azure OpenAI LLM.
-    We set temperature to 0.0 and use a fixed seed for maximum reproducibility 
-    in a dissertation context.
+    We set temperature to 0.0 and use a fixed seed for maximum reproducibility.
     """
-    deployment_name = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME") or DEPLOYED_MODEL_NAME
-    
     # o1 models don't support temperature < 1.0 or seed currently
     is_o1 = "o1" in deployment_name.lower()
     
-    # Newer reasoning / GPT-5 family deployments require
-    # `max_completion_tokens`; classic GPT-4o accepts `max_tokens`. Detect by
-    # deployment name and allow an explicit env override for edge cases.
-    new_param_markers = ("o1", "o3", "o4", "gpt-5")
-    uses_new_param = any(tag in deployment_name.lower() for tag in new_param_markers)
-    token_param = os.environ.get("PHM_LLM_TOKEN_PARAM") or (
-        "max_completion_tokens" if uses_new_param else "max_tokens"
-    )
+    # Use `max_tokens` by default because the current CrewAI/LangChain/OpenAI
+    # stack raises `unexpected keyword argument 'max_completion_tokens'` in the
+    # live review-note path even for GPT-5.4. Leave an env override for future
+    # SDK/API combinations.
+    token_param = resolve_token_param(deployment_name)
+
+    timeout = float(os.environ.get("LLM_TIMEOUT_SECONDS", "60"))
+    retries = int(os.environ.get("LLM_MAX_RETRIES", "2"))
+    max_tokens = int(os.environ.get("LLM_MAX_TOKENS", "800"))
+    base_url = resolve_openai_base_url()
+
+    if base_url:
+        config = {
+            "base_url": base_url.rstrip("/") + "/",
+            "api_key": resolve_azure_openai_api_key(),
+            "model": deployment_name,
+            "temperature": 1.0 if is_o1 else 0.0,
+            "request_timeout": timeout,
+            "max_retries": retries,
+        }
+        model_kwargs = {token_param: max_tokens}
+        if not is_o1:
+            model_kwargs["seed"] = 42
+        config["model_kwargs"] = model_kwargs
+        return ChatOpenAIStopFix(**config)
 
     config = {
-        "azure_endpoint": os.environ.get("AZURE_OPENAI_ENDPOINT"),
-        "api_key": os.environ.get("AZURE_OPENAI_API_KEY"),
-        "api_version": os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
+        "azure_endpoint": resolve_azure_openai_endpoint(),
+        "api_key": resolve_azure_openai_api_key(),
+        "api_version": resolve_azure_openai_api_version(),
         "azure_deployment": deployment_name,
         "temperature": 1.0 if is_o1 else 0.0,
-        # Bound the LLM call so a stuck request can't hang a worker thread
-        # forever and so we can't blow up costs on a runaway response.
-        "request_timeout": float(os.environ.get("PHM_LLM_TIMEOUT_SECONDS", "60")),
-        "max_retries": int(os.environ.get("PHM_LLM_MAX_RETRIES", "2")),
+        "request_timeout": timeout,
+        "max_retries": retries,
     }
 
-    # Pass the token cap through model_kwargs under the parameter name the
-    # underlying deployment understands.
-    model_kwargs = {token_param: int(os.environ.get("PHM_LLM_MAX_TOKENS", "800"))}
+    model_kwargs = {token_param: max_tokens}
     if not is_o1:
         model_kwargs["seed"] = 42
     config["model_kwargs"] = model_kwargs
 
     return AzureChatOpenAIStopFix(**config)
 
-class PHMCrew:
+class ReviewCrew:
     def __init__(self):
-        self.llm = get_llm()
+        self.scan_deployment_name = resolve_scan_deployment_name()
+        self.final_deployment_name = resolve_final_review_deployment_name()
+        self.scan_llm = None
+        self.final_llm = None
+
+    def _get_scan_llm(self):
+        if self.scan_llm is None:
+            self.scan_llm = build_llm(self.scan_deployment_name)
+        return self.scan_llm
+
+    def _get_final_llm(self):
+        if self.final_llm is None:
+            self.final_llm = build_llm(self.final_deployment_name)
+        return self.final_llm
 
     def senior_forensic_analyst(self) -> Agent:
         return Agent(
@@ -91,7 +151,7 @@ class PHMCrew:
             backstory="""You are a specialist in UK GAAP and forensic audit. Your role is to look 
             past the numbers in the Trial Balance and identify the 'story' in the transactions. 
             You are meticulous about rounding and identifying material counterparties.""",
-            llm=self.llm,
+            llm=self._get_scan_llm(),
             verbose=True,
             allow_delegation=False,
             max_iter=15
@@ -104,7 +164,7 @@ class PHMCrew:
             backstory="""You specialise in technical financial reporting. You know how to 
             synthesise complex variance data into a single, punchy paragraph that 
             an Audit Partner would be proud to sign off. You adhere strictly to naming conventions.""",
-            llm=self.llm,
+            llm=self._get_scan_llm(),
             verbose=True,
             allow_delegation=False,
             max_iter=15
@@ -114,10 +174,10 @@ class PHMCrew:
         return Agent(
             role='Audit Quality Assurance Partner',
             goal='Perform a final cold review of the notes for compliance, grounding, and forbidden content',
-            backstory="""You are the ultimate gatekeeper of quality at PHM. You have zero tolerance for 
+            backstory="""You are the ultimate gatekeeper of quality. You have zero tolerance for 
             formatting errors, bullet points, or 'conversational' AI fluff. You ensure the note 
             is grounded strictly in the provided evidence and contains no forbidden identifiers.""",
-            llm=self.llm,
+            llm=self._get_final_llm(),
             verbose=True,
             allow_delegation=False,
             max_iter=15
@@ -135,17 +195,15 @@ class PHMCrew:
         The briefing is expected to be the clean, human-readable per-account
         text produced by `helpers.xero_api_parser.fetch_and_format_xero_data`.
         """
-        from langchain.schema import HumanMessage, SystemMessage
-
-        system = SystemMessage(content=(
-            "You are a UK chartered accountant at Phipps Henson McAllister "
+        system_prompt = (
+            "You are a UK chartered accountant "
             "preparing year-end review notes from Xero data. You write a single, "
             "factual paragraph per nominal account. You only use figures, "
             "vendor names and dates that appear in the briefing supplied; you "
             "never invent transactions, counterparties or amounts."
-        ))
+        )
 
-        human = HumanMessage(content=f"""\
+        user_prompt = f"""\
 Account under review: {account_name}
 
 Briefing (figures, transactions, recurring items and anomalies pulled directly from Xero):
@@ -165,13 +223,67 @@ RULES (strictly enforced):
 4. If the briefing shows no transactions, comment on the closing balance only and say "no movement in the year".
 5. Output ONE PARAGRAPH only. No bullet points, no headings, no journal numbers.
 6. Do not add commentary about your own reasoning or the briefing format.
-""")
+"""
 
-        # Let exceptions propagate — the worker in main_crew catches them and
-        # emits a proper `account_error` event instead of pretending the
-        # account was successfully reviewed with the error text as the note.
-        result = self.llm.invoke([system, human])
-        text = getattr(result, "content", None) or str(result)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+
+        try:
+            return self._invoke_direct_review_client(
+                deployment_name=self.final_deployment_name,
+                messages=messages,
+            )
+        except Exception as exc:
+            if (
+                "DeploymentNotFound" not in str(exc)
+                or self.final_deployment_name == self.scan_deployment_name
+            ):
+                raise
+            return self._invoke_direct_review_client(
+                deployment_name=self.scan_deployment_name,
+                messages=messages,
+            )
+
+    def _invoke_direct_review_client(self, deployment_name: str, messages: list[dict[str, str]]) -> str:
+        """
+        Use the plain OpenAI/AzureOpenAI clients for the production review-note
+        path. This avoids LangChain parameter-mapping issues on the critical
+        submission workflow while still leaving the richer CrewAI path available
+        for experiments.
+        """
+        timeout = float(os.environ.get("LLM_TIMEOUT_SECONDS", "60"))
+        is_o1 = "o1" in deployment_name.lower()
+
+        kwargs = {
+            "model": deployment_name,
+            "messages": messages,
+        }
+        if not is_o1:
+            kwargs["temperature"] = 0.0
+            kwargs["seed"] = 42
+
+        base_url = resolve_openai_base_url()
+        if base_url:
+            client = OpenAI(
+                base_url=base_url.rstrip("/") + "/",
+                api_key=resolve_azure_openai_api_key(),
+                timeout=timeout,
+                max_retries=int(os.environ.get("LLM_MAX_RETRIES", "2")),
+            )
+        else:
+            client = AzureOpenAI(
+                azure_endpoint=resolve_azure_openai_endpoint(),
+                api_key=resolve_azure_openai_api_key(),
+                api_version=resolve_azure_openai_api_version(),
+                timeout=timeout,
+                max_retries=int(os.environ.get("LLM_MAX_RETRIES", "2")),
+            )
+
+        response = client.chat.completions.create(**kwargs)
+
+        text = response.choices[0].message.content or ""
         return text.strip()
 
     def run_synthesis(self, account_name: str, financial_context: str) -> str:
@@ -204,7 +316,7 @@ RULES (strictly enforced):
             - Use GBP (£) symbols.
             - Ensure the tone is factual and professional.
             - DO NOT use bullet points.""",
-            expected_output="A single-paragraph review note following the PHM template.",
+            expected_output="A single-paragraph review note following the template above.",
             agent=writer,
             context=[extraction_task]
         )

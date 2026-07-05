@@ -13,8 +13,9 @@ Important fixes vs the original:
 from __future__ import annotations
 
 import logging
+import re
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -80,9 +81,29 @@ def _row_account_code(row: Dict[str, Any], account_lookup: Dict[str, Dict[str, A
 # Per-nominal ledger fetch
 # ---------------------------------------------------------------------------
 
+_DOTNET_DATE_RE = re.compile(r"/Date\((-?\d+)(?:[+-]\d{4})?\)/")
+
+
 def _date_str(payload: Dict[str, Any]) -> str:
-    raw = payload.get("DateString") or payload.get("Date") or ""
-    return raw[:10] if isinstance(raw, str) else ""
+    date_string = payload.get("DateString")
+    if isinstance(date_string, str) and date_string:
+        return date_string[:10]
+
+    raw = payload.get("Date")
+    if not isinstance(raw, str) or not raw:
+        return ""
+
+    # Some entities (e.g. bank transactions from certain sources) only carry
+    # the .NET JSON date, "/Date(1725062400000+0000)/" (epoch milliseconds),
+    # not the human-readable DateString. Slicing that raw string just showed
+    # "/Date(1725" in the UI, so parse the epoch millis out properly.
+    match = _DOTNET_DATE_RE.match(raw)
+    if match:
+        try:
+            return datetime.fromtimestamp(int(match.group(1)) / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+        except (ValueError, OSError, OverflowError):
+            return ""
+    return raw[:10]
 
 
 def _safe_float(value: Any) -> float:
@@ -138,6 +159,21 @@ def _pl_amount(cells: List[Dict[str, Any]]) -> float:
 def _format_money(amount: float) -> str:
     sign = "-" if amount < 0 else ""
     return f"{sign}£{abs(amount):,.0f}"
+
+
+def _source_breakdown(entries: List[Dict[str, Any]]) -> str:
+    counts = {"BankTransaction": 0, "Invoice": 0, "ManualJournal": 0}
+    for entry in entries:
+        source = entry.get("Source")
+        if source in counts:
+            counts[source] += 1
+    total = sum(counts.values())
+    return (
+        f"Total processed: {total} "
+        f"(Bank Transactions: {counts['BankTransaction']}, "
+        f"Invoices: {counts['Invoice']}, "
+        f"Manual Journals: {counts['ManualJournal']})"
+    )
 
 
 def _row_has_activity(cells: List[Dict[str, Any]]) -> bool:
@@ -357,6 +393,10 @@ def fetch_and_format_xero_data(
         "xero_names": [],
         "xero_codes": [],
         "ai_summary": [],
+        "current_value": [],
+        "prior_value": [],
+        "variance_abs": [],
+        "variance_pct": [],
     }
 
     for row in tb_rows:
@@ -452,6 +492,9 @@ def fetch_and_format_xero_data(
 
         if account_code:
             lines.append(f"TRANSACTIONAL INSIGHTS (Code {account_code}):")
+            lines.append(f"  Current year source counts: {_source_breakdown(curr_txs_for_code)}")
+            if comp_tb_match or comp_pl_match or prior_txs_for_code:
+                lines.append(f"  Prior year source counts: {_source_breakdown(prior_txs_for_code)}")
             lines.append(analyze_ledger(curr_txs_for_code, prior_txs_for_code))
         else:
             lines.append(
@@ -464,6 +507,10 @@ def fetch_and_format_xero_data(
         out_map["xero_names"].append(label)
         out_map["xero_codes"].append(account_code)
         out_map["ai_summary"].append("")
+        out_map["current_value"].append(headline_curr)
+        out_map["prior_value"].append(headline_prior)
+        out_map["variance_abs"].append(variance_abs)
+        out_map["variance_pct"].append(None if variance_pct == float("inf") else variance_pct)
 
     mp_df = pd.DataFrame(out_map)
     return messages, mp_df

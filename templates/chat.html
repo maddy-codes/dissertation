@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %} Chat | Review Portal {% endblock %}
+
+{% block main %}
+<div class="w-full">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-border-hairline">
+        <div>
+            <nav class="flex mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
+                <span class="text-secondary">Portal</span>
+                <span class="mx-2 text-border-hairline">/</span>
+                <span>Chat</span>
+            </nav>
+            <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">AI Chat</h1>
+            <p class="mt-2 text-on-surface-muted text-base font-medium leading-relaxed">Ask about a client's Xero data — the agent pulls live figures through the official Xero MCP server.</p>
+        </div>
+
+        {% if has_xero_token and connections %}
+        <div class="flex items-center gap-3 shrink-0">
+            <select id="tenant-select" class="h-12 min-w-[240px] bg-surface border border-border-hairline px-5 rounded-full text-sm font-bold text-on-surface focus:outline-none focus:border-primary appearance-none">
+                {% for conn in connections %}
+                <option value="{{ conn.tenantId }}" {% if conn.tenantId == tenant_id %}selected{% endif %}>{{ conn.tenantName }}</option>
+                {% endfor %}
+            </select>
+            <div class="relative">
+                <button id="btn-history" type="button" class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-surface border border-border-hairline hover:bg-neutral transition-all rounded-full flex items-center gap-2">
+                    <i data-lucide="history" class="w-4 h-4"></i> History
+                </button>
+                <div id="history-panel" class="hidden absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto custom-scrollbar bg-surface border border-border-hairline rounded-lg shadow-lift z-30 p-2"></div>
+            </div>
+            <button id="btn-new-chat" type="button" class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-surface border border-border-hairline hover:bg-neutral transition-all rounded-full flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> New Chat
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not has_xero_token %}
+    <div class="bg-surface border border-border-hairline rounded-lg p-12 text-center flex flex-col items-center">
+        <i data-lucide="cloud-off" class="w-12 h-12 text-on-surface-muted/50 mb-6"></i>
+        <h3 class="text-xl font-extrabold text-on-surface tracking-tight mb-2 uppercase">No Xero Connection</h3>
+        <p class="text-on-surface-muted text-base font-medium max-w-sm mb-8">Connect your Xero account to chat with a client's live data.</p>
+        <a href="{{ url_for('auth.xero_connect') }}" class="h-12 flex items-center px-10 bg-primary text-secondary rounded-full font-bold uppercase tracking-[0.14em] text-[11px] hover:bg-primary-pressed transition-all shadow-ambient">
+            Connect Xero
+        </a>
+    </div>
+    {% elif not connections %}
+    <div class="bg-surface border border-border-hairline rounded-lg p-12 text-center flex flex-col items-center">
+        <i data-lucide="building-2" class="w-12 h-12 text-on-surface-muted/50 mb-6"></i>
+        <h3 class="text-xl font-extrabold text-on-surface tracking-tight mb-2 uppercase">No Clients Connected</h3>
+        <p class="text-on-surface-muted text-base font-medium max-w-sm">Connect a Xero client file from the dashboard first.</p>
+    </div>
+    {% else %}
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-gutter items-start">
+
+        <!-- Chat Column -->
+        <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient flex flex-col" style="min-height: 640px;">
+            <div id="chat-messages" class="flex flex-col gap-5 p-8 overflow-y-auto custom-scrollbar flex-1" style="max-height: 620px;">
+                <div id="chat-empty-state" class="flex flex-col items-center justify-center text-center py-24">
+                    <i data-lucide="message-circle" class="w-12 h-12 text-primary/60 mb-6"></i>
+                    <p class="text-secondary font-bold uppercase tracking-[0.2em] text-sm">Ask about {{ tenant_name or "this client" }}</p>
+                    <p class="text-on-surface-muted text-sm mt-2 font-medium max-w-sm">e.g. "What are our top overdue invoices?" or "Chart revenue by month this year."</p>
+                </div>
+            </div>
+
+            <form id="chat-form" class="p-6 border-t border-border-hairline flex items-end gap-3">
+                <textarea id="chat-input" rows="1" placeholder="Ask a question about this client…"
+                    class="flex-1 resize-none bg-neutral border border-border-hairline rounded-lg px-5 py-3.5 text-sm font-medium text-on-surface focus:outline-none focus:border-primary max-h-32"></textarea>
+                <button id="btn-send" type="submit" class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-primary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-2 shrink-0">
+                    <i data-lucide="send" class="w-4 h-4"></i> Send
+                </button>
+            </form>
+        </div>
+
+        <!-- Right column: Artefact Canvas + Client Memory -->
+        <div class="flex flex-col gap-gutter">
+            <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden flex flex-col">
+                <div class="flex items-center gap-3 px-6 py-5 bg-neutral border-b border-border-hairline">
+                    <i data-lucide="layout-panel-left" class="w-5 h-5 text-secondary"></i>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">Artefact Canvas</span>
+                </div>
+                <div id="canvas-body" class="p-6 flex-1 overflow-y-auto custom-scrollbar relative" style="min-height: 360px; max-height: 480px;">
+                    <div id="canvas-empty-state" class="flex flex-col items-center justify-center text-center py-16">
+                        <i data-lucide="bar-chart-3" class="w-10 h-10 text-on-surface-muted/40 mb-4"></i>
+                        <p class="text-on-surface-muted text-xs font-medium">No artefacts yet — ask something a chart or table would help answer.</p>
+                    </div>
+                </div>
+                <div id="canvas-history" class="hidden flex flex-wrap gap-2 p-4 border-t border-border-hairline"></div>
+            </div>
+
+            <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden flex flex-col">
+                <div class="flex items-center gap-3 px-6 py-5 bg-neutral border-b border-border-hairline">
+                    <i data-lucide="brain" class="w-5 h-5 text-secondary"></i>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">Client Memory</span>
+                </div>
+                <div id="memory-body" class="p-5 overflow-y-auto custom-scrollbar" style="max-height: 260px;">
+                    <p id="memory-empty-state" class="text-on-surface-muted text-xs font-medium">No remembered facts yet.</p>
+                </div>
+                <form id="memory-form" class="p-4 border-t border-border-hairline flex items-center gap-2">
+                    <input type="text" id="memory-input" placeholder="Add a fact to remember…"
+                        class="flex-1 h-10 bg-neutral border border-border-hairline rounded-full px-4 text-xs font-medium text-on-surface focus:outline-none focus:border-primary">
+                    <button id="btn-memory-add" type="submit" class="h-10 w-10 shrink-0 flex items-center justify-center bg-primary text-secondary rounded-full hover:bg-primary-pressed transition-all">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Artefact Fullscreen Modal -->
+<div id="artifact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-secondary/30 backdrop-blur-sm transition-all duration-300 opacity-0">
+    <div class="bg-surface rounded-lg shadow-lift w-full max-w-3xl max-h-[85vh] overflow-hidden border border-border-hairline flex flex-col mx-6">
+        <div class="px-8 py-6 bg-neutral border-b border-border-hairline flex justify-between items-center">
+            <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">Artefact</h3>
+            <button id="artifact-modal-close" class="text-on-surface-muted hover:text-secondary"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="artifact-modal-body" class="p-10 overflow-y-auto custom-scrollbar"></div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #DDD7C6; border-radius: 4px; }
+    .chat-markdown p { margin-bottom: 0.6em; }
+    .chat-markdown p:last-child { margin-bottom: 0; }
+    .chat-markdown ul, .chat-markdown ol { margin: 0.4em 0 0.6em 1.2em; }
+    .chat-markdown ul { list-style: disc; }
+    .chat-markdown ol { list-style: decimal; }
+    .chat-markdown strong { font-weight: 700; }
+    .chat-markdown code { background: rgba(0,0,0,0.06); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+    .chat-markdown table { border-collapse: collapse; margin: 0.6em 0; }
+    .chat-markdown th, .chat-markdown td { border: 1px solid #DDD7C6; padding: 0.3em 0.6em; text-align: left; }
+</style>
+{% endblock %}
+
+{% block customJs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+<script>
+    const CHAT_CONFIG = {
+        tenantId: {{ tenant_id | tojson }},
+        sessionId: {{ session_id | tojson }},
+        csrfToken: "{{ csrf_token() }}"
+    };
+</script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

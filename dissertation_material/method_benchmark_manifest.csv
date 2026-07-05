@@ -1,8 +1,0 @@
-method_id,method_label,method_family,run_count,mean_generation_seconds,std_generation_seconds,mean_prompt_tokens,mean_completion_tokens,mean_total_tokens,notes
-gpt54_zero_shot,GPT-5.4 Zero-Shot,Prompt engineered GPT-5.4,3,64.475,10.320,988.3,4018.7,5007.0,Measured on 3 live validation cases.
-gpt54_single_shot,GPT-5.4 Single-Shot,Prompt engineered GPT-5.4,3,72.168,9.770,1815.3,3392.3,5207.7,Measured on 3 live validation cases.
-gpt54_few_shot,GPT-5.4 Few-Shot,Prompt engineered GPT-5.4,3,65.334,7.161,3366.3,3277.7,6644.0,Measured on 3 live validation cases.
-ft_1,GPT-4.1 Fine-Tuned 1,Fine-tuned GPT-4.1,3,14.986,1.199,989.3,1072.7,2062.0,Measured on 3 live validation cases.
-ft_2,GPT-4.1 Fine-Tuned 2,Fine-tuned GPT-4.1,3,12.424,1.628,989.3,844.7,1834.0,Measured on 3 live validation cases.
-ft_3,GPT-4.1 Fine-Tuned 3,Fine-tuned GPT-4.1,3,13.506,15.549,989.3,450.0,1439.3,Measured on 3 live validation cases.
-ft_4,GPT-4.1 Fine-Tuned 4,Fine-tuned GPT-4.1,3,165.459,187.010,989.3,6208.7,7198.0,Measured on 3 live validation cases.

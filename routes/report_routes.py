@@ -22,8 +22,23 @@ logger = logging.getLogger(__name__)
 report_bp = Blueprint("report", __name__)
 
 
-def _run_csv_path(run_id: str) -> str:
-    return os.path.join(current_app.config["UPLOAD_FOLDER"], f"{run_id}.csv")
+def _run_pdf_path(run_id: str) -> str:
+    return os.path.join(current_app.config["UPLOAD_FOLDER"], f"{run_id}.pdf")
+
+
+def _run_pdf_bytes(run_id: str) -> bytes | None:
+    """Load (or render on the fly) the PDF review notes for a run."""
+    from helpers.pdf_report import load_or_render_pdf
+    from setup.models import ReviewNote
+
+    note = ReviewNote.query.filter_by(run_id=run_id).first()
+    tenant_name = (note.tenant_name if note else None) or "Unknown Client"
+    year_end = note.year_end if note else None
+    year_start = note.year_start if note else None
+
+    return load_or_render_pdf(
+        current_app.config["UPLOAD_FOLDER"], run_id, tenant_name, year_end, year_start
+    )
 
 
 def _run_owner_path(run_id: str) -> str:
@@ -54,7 +69,38 @@ def _require_run_owner(run_id: str) -> None:
 def report_stream(run_id: str):
     """Render the live review-notes page for a single run."""
     _require_run_owner(run_id)
-    return render_template("report_stream.html", run_id=run_id)
+
+    from setup.models import ReviewNote
+
+    note = ReviewNote.query.filter_by(run_id=run_id).first()
+    tenant_id = note.tenant_id if note else request.args.get("tenant_id")
+    tenant_name = note.tenant_name if note else None
+
+    # While the review is still running, there's no ReviewNote yet (it's only
+    # written on completion) — resolve the client's display name from Xero so
+    # the breadcrumb/back-arrow can still point at the client during the run.
+    if tenant_id and not tenant_name:
+        try:
+            from integrations.xero_api import XeroClient
+
+            token_data = current_user.get_xero_token()
+            if token_data:
+                xero_client = XeroClient(
+                    client_id=os.environ.get("XERO_CLIENT_ID"),
+                    client_secret=os.environ.get("XERO_CLIENT_SECRET"),
+                    refresh_token=token_data.get("refresh_token"),
+                    user=current_user,
+                )
+                for conn in xero_client.list_connections():
+                    if conn["tenantId"] == tenant_id:
+                        tenant_name = conn["tenantName"]
+                        break
+        except Exception:
+            logger.warning("Could not resolve tenant name for in-progress run %s", run_id)
+
+    return render_template(
+        "report_stream.html", run_id=run_id, tenant_id=tenant_id, tenant_name=tenant_name
+    )
 
 
 @report_bp.route("/api/stream_report/<run_id>")
@@ -105,6 +151,23 @@ def stream_report(run_id: str):
     return Response(generate(), mimetype="text/event-stream")
 
 
+@report_bp.route("/report/<run_id>/download")
+@login_required
+def download_report(run_id: str):
+    """Download the review notes PDF for a single completed run."""
+    _require_run_owner(run_id)
+    pdf_bytes = _run_pdf_bytes(run_id)
+    if pdf_bytes is None:
+        abort(404)
+    return Response(
+        pdf_bytes,
+        mimetype="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="review_notes_{run_id}.pdf"'
+        },
+    )
+
+
 @report_bp.route("/api/send_report/<run_id>", methods=["POST"])
 @login_required
 def send_report(run_id: str):
@@ -117,8 +180,8 @@ def send_report(run_id: str):
     try:
         from helpers.email_service import send_email
 
-        file_path = _run_csv_path(run_id)
-        if not os.path.exists(file_path):
+        pdf_bytes = _run_pdf_bytes(run_id)
+        if pdf_bytes is None:
             return (
                 jsonify(
                     {
@@ -128,13 +191,20 @@ def send_report(run_id: str):
                 ),
                 404,
             )
+        # _run_pdf_bytes normally caches the rendered PDF to disk; write it
+        # ourselves too in case that cache write failed (send_email needs a path).
+        file_path = _run_pdf_path(run_id)
+        if not os.path.exists(file_path):
+            with open(file_path, "wb") as fh:
+                fh.write(pdf_bytes)
 
-        subject = "Generated Review Notes | PHM Accountants"
+        firm_name = os.environ.get("FIRM_NAME", "Your Accounting Team")
+        subject = f"Generated Review Notes | {firm_name}"
         body = (
             "Hello,\n\n"
             "Please find attached the review notes generated for your client file. "
             "These notes were prepared from live Xero data using our automated review tool.\n\n"
-            "Kind regards,\nPHM Accountants"
+            f"Kind regards,\n{firm_name}"
         )
         recipient_list = [{"address": email, "displayName": "Client"}]
         sender_address = "donotreply@e444ea86-37e7-4a7d-857b-261cf490d7ce.azurecomm.net"

@@ -1,9 +1,0 @@
-flowchart LR
-    Client["Client data"] --> Purpose["Purpose filter"]
-    Purpose --> Minimise["Data minimisation"]
-    Minimise --> Mask["Mask / pseudonymise personal fields"]
-    Mask --> Secrets["Environment-managed credentials"]
-    Secrets --> Azure["Azure storage and Azure OpenAI"]
-    Azure --> Draft["Generated draft output"]
-    Draft --> Review["Accountant review only"]
-    Review --> Retain["Retention or deletion rules"]

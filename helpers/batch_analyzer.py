@@ -1,36 +1,52 @@
 import json
-import os
 from typing import List, Dict, Any
-from openai import AzureOpenAI
+from openai import AzureOpenAI, OpenAI
+
+from helpers.openai_config import (
+    resolve_azure_openai_api_key,
+    resolve_azure_openai_api_version,
+    resolve_azure_openai_endpoint,
+    resolve_openai_base_url,
+    resolve_scan_deployment_name,
+)
 
 def analyze_nominal_batch(batch: List[Dict[str, Any]], global_mat: float) -> List[Dict[str, Any]]:
     """
     Uses an AI Agent to determine which nominal accounts should be analyzed
     based on the firm's guidelines and materiality.
     """
-    # Import inside to avoid circular dependencies if any, though strings is standalone
-    from strings.assistant import API_VERSION, DEPLOYED_MODEL_NAME
-    
-    client = AzureOpenAI(
-        api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
-        api_version=API_VERSION,
-        azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT")
-    )
+    deployment_name = resolve_scan_deployment_name()
+    base_url = resolve_openai_base_url()
+    if base_url:
+        client = OpenAI(
+            base_url=base_url.rstrip("/") + "/",
+            api_key=resolve_azure_openai_api_key(),
+        )
+    else:
+        client = AzureOpenAI(
+            api_key=resolve_azure_openai_api_key(),
+            api_version=resolve_azure_openai_api_version(),
+            azure_endpoint=resolve_azure_openai_endpoint(),
+        )
 
     # Simplify the batch data to reduce token usage
     context_lines = []
     for row in batch:
-        context_lines.append(f"Account: '{row.get('account', '')}' (Code: {row.get('code', '')}), Current Balance: {row.get('balance', '0')}, Prior Year: {row.get('prev_balance', '0')}")
-        
+        line = f"Account: '{row.get('account', '')}' (Code: {row.get('code', '')}), Current Balance: {row.get('balance', '0')}, Prior Year: {row.get('prev_balance', '0')}"
+        note = (row.get("note") or "").strip()
+        if note:
+            line += f", Accountant Note: \"{note}\""
+        context_lines.append(line)
+
     context_str = "\n".join(context_lines)
-    
+
     prompt = f"""
     You are an expert UK accounting AI assistant. Review this excerpt of Xero Trial Balance data:
-    
+
     {context_str}
-    
+
     The Global Materiality threshold is £{global_mat}.
-    
+
     Guidelines for selection (Accounts Review Page Notes):
     Always analyze: Directors Remuneration, Legal Fees, Sundry, Professional Fees, Donations, Entertainment, Bad Debts.
     Always analyze: Anything new this year (i.e. NIL in previous year).
@@ -38,9 +54,11 @@ def analyze_nominal_batch(batch: List[Dict[str, Any]], global_mat: float) -> Lis
     Always analyze: Profit/Loss on Assets, Deferred Tax, Fixed Assets additions/disposals, Stock, Debtors, Prepayments, Cash at bank, Creditors, PAYE CT and VAT, DLA.
     Also analyze if there is a variance greater than the Global Materiality threshold.
     Also analyze Subscription/IT/Software costs.
+    If an Accountant Note is present for an account, always analyze it regardless of the other
+    guidelines, and factor the note's content directly into the reason you give.
 
     For each account in the provided excerpt, determine if it should be analyzed based on the above rules.
-    
+
     Respond STRICTLY with a JSON object containing a "results" array:
     {{
       "results": [
@@ -56,7 +74,7 @@ def analyze_nominal_batch(batch: List[Dict[str, Any]], global_mat: float) -> Lis
     
     try:
         response = client.chat.completions.create(
-            model=DEPLOYED_MODEL_NAME,
+            model=deployment_name,
             messages=[
                 {"role": "system", "content": "You are a JSON-producing accounting assistant."},
                 {"role": "user", "content": prompt}
@@ -101,7 +119,8 @@ def analyze_nominal_batch(batch: List[Dict[str, Any]], global_mat: float) -> Lis
             "account": acc_name,
             "code": code,
             "should_analyze": should_analyze,
-            "reason": reason
+            "reason": reason,
+            "note": row.get("note", ""),
         })
         
     return final_results

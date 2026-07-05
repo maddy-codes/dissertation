@@ -1,5 +1,0 @@
-{"type": "start", "timestamp": 1777389870.1407316, "message": "Starting review\u2026"}
-{"type": "progress", "timestamp": 1777389870.1420672, "message": "Fetching trial balance from Xero\u2026"}
-{"type": "progress", "timestamp": 1777389870.1423738, "message": "Fetching profit & loss and prior-year comparatives\u2026"}
-{"type": "progress", "timestamp": 1777389870.1424656, "message": "Pulling current and prior-year transactions (bank, invoices, manual journals)\u2026"}
-{"type": "error", "timestamp": 1777389870.316114, "logic": "Xero trial balance failed: 429 "}

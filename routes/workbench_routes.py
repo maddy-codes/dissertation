@@ -19,7 +19,14 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from setup.models import ReviewNote, db
+from setup.models import ClientAccess, ReviewNote, db
+from helpers.openai_config import (
+    resolve_azure_openai_api_key,
+    resolve_azure_openai_api_version,
+    resolve_azure_openai_endpoint,
+    resolve_openai_base_url,
+    resolve_scan_deployment_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +64,48 @@ def _resolve_account_code_from_row(cells, account_lookup_by_id, row_attrs):
     return "", None
 
 
+def _has_value(raw):
+    """True if a Xero TB cell string represents a non-zero amount."""
+    try:
+        s = str(raw or "0").replace(",", "").replace("(", "-").replace(")", "")
+        return float(s) != 0
+    except (TypeError, ValueError):
+        return False
+
+
+_SOURCE_LABELS = {
+    "BankTransaction": "Bank Transaction",
+    "Invoice": "Invoice",
+    "ManualJournal": "Manual Journal",
+}
+
+
+def _meaningful(text):
+    """Strip a Xero text field; punctuation-only placeholders (".", "-") don't count."""
+    stripped = (text or "").strip()
+    return stripped if any(ch.isalnum() for ch in stripped) else ""
+
+
+def _entry_label(entry):
+    """Best available description for a ledger entry.
+
+    Some Xero line items carry a punctuation placeholder (e.g. ".") instead of
+    a real Description, which is truthy so it slips past a naive `or` fallback
+    and renders as a bare dot in the drilldown. Fall through Contact, then
+    Reference, then the entry's source type, so the UI never shows a blank.
+    """
+    desc = _meaningful(entry.get("Description"))
+    if desc:
+        return desc
+    contact = _meaningful(entry.get("Contact"))
+    if contact and contact.lower() != "unknown":
+        return contact
+    reference = _meaningful(entry.get("Reference"))
+    if reference:
+        return reference
+    return _SOURCE_LABELS.get(entry.get("Source"), "Transaction")
+
+
 @workbench_bp.route("/workbench", methods=["POST"])
 @login_required
 def workbench():
@@ -68,9 +117,25 @@ def workbench():
         flash("Please select a Xero client before opening the working papers.")
         return redirect(url_for("main.dashboard"))
 
+    tenant_name = "Unnamed Client"
+    if current_user.role == "client":
+        grant = ClientAccess.query.filter_by(user_id=current_user.id, tenant_id=tenant_id).first()
+        tenant_name = (grant.tenant_name if grant else None) or tenant_name
+    else:
+        try:
+            xero_client = _xero_client()
+            if xero_client:
+                for conn in xero_client.list_connections():
+                    if conn["tenantId"] == tenant_id:
+                        tenant_name = conn["tenantName"]
+                        break
+        except Exception as exc:
+            logger.warning("Could not resolve tenant name for %s: %s", tenant_id, exc)
+
     return render_template(
         "workbench.html",
         tenant_id=tenant_id,
+        tenant_name=tenant_name,
         current_year_end=current_year_end,
         comparison_year_end=comparison_year_end,
     )
@@ -131,7 +196,10 @@ def fetch_tb(tenant_id):
         for label, (cells, attrs) in tb_dict.items():
             debit = cells[1].get("Value", "0") if len(cells) > 1 else "0"
             credit = cells[2].get("Value", "0") if len(cells) > 2 else "0"
-            balance = debit
+            # Debit/credit are mutually exclusive per TB row, so the net
+            # balance is whichever side actually holds a value — using debit
+            # alone left income (credit-only) rows showing a blank balance.
+            balance = debit if _has_value(debit) else credit
             prev_cells = prev_tb_dict.get(label, ([], []))[0]
             prev_balance = prev_cells[1].get("Value", "0") if len(prev_cells) > 1 else "0"
 
@@ -170,7 +238,13 @@ def analyze_scope_batch(tenant_id):
 
     try:
         results = analyze_nominal_batch(tb_data, float(global_mat))
-        return jsonify({"status": "Success", "data": {"coa_suggestions": results}})
+        return jsonify(
+            {
+                "status": "Success",
+                "data": {"coa_suggestions": results},
+                "model": resolve_scan_deployment_name(),
+            }
+        )
     except Exception as exc:
         logger.exception("analyze_scope_batch failed")
         return jsonify({"status": "Error", "message": str(exc)}), 500
@@ -293,7 +367,9 @@ def nominal_transactions(tenant_id):
         transactions = [
             {
                 "date": e.get("Date", ""),
-                "desc": e.get("Description") or e.get("Contact") or "Transaction",
+                "desc": _entry_label(e),
+                "reference": e.get("Reference", ""),
+                "source": e.get("Source", ""),
                 "amount": float(e.get("Amount", 0.0) or 0.0),
             }
             for e in entries
@@ -376,9 +452,7 @@ def prime_ledger(tenant_id):
 @workbench_bp.route("/api/workbench/analyze_nominal/<tenant_id>", methods=["GET"])
 @login_required
 def analyze_nominal(tenant_id):
-    from openai import AzureOpenAI
-
-    from strings.assistant import API_VERSION, DEPLOYED_MODEL_NAME
+    from openai import AzureOpenAI, OpenAI
 
     xero_client = _xero_client()
     if not xero_client:
@@ -513,12 +587,19 @@ def analyze_nominal(tenant_id):
 
         global_mat = request.args.get("global_materiality", "1000")
         nominal_mat = request.args.get("nominal_materiality", "500")
-
-        client = AzureOpenAI(
-            api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
-            api_version=API_VERSION,
-            azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
-        )
+        deployment_name = resolve_scan_deployment_name()
+        base_url = resolve_openai_base_url()
+        if base_url:
+            client = OpenAI(
+                base_url=base_url.rstrip("/") + "/",
+                api_key=resolve_azure_openai_api_key(),
+            )
+        else:
+            client = AzureOpenAI(
+                api_key=resolve_azure_openai_api_key(),
+                api_version=resolve_azure_openai_api_version(),
+                azure_endpoint=resolve_azure_openai_endpoint(),
+            )
 
         context_str = (
             f"Current Year Transactions ({start_date} to {report_date}) - "
@@ -555,7 +636,7 @@ Reply with JSON:
 """
 
         response = client.chat.completions.create(
-            model=DEPLOYED_MODEL_NAME,
+            model=deployment_name,
             messages=[
                 {
                     "role": "system",
@@ -574,6 +655,7 @@ Reply with JSON:
                 "nominal": nominal_name,
                 "data": result_data,
                 "transactions": curr_txs,
+                "model": deployment_name,
             }
         )
     except Exception as exc:

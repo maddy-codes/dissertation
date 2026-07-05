@@ -2,7 +2,7 @@
 Top-level orchestrator that turns per-account briefings into review notes.
 
 Differences vs the original implementation:
-- Uses a single-shot LLM call per account (PHMCrew.run_single_shot_review)
+- Uses a single-shot LLM call per account (ReviewCrew.run_single_shot_review)
   instead of a 3-agent chain. The chain was prone to schema-validation
   failures whose fallback dumped the entire CrewAI internal log as the
   "review note".
@@ -18,7 +18,7 @@ import os
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from agents.crew_manager import PHMCrew
+from agents.crew_manager import ReviewCrew
 from helpers.utility import save_systematic_output
 from strings.paths import FILE_PATH_OUT
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # How many accounts to review in parallel. Tuned to stay below typical Azure
 # OpenAI rate limits while keeping the wall-clock time reasonable.
-DEFAULT_PARALLEL_REVIEWS = int(os.environ.get("PHM_PARALLEL_REVIEWS", "4"))
+DEFAULT_PARALLEL_REVIEWS = int(os.environ.get("PARALLEL_REVIEWS", "4"))
 
 
 def _safe_emit(emit_event, *args, **kwargs):
@@ -52,7 +52,7 @@ def run_all_crew(
     `mp_df` is a parallel DataFrame with `xero_names` and an `ai_summary`
     column we fill in for the CSV export.
     """
-    phm_crew = PHMCrew()
+    crew = ReviewCrew()
     df_lock = threading.Lock()
     all_responses: list[str] = []
 
@@ -77,11 +77,14 @@ def run_all_crew(
             emit_event,
             "account_start",
             account=account_name,
-            message="Drafting review note from Xero data…",
+            message=(
+                "Drafting review note from Xero data using "
+                f"{crew.final_deployment_name}…"
+            ),
         )
 
         try:
-            response = phm_crew.run_single_shot_review(account_name, briefing)
+            response = crew.run_single_shot_review(account_name, briefing)
             response_str = (response or "").strip()
             if not response_str:
                 response_str = "No review note produced for this account."
@@ -95,6 +98,7 @@ def run_all_crew(
                 "account_complete",
                 account=account_name,
                 synthesis=response_str,
+                model=crew.final_deployment_name,
             )
             return account_name, True, None
         except Exception as exc:
@@ -110,6 +114,7 @@ def run_all_crew(
                 "account_error",
                 account=account_name,
                 logic=err,
+                model=crew.final_deployment_name,
             )
             return account_name, False, err
 

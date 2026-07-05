@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %} Cash Flow Accelerator | {{ tenant_name }} {% endblock %}
+
+{% block main %}
+<div class="mb-10">
+    <nav class="flex mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
+        <a href="/" class="text-secondary hover:text-primary-pressed transition-colors">Portal</a>
+        <span class="mx-2 text-border-hairline">/</span>
+        <a href="{{ url_for('main.client_detail', tenant_id=tenant_id) }}" class="text-secondary hover:text-primary-pressed transition-colors">{{ tenant_name }}</a>
+        <span class="mx-2 text-border-hairline">/</span>
+        <span>Cash Flow Accelerator</span>
+    </nav>
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <a href="{{ url_for('main.client_detail', tenant_id=tenant_id) }}" class="text-secondary hover:text-primary-pressed transition-colors">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </a>
+                <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">Cash Flow Accelerator</h1>
+            </div>
+            <div class="flex items-center gap-4 ml-10">
+                <span class="bg-neutral text-secondary font-mono text-[10px] px-3 py-1 rounded-md border border-border-hairline font-bold tracking-wider">{{ tenant_name }}</span>
+                {% if report and report.get('stale') %}
+                <span class="bg-warning/10 text-warning text-[10px] px-3 py-1 rounded-md border border-warning/30 font-bold tracking-wider uppercase font-mono">Showing cached data (last refresh failed)</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex gap-3 ml-10 md:ml-0">
+            <button id="btn-autoscan-toggle" type="button" data-enabled="{{ 'true' if autoscan_enabled else 'false' }}"
+                title="When on, this client is automatically rescanned in the background on a timer — sending outreach still always requires a manual click, never automatic."
+                class="h-12 px-5 font-mono text-[11px] uppercase tracking-[0.14em] rounded-full flex items-center gap-3 transition-all border
+                    {% if autoscan_enabled %}bg-secondary text-on-inverse border-secondary hover:bg-secondary-hover{% else %}bg-surface text-secondary border-border-hairline hover:bg-neutral{% endif %}">
+                <i data-lucide="radar" class="w-4 h-4"></i>
+                Autonomous Scan: {{ 'ON' if autoscan_enabled else 'OFF' }}
+            </button>
+            {% if report and report.get('opportunities') %}
+            <button id="btn-refresh" type="button" {% if generating %}disabled{% endif %}
+                class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-primary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-3 disabled:opacity-50">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Generate New
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if report and report.get('generated_at') %}
+    <div class="flex items-center gap-4 mt-6 ml-10">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-muted">
+            Generated {{ report.generated_at[:16].replace('T', ' ') }} UTC
+        </span>
+        {% if autoscan_enabled and last_autoscan_display %}
+        <span class="font-mono text-[10px] uppercase tracking-widest text-secondary flex items-center gap-1.5">
+            <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+            Last auto-scan: {{ last_autoscan_display }}
+        </span>
+        {% endif %}
+        {% if report.get('history') and report.history|length > 1 %}
+        <details class="relative">
+            <summary class="cursor-pointer font-mono text-[10px] uppercase tracking-widest text-secondary hover:text-primary-pressed transition-colors list-none flex items-center gap-1">
+                <i data-lucide="history" class="w-3.5 h-3.5"></i> History ({{ report.history|length }})
+            </summary>
+            <div class="absolute z-10 mt-2 bg-surface border border-border-hairline rounded-lg shadow-lift p-4 w-80 max-h-64 overflow-y-auto">
+                <ul class="space-y-2">
+                    {% for run in report.history %}
+                    <li class="flex items-center justify-between text-xs font-medium border-b border-border-hairline/60 pb-2 last:border-0 last:pb-0">
+                        <span class="text-on-surface-muted font-mono text-[10px]">{{ run.generated_at[:16].replace('T', ' ') }}</span>
+                        <span class="text-on-surface">{{ run.opportunity_count }} opps · £{{ "{:,.0f}".format(run.total_impact) }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </details>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if error %}
+<div class="bg-error/5 border border-error/20 text-error rounded-lg p-6 text-sm font-medium">
+    {{ error }}
+</div>
+{% endif %}
+
+<div id="generating-state" class="{% if not generating %}hidden{% endif %} bg-surface border border-border-hairline rounded-lg shadow-ambient p-20 text-center">
+    <i data-lucide="loader-circle" class="w-14 h-14 text-primary animate-spin-slow mb-6 mx-auto"></i>
+    <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">Generating recommendations…</p>
+    <p class="text-on-surface-muted text-sm mt-2 font-medium">Pulling live invoices from Xero and drafting outreach — this can take a minute or two for larger clients.</p>
+</div>
+
+{% if not error and not generating %}
+    {% set opp_bar_class = {
+        'late_payment': 'bg-error', 'win_back': 'bg-warning', 'subscription_candidate': 'bg-success',
+        'late_payment_risk': 'bg-primary', 'upsell_cross_sell': 'bg-secondary', 'underperforming_product': 'bg-on-surface-muted',
+    } %}
+    {% set opp_badge_class = {
+        'late_payment': 'bg-error/10 text-error', 'win_back': 'bg-warning/10 text-warning', 'subscription_candidate': 'bg-success/10 text-success',
+        'late_payment_risk': 'bg-primary/10 text-secondary', 'upsell_cross_sell': 'bg-secondary/10 text-secondary', 'underperforming_product': 'bg-on-surface-muted/10 text-on-surface-muted',
+    } %}
+    {% set opp_label = {
+        'late_payment': 'Late Payment', 'win_back': 'Win-Back', 'subscription_candidate': 'Subscription Candidate',
+        'late_payment_risk': 'Payment Risk', 'upsell_cross_sell': 'Cross-Sell', 'underperforming_product': 'Underperforming',
+    } %}
+
+    {% if generation_error %}
+    <div class="bg-error/5 border border-error/20 text-error rounded-lg p-6 text-sm font-medium mb-6">
+        Last generation attempt failed: {{ generation_error }}
+    </div>
+    {% endif %}
+
+    {% if not report %}
+    <div id="empty-state" class="bg-surface border border-border-hairline rounded-lg shadow-ambient p-20 text-center">
+        <i data-lucide="sparkles" class="w-14 h-14 text-on-surface-muted/40 mb-6 mx-auto"></i>
+        <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">No recommendations generated yet</p>
+        <p class="text-on-surface-muted text-sm mt-2 font-medium mb-8">Pull this client's live Xero invoices and draft revenue-recovery outreach.</p>
+        <button id="btn-generate" type="button" class="h-12 px-8 mx-auto font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-primary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-3">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Generate Recommendations
+        </button>
+    </div>
+    {% elif not report.get('opportunities') %}
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient p-20 text-center">
+        <i data-lucide="trending-up" class="w-14 h-14 text-on-surface-muted/40 mb-6 mx-auto"></i>
+        <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">No revenue opportunities detected</p>
+        <p class="text-on-surface-muted text-sm mt-2 font-medium">No overdue, dormant, or repeat-purchase signals found in this client's Xero invoices.</p>
+    </div>
+    {% else %}
+<div class="grid grid-cols-1 gap-gutter">
+    {% for opp in report.opportunities %}
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden relative" id="opp-{{ opp.id }}">
+        <div class="absolute top-0 left-0 w-full h-[3px] {{ opp_bar_class.get(opp.type, 'bg-on-surface-muted') }}"></div>
+        <div class="p-8">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full {{ opp_badge_class.get(opp.type, 'bg-on-surface-muted/10 text-on-surface-muted') }}">
+                            {{ opp_label.get(opp.type, opp.type|replace('_', ' ')|title) }}
+                        </span>
+                        <h3 class="text-lg font-extrabold text-on-surface tracking-tight">{{ opp.contact_name }}</h3>
+                        {% if opp.contact_xero_url %}
+                        <a href="{{ opp.contact_xero_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-secondary hover:text-primary-pressed transition-colors whitespace-nowrap">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View in Xero
+                        </a>
+                        {% endif %}
+                    </div>
+                    <p class="text-on-surface-muted text-sm font-medium">{{ opp.insight or opp.detail }}</p>
+                    {% if opp.contact_email %}
+                    <p class="text-on-surface-muted/70 font-mono text-[10px] uppercase tracking-wider mt-2">On file: {{ opp.contact_email }}</p>
+                    {% endif %}
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <div class="font-mono text-3xl font-bold text-on-surface tracking-tight">£{{ "{:,.2f}".format(opp.impact_amount) }}</div>
+                    <div class="font-mono text-[10px] uppercase tracking-widest text-on-surface-muted">Impact</div>
+                </div>
+            </div>
+
+            {% if opp.email_body %}
+            <details class="mt-6 group">
+                <summary class="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-secondary hover:text-primary-pressed transition-colors flex items-center gap-2">
+                    <i data-lucide="mail" class="w-3.5 h-3.5"></i> Preview drafted outreach
+                </summary>
+                <div class="mt-4 bg-neutral border border-border-hairline rounded-md p-6 text-sm">
+                    <p class="font-bold text-on-surface mb-2">Subject: {{ opp.email_subject }}</p>
+                    <p class="whitespace-pre-line text-on-surface-muted">{{ opp.email_body }}</p>
+                </div>
+            </details>
+
+            <div class="mt-6 flex items-center gap-4">
+                <button
+                    onclick="sendOutreach('{{ opp.id }}', this)"
+                    class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-primary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-3">
+                    <i data-lucide="send" class="w-4 h-4"></i> Send Outreach
+                </button>
+                <span class="send-status font-mono text-[11px] uppercase tracking-wider {% if opp.outreach_sent_at %}text-success{% endif %}">
+                    {% if opp.outreach_sent_at %}Previously sent {{ opp.outreach_sent_at[:16].replace('T', ' ') }} UTC{% endif %}
+                </span>
+            </div>
+            {% else %}
+            <p class="mt-6 font-mono text-[10px] uppercase tracking-widest text-on-surface-muted/70">Internal signal — no customer to email.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+    {% endif %}
+
+    {% if outcomes %}
+    <div class="mt-10 bg-surface border border-border-hairline rounded-lg shadow-ambient p-8">
+        <div class="flex items-center gap-3 mb-6">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-success"></i>
+            <h2 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary">Recently Resolved</h2>
+        </div>
+        <div class="space-y-3">
+            {% for outcome in outcomes %}
+            <div class="flex flex-wrap items-center justify-between gap-3 text-sm border-b border-border-hairline/60 pb-3 last:border-0 last:pb-0">
+                <div class="flex items-center gap-3">
+                    <span class="font-mono text-[9px] uppercase tracking-widest px-2 py-1 rounded-full bg-neutral text-on-surface-muted">{{ opp_label.get(outcome.opportunity_type, outcome.opportunity_type|replace('_', ' ')|title) }}</span>
+                    <span class="font-bold text-on-surface">{{ outcome.contact_name }}</span>
+                    {% if outcome.outreach_sent %}
+                    <span class="font-mono text-[9px] uppercase tracking-widest text-success">Outreach sent</span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-4 shrink-0">
+                    <span class="font-mono font-bold text-on-surface">£{{ "{:,.2f}".format(outcome.impact_amount) }}</span>
+                    {% if outcome.resolved_at %}
+                    <span class="font-mono text-[10px] text-on-surface-muted">{{ outcome.resolved_at.strftime('%Y-%m-%d') }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endif %}
+
+<script>
+const CASH_FLOW_CSRF = "{{ csrf_token() }}";
+const CASH_FLOW_TENANT_ID = "{{ tenant_id }}";
+
+async function sendOutreach(opportunityId, buttonEl) {
+    const card = document.getElementById(`opp-${opportunityId}`);
+    const statusEl = card.querySelector('.send-status');
+    buttonEl.disabled = true;
+    statusEl.textContent = 'Sending…';
+    statusEl.className = 'send-status font-mono text-[11px] uppercase tracking-wider text-on-surface-muted';
+
+    try {
+        const res = await fetch(`/api/cash-flow/${CASH_FLOW_TENANT_ID}/send/${opportunityId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': CASH_FLOW_CSRF},
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            statusEl.textContent = data.message;
+            statusEl.className = 'send-status font-mono text-[11px] uppercase tracking-wider text-success';
+        } else {
+            statusEl.textContent = data.message || 'Failed to send.';
+            statusEl.className = 'send-status font-mono text-[11px] uppercase tracking-wider text-error';
+            buttonEl.disabled = false;
+        }
+    } catch (err) {
+        statusEl.textContent = 'Failed to send.';
+        statusEl.className = 'send-status font-mono text-[11px] uppercase tracking-wider text-error';
+        buttonEl.disabled = false;
+    }
+}
+
+// --- Async generation: kick off the (potentially slow) build in the
+// background and poll for completion instead of blocking page load/refresh. ---
+let cashFlowPollTimer = null;
+
+function showGeneratingState() {
+    const generatingEl = document.getElementById('generating-state');
+    const emptyEl = document.getElementById('empty-state');
+    if (generatingEl) generatingEl.classList.remove('hidden');
+    if (emptyEl) emptyEl.classList.add('hidden');
+    const refreshBtn = document.getElementById('btn-refresh');
+    if (refreshBtn) refreshBtn.disabled = true;
+    if (window.lucide) lucide.createIcons();
+}
+
+async function startCashFlowGeneration() {
+    showGeneratingState();
+    try {
+        const res = await fetch(`/api/cash-flow/${CASH_FLOW_TENANT_ID}/generate`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': CASH_FLOW_CSRF},
+        });
+        const data = await res.json();
+        if (data.status === 'error') {
+            window.location.reload();
+            return;
+        }
+    } catch (err) {
+        window.location.reload();
+        return;
+    }
+    pollCashFlowStatus();
+}
+
+function pollCashFlowStatus() {
+    if (cashFlowPollTimer) return;
+    cashFlowPollTimer = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/cash-flow/${CASH_FLOW_TENANT_ID}/status`);
+            const data = await res.json();
+            if (data.status === 'done' || data.status === 'error' || data.status === 'idle') {
+                clearInterval(cashFlowPollTimer);
+                cashFlowPollTimer = null;
+                window.location.reload();
+            }
+        } catch (err) {
+            // Transient network hiccup — keep polling rather than giving up.
+        }
+    }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const generateBtn = document.getElementById('btn-generate');
+    if (generateBtn) generateBtn.addEventListener('click', startCashFlowGeneration);
+
+    const refreshBtn = document.getElementById('btn-refresh');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            if (confirm("Generate new recommendations from live Xero data? This replaces what's currently shown.")) {
+                startCashFlowGeneration();
+            }
+        });
+    }
+
+    const autoscanBtn = document.getElementById('btn-autoscan-toggle');
+    if (autoscanBtn) {
+        autoscanBtn.addEventListener('click', async () => {
+            const turningOn = autoscanBtn.dataset.enabled !== 'true';
+            autoscanBtn.disabled = true;
+            try {
+                const res = await fetch(`/api/cash-flow/${CASH_FLOW_TENANT_ID}/autoscan`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': CASH_FLOW_CSRF},
+                    body: JSON.stringify({ enabled: turningOn }),
+                });
+                const data = await res.json();
+                if (turningOn && data.scan_started) {
+                    // Enabling fires an immediate scan so it's visibly real,
+                    // not just a silent flag flip — same spinner/poll as
+                    // "Generate New".
+                    showGeneratingState();
+                    pollCashFlowStatus();
+                } else {
+                    window.location.reload();
+                }
+            } catch (err) {
+                autoscanBtn.disabled = false;
+            }
+        });
+    }
+
+    if ({{ 'true' if generating else 'false' }}) {
+        pollCashFlowStatus();
+    }
+});
+</script>
+
+<style>
+    .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+{% endblock %}

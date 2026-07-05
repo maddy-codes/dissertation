@@ -1,0 +1,15 @@
+{
+  "name": "dissertation-chat-mcp",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Node runtime deps for the AI Chat page's Xero MCP integration.",
+  "scripts": {
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@xeroapi/xero-mcp-server": "0.0.17"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.0"
+  }
+}

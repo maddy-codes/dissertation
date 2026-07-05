@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %} Firm Client Overview | Review Portal {% endblock %}
+
+{% block main %}
+<div class="mb-10">
+    <nav class="flex mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
+        <a href="/" class="text-secondary hover:text-primary-pressed transition-colors">Portal</a>
+        <span class="mx-2 text-border-hairline">/</span>
+        <span>Firm Client Overview</span>
+    </nav>
+    <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">Firm Client Overview</h1>
+    <p class="text-on-surface-muted text-base mt-2 font-medium">Latest review per client across all staff, ranked by sentiment so you can see who needs attention.</p>
+</div>
+
+<div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden">
+    {% if rows %}
+    <div class="overflow-x-auto w-full">
+        <table class="w-full text-left text-sm border-collapse">
+            <thead class="bg-neutral border-b border-border-hairline font-mono text-[10px] uppercase tracking-[0.15em] text-secondary">
+                <tr>
+                    <th class="px-8 py-5">Client</th>
+                    <th class="px-8 py-5">Latest Review</th>
+                    <th class="px-8 py-5">Reviewed By</th>
+                    <th class="px-8 py-5">Sentiment</th>
+                    <th class="px-8 py-5 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-hairline">
+                {% for row in rows %}
+                <tr class="hover:bg-neutral/50 transition-colors">
+                    <td class="px-8 py-5">
+                        <span class="font-bold text-on-surface text-xs uppercase tracking-tight">{{ row.tenant_name }}</span>
+                    </td>
+                    <td class="px-8 py-5 text-on-surface-muted font-medium text-xs">
+                        {{ row.created_at.strftime('%Y-%m-%d %H:%M') }}
+                    </td>
+                    <td class="px-8 py-5 text-on-surface-muted font-medium text-xs">
+                        {{ row.reviewed_by }}
+                    </td>
+                    <td class="px-8 py-5">
+                        {% set s = row.sentiment %}
+                        {% if s.label == 'positive' %}
+                        <span class="bg-success/10 text-success font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full">Positive</span>
+                        {% elif s.label == 'negative' %}
+                        <span class="bg-error/10 text-error font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full">Negative</span>
+                        {% elif s.label == 'neutral' %}
+                        <span class="bg-neutral text-on-surface-muted font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full border border-border-hairline">Neutral</span>
+                        {% else %}
+                        <span class="bg-neutral text-on-surface-muted/60 font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full border border-border-hairline">Unknown</span>
+                        {% endif %}
+                        {% if s.error_rows %}
+                        <span class="ml-2 font-mono text-[10px] font-bold text-error uppercase tracking-wider">{{ s.error_rows }} error(s)</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <a href="{{ url_for('main.client_detail', tenant_id=row.tenant_id) }}" class="inline-flex items-center gap-2 text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-primary-pressed transition-colors">
+                            Open Client <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="flex-grow flex flex-col items-center justify-center p-20 text-center">
+        <i data-lucide="users" class="w-14 h-14 text-on-surface-muted/40 mb-6"></i>
+        <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">No completed reviews yet</p>
+        <p class="text-on-surface-muted text-sm mt-2 font-medium">Once staff complete reviews for clients, they'll show up here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

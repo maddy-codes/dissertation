@@ -36,6 +36,7 @@ ACCOUNTING_SCOPE = [
     "accounting.transactions.read",
     "accounting.journals.read",
     "accounting.banktransactions.read",
+    "accounting.contacts.read",
     "offline_access",
 ]
 

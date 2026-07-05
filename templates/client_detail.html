@@ -1,114 +1,410 @@
 {% extends "base.html" %}
 
-{% block title %} {{ tenant_name }} | PHM Portal {% endblock %}
+{% block title %} {{ tenant_name }} | Review Portal {% endblock %}
 
 {% block main %}
 <div class="mb-10">
-    <nav class="flex mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
-        <a href="/" class="text-secondary hover:text-primary transition-colors">Portal</a>
-        <span class="mx-2 text-outline-variant">/</span>
+    <nav class="flex mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
+        <a href="/" class="text-secondary hover:text-primary-pressed transition-colors">Portal</a>
+        <span class="mx-2 text-border-hairline">/</span>
         <span>Client File</span>
     </nav>
 
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
             <div class="flex items-center gap-4 mb-2">
-                <a href="/" class="text-primary hover:text-secondary transition-colors">
-                    <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                <a href="/" class="text-secondary hover:text-primary-pressed transition-colors">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
                 </a>
-                <h1 class="text-4xl font-extrabold text-primary tracking-tight">{{ tenant_name }}</h1>
+                <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">{{ tenant_name }}</h1>
             </div>
             <div class="flex items-center gap-4 ml-10">
-                <span class="bg-surface-container-high text-primary font-mono text-[10px] px-3 py-1 rounded-sm border border-outline-variant/30 font-bold tracking-wider">Xero Ref: {{ tenant_id }}</span>
+                <span class="bg-neutral text-secondary font-mono text-[10px] px-3 py-1 rounded-md border border-border-hairline font-bold tracking-wider whitespace-nowrap">Xero Ref: {{ tenant_id }}</span>
+                {% if xero_url %}
+                <a href="{{ xero_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-secondary hover:text-primary-pressed transition-colors whitespace-nowrap">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Open in Xero
+                </a>
+                {% endif %}
             </div>
         </div>
 
-        <div class="flex gap-3 ml-10 md:ml-0">
-            <button onclick="document.getElementById('new-analysis-modal').classList.remove('hidden')" class="px-8 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-white bg-primary hover:bg-primary-container transition-all rounded-sm flex items-center gap-3 shadow-md">
-                <span class="material-symbols-outlined text-base">add_circle</span> New Review
+        {% if can_manage %}
+        <div class="flex flex-wrap gap-3 ml-10 md:ml-0">
+            {% if history and history|selectattr("status", "equalto", "COMPLETED")|list %}
+            <a href="{{ url_for('main.download_all_reports', tenant_id=tenant_id) }}" class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-neutral border border-border-hairline hover:bg-surface transition-all rounded-full flex items-center gap-3 whitespace-nowrap">
+                <i data-lucide="download" class="w-4 h-4"></i> Download All Reports
+            </a>
+            {% endif %}
+            <a href="{{ url_for('cash_flow.cash_flow_dashboard', tenant_id=tenant_id) }}" class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-neutral border border-border-hairline hover:bg-surface transition-all rounded-full flex items-center gap-3 whitespace-nowrap">
+                <i data-lucide="trending-up" class="w-4 h-4"></i> Cash Flow Accelerator
+            </a>
+            <button onclick="openNewReviewModal()" class="h-12 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-primary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-3 whitespace-nowrap">
+                <i data-lucide="circle-plus" class="w-4 h-4"></i> New Review
             </button>
         </div>
+        {% endif %}
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-    <!-- History Table -->
-    <div class="lg:col-span-12">
-        <div class="bg-white border border-outline-variant/30 rounded-sm shadow-sm overflow-hidden flex flex-col min-h-[400px]">
-            <div class="p-8 border-b border-outline-variant/20 flex justify-between items-center bg-white relative">
-                <div class="absolute top-0 left-0 w-full h-[3px] bg-primary"></div>
-                <h3 class="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
-                    <span class="material-symbols-outlined text-base">history</span>
-                    Review History
-                </h3>
+<!-- Tab Strip -->
+<div class="flex gap-3 mb-8">
+    <button type="button" id="tab-btn-plan" class="tab-btn h-11 px-6 font-mono text-[11px] uppercase tracking-[0.14em] rounded-full transition-all"><i data-lucide="list-checks" class="w-4 h-4 inline-block mr-2 -mt-0.5"></i>Plan</button>
+    <button type="button" id="tab-btn-timeline" class="tab-btn h-11 px-6 font-mono text-[11px] uppercase tracking-[0.14em] rounded-full transition-all"><i data-lucide="history" class="w-4 h-4 inline-block mr-2 -mt-0.5"></i>Timeline</button>
+    {% if can_manage %}
+    <button type="button" id="tab-btn-history" class="tab-btn h-11 px-6 font-mono text-[11px] uppercase tracking-[0.14em] rounded-full transition-all"><i data-lucide="bar-chart-2" class="w-4 h-4 inline-block mr-2 -mt-0.5"></i>Review History</button>
+    {% endif %}
+</div>
+
+<!-- PLAN TAB -->
+<div id="tab-plan" class="tab-panel">
+    <div class="flex justify-end gap-3 mb-6 flex-wrap">
+        {% if can_manage %}
+        {% set completed_runs = history|selectattr("status", "equalto", "COMPLETED")|list %}
+        {% if completed_runs %}
+        <form method="post" action="{{ url_for('plan.generate_plan', tenant_id=tenant_id) }}" class="flex items-center gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <select name="run_id" required class="h-11 bg-neutral border border-border-hairline text-on-surface px-4 rounded-full focus:outline-none focus:border-primary text-[11px] font-mono uppercase tracking-widest">
+                <option value="">Generate plan from review…</option>
+                {% for run in completed_runs %}
+                <option value="{{ run.run_id }}">{{ run.run_id }} ({{ run.created_at.strftime('%Y-%m-%d') }})</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="h-11 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-neutral border border-border-hairline hover:bg-surface transition-all rounded-full flex items-center gap-3 whitespace-nowrap">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> AI Draft
+            </button>
+        </form>
+        {% endif %}
+        <button onclick="openNewPlanModal()" class="h-11 px-6 font-mono text-[11px] uppercase tracking-[0.14em] text-secondary bg-primary hover:bg-primary-pressed transition-all rounded-full flex items-center gap-3">
+            <i data-lucide="circle-plus" class="w-4 h-4"></i> New Plan
+        </button>
+        {% endif %}
+    </div>
+
+    {% if plans %}
+    <div class="space-y-6">
+        {% for plan in plans %}
+        <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden">
+            <div class="p-6 border-b border-border-hairline flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                    <h4 class="font-extrabold text-on-surface text-sm uppercase tracking-tight">{{ plan.title }}</h4>
+                    <p class="font-mono text-[9px] text-on-surface-muted uppercase tracking-widest mt-1">
+                        {{ plan.steps|selectattr("status", "equalto", "done")|list|length }}/{{ plan.steps|length }} steps done
+                        {% if plan.source_review_note %} · Linked to review {{ plan.source_review_note.run_id }}{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-mono text-[9px] uppercase tracking-widest px-3 py-1 rounded-full {{ 'bg-primary/20 text-secondary' if plan.is_active else 'bg-neutral text-on-surface-muted border border-border-hairline' }}">{{ 'Active' if plan.is_active else 'Inactive' }}</span>
+                    {% if can_manage %}
+                    <form method="post" action="{{ url_for('plan.toggle_plan', tenant_id=tenant_id, plan_id=plan.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="font-mono text-[9px] uppercase tracking-widest text-secondary hover:text-primary-pressed underline">{{ 'Deactivate' if plan.is_active else 'Activate' }}</button>
+                    </form>
+                    <form method="post" action="{{ url_for('plan.delete_plan', tenant_id=tenant_id, plan_id=plan.id) }}" onsubmit="return confirm('Delete this plan and all its steps? This cannot be undone.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="font-mono text-[9px] uppercase tracking-widest text-error hover:text-error/70">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
             </div>
 
-            {% if history %}
-            <div class="overflow-x-auto w-full">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-surface-container-low border-b border-outline-variant text-[10px] font-black uppercase tracking-[0.15em] text-primary">
-                        <tr>
-                            <th class="px-8 py-5">Current / Comparison Year End</th>
-                            <th class="px-8 py-5">Run Date</th>
-                            <th class="px-8 py-5">Run Reference</th>
-                            <th class="px-8 py-5 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-outline-variant/10">
-                        {% for run in history %}
-                        <tr class="hover:bg-surface-container-low/40 transition-colors">
-                            <td class="px-8 py-5">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-primary text-xs uppercase tracking-tight">CY: {{ run.year_end or 'N/A' }}</span>
-                                    <span class="font-bold text-outline text-[10px] uppercase tracking-tight">PY: {{ run.year_start or 'N/A' }}</span>
-                                </div>
-                            </td>
-                            <td class="px-8 py-5 text-on-surface-variant font-medium text-xs">
-                                {{ run.created_at.strftime('%Y-%m-%d %H:%M') }}
-                            </td>
-                            <td class="px-8 py-5">
-                                <span class="font-mono text-[10px] text-outline uppercase tracking-wider">{{ run.run_id }}</span>
-                            </td>
-                            <td class="px-8 py-5 text-right">
+            <div class="p-6 space-y-2">
+                {% for step in plan.steps %}
+                <div class="flex items-center justify-between gap-4 bg-neutral/60 rounded-md p-3 border border-border-hairline">
+                    {% if step.is_done %}
+                    <div class="flex items-start gap-3">
+                        <span class="w-5 h-5 mt-0.5 rounded-sm bg-success/20 text-success flex items-center justify-center shrink-0"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
+                        <div>
+                            <span class="text-xs font-semibold text-on-surface-muted line-through">{{ step.description }}</span>
+                            <p class="font-mono text-[9px] text-on-surface-muted/70 mt-0.5 uppercase tracking-wider">
+                                Done {{ step.completed_at.strftime('%Y-%m-%d') }} by {{ step.completed_by.email if step.completed_by else 'Unknown' }}
+                            </p>
+                            {% if step.completion_note %}<p class="text-on-surface-muted text-[11px] italic mt-1">&ldquo;{{ step.completion_note }}&rdquo;</p>{% endif %}
+                        </div>
+                    </div>
+                    <form method="post" action="{{ url_for('plan.reopen_step', tenant_id=tenant_id, plan_id=plan.id, step_id=step.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="font-mono text-[9px] uppercase tracking-widest text-secondary hover:text-primary-pressed underline whitespace-nowrap">Reopen</button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{{ url_for('plan.complete_step', tenant_id=tenant_id, plan_id=plan.id, step_id=step.id) }}" class="flex items-center gap-3 flex-1 flex-wrap">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <span class="text-xs font-semibold text-on-surface flex-1">{{ step.description }}</span>
+                        <input type="text" name="completion_note" placeholder="Optional note…" class="w-full sm:w-44 h-8 bg-surface border border-border-hairline rounded-md px-3 text-[10px] focus:outline-none focus:border-primary">
+                        <button type="submit" class="h-8 px-4 bg-primary/80 hover:bg-primary transition-all rounded-full text-[9px] font-mono uppercase tracking-widest whitespace-nowrap">Mark Done</button>
+                    </form>
+                    {% if can_manage %}
+                    <form method="post" action="{{ url_for('plan.delete_step', tenant_id=tenant_id, plan_id=plan.id, step_id=step.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="text-error hover:text-error/70 transition-colors shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                {% if can_manage %}
+                <div data-ai-wrapper class="flex flex-col sm:flex-row gap-2 pt-3">
+                    <input type="text" class="ai-instruction flex-1 h-10 bg-neutral border border-border-hairline rounded-md px-4 text-xs focus:outline-none focus:border-primary" placeholder="Describe a step for AI to draft…">
+                    <button type="button" class="btn-ask-ai h-10 px-4 bg-neutral border border-border-hairline hover:bg-surface transition-all rounded-full text-[10px] font-mono uppercase tracking-widest whitespace-nowrap flex items-center justify-center gap-2"
+                            data-suggest-url="{{ url_for('plan.suggest_step', tenant_id=tenant_id, plan_id=plan.id) }}"
+                            data-target="add-step-input-{{ plan.id }}">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Ask AI
+                    </button>
+                </div>
+                <form method="post" action="{{ url_for('plan.add_step', tenant_id=tenant_id, plan_id=plan.id) }}" class="flex gap-2 pt-2">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="text" id="add-step-input-{{ plan.id }}" name="description" placeholder="Add a step…" required class="flex-1 h-10 bg-neutral border border-border-hairline rounded-md px-4 text-xs font-semibold focus:outline-none focus:border-primary">
+                    <button type="submit" class="h-10 px-5 bg-neutral border border-border-hairline hover:bg-surface transition-all rounded-full text-[10px] font-mono uppercase tracking-widest whitespace-nowrap">Add Step</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient flex flex-col items-center justify-center p-20 text-center">
+        <i data-lucide="list-checks" class="w-14 h-14 text-on-surface-muted/40 mb-6"></i>
+        <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">No plan yet</p>
+        <p class="text-on-surface-muted text-sm mt-2 font-medium">{{ 'Create a plan to start tracking action items for this client.' if can_manage else 'Your accountant hasn\'t created a plan yet.' }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- TIMELINE TAB -->
+<div id="tab-timeline" class="tab-panel hidden">
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden">
+        {% if timeline %}
+        <div class="divide-y divide-border-hairline">
+            {% for step in timeline %}
+            <div class="p-6 flex items-start justify-between gap-6 flex-wrap">
+                <div>
+                    <p class="text-xs font-bold text-on-surface">{{ step.description }}</p>
+                    <p class="font-mono text-[9px] text-on-surface-muted uppercase tracking-widest mt-1">Plan: {{ step.plan.title }}</p>
+                    {% if step.completion_note %}<p class="text-on-surface-muted text-xs italic mt-2">&ldquo;{{ step.completion_note }}&rdquo;</p>{% endif %}
+                </div>
+                <div class="text-right shrink-0">
+                    <p class="font-mono text-[10px] text-on-surface-muted">{{ step.completed_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p class="font-mono text-[9px] text-secondary uppercase tracking-widest mt-1">{{ step.completed_by.email if step.completed_by else 'Unknown' }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center p-20 text-center">
+            <i data-lucide="clock" class="w-14 h-14 text-on-surface-muted/40 mb-6"></i>
+            <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">Nothing completed yet</p>
+            <p class="text-on-surface-muted text-sm mt-2 font-medium">Completed plan steps will show up here with who did them and when.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if can_manage %}
+<!-- REVIEW HISTORY TAB -->
+<div id="tab-history" class="tab-panel hidden">
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden flex flex-col min-h-[400px]">
+        <div class="p-8 border-b border-border-hairline flex justify-between items-center bg-surface">
+            <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-secondary flex items-center gap-3">
+                <i data-lucide="history" class="w-4 h-4"></i>
+                Review History
+            </h3>
+        </div>
+
+        {% if history %}
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead class="bg-neutral border-b border-border-hairline font-mono text-[10px] uppercase tracking-[0.15em] text-secondary">
+                    <tr>
+                        <th class="px-8 py-5">Current / Comparison Year End</th>
+                        <th class="px-8 py-5">Run Date</th>
+                        <th class="px-8 py-5">Run Reference</th>
+                        <th class="px-8 py-5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-hairline">
+                    {% for run in history %}
+                    <tr class="hover:bg-neutral/50 transition-colors">
+                        <td class="px-8 py-5">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-on-surface text-xs uppercase tracking-tight">CY: {{ run.year_end or 'N/A' }}</span>
+                                <span class="font-bold text-on-surface-muted text-[10px] uppercase tracking-tight">PY: {{ run.year_start or 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 text-on-surface-muted font-medium text-xs">
+                            {{ run.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="font-mono text-[10px] text-on-surface-muted uppercase tracking-wider">{{ run.run_id }}</span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex items-center justify-end gap-6">
                                 {% if run.status == 'DRAFT' %}
                                 <form action="{{ url_for('workbench.workbench') }}" method="post" class="inline">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input type="hidden" name="tenant_id" value="{{ run.tenant_id }}"/>
                                     <input type="hidden" name="current_year_end" value="{{ run.year_end }}"/>
                                     <input type="hidden" name="comparison_year_end" value="{{ run.year_start }}"/>
-                                    <button type="submit" class="inline-flex items-center gap-2 text-secondary text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors">
-                                        Resume Draft <span class="material-symbols-outlined text-sm">edit_document</span>
+                                    <button type="submit" class="inline-flex items-center gap-2 text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-primary-pressed transition-colors">
+                                        Resume Draft <i data-lucide="file-edit" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </form>
                                 {% else %}
-                                <a href="{{ url_for('report.report_stream', run_id=run.run_id) }}" class="inline-flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-colors">
-                                    View Notes <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                <a href="{{ url_for('report.report_stream', run_id=run.run_id) }}" class="inline-flex items-center gap-2 text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-primary-pressed transition-colors">
+                                    View Notes <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                 </a>
+                                <a href="{{ url_for('report.download_report', run_id=run.run_id) }}" class="inline-flex items-center gap-2 text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-primary-pressed transition-colors">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                                </a>
+                                <form action="{{ url_for('plan.generate_plan', tenant_id=tenant_id) }}" method="post" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <input type="hidden" name="run_id" value="{{ run.run_id }}"/>
+                                    <button type="submit" class="inline-flex items-center gap-2 text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-primary-pressed transition-colors">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Generate Plan
+                                    </button>
+                                </form>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                <form action="{{ url_for('main.delete_review', tenant_id=tenant_id, run_id=run.run_id) }}" method="post" class="inline" onsubmit="return confirm('Permanently delete this review run? This cannot be undone.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="inline-flex items-center gap-2 text-error font-mono text-[10px] uppercase tracking-widest hover:text-error/70 transition-colors">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="flex-grow flex flex-col items-center justify-center p-20 text-center">
+            <i data-lucide="bar-chart-2" class="w-14 h-14 text-on-surface-muted/40 mb-6"></i>
+            <p class="text-secondary font-bold uppercase tracking-[0.2em] text-xs">No previous reviews</p>
+            <p class="text-on-surface-muted text-sm mt-2 font-medium">Start a new review to begin building this client's history.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- CLIENT PORTAL ACCESS -->
+<div class="mt-10 bg-surface border border-border-hairline rounded-lg shadow-ambient overflow-hidden">
+    <div class="p-8 border-b border-border-hairline">
+        <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-secondary flex items-center gap-3">
+            <i data-lucide="key" class="w-4 h-4"></i>
+            Client Portal Access
+        </h3>
+        <p class="text-on-surface-muted text-xs mt-2 font-medium">Grant the business owner a restricted login that only sees this client's Plan and Timeline.</p>
+    </div>
+    <div class="p-8 grid md:grid-cols-2 gap-10">
+        <form method="post" action="{{ url_for('main.grant_client_access', tenant_id=tenant_id) }}" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="tenant_display_name" value="{{ tenant_name }}"/>
+            <div class="space-y-2">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface">Client Email</label>
+                <input type="email" name="email" list="xero-contacts" required placeholder="Pick a Xero contact or type an email"
+                       class="w-full h-11 bg-neutral border border-border-hairline text-on-surface px-4 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                <datalist id="xero-contacts">
+                    {% for c in contacts %}
+                    <option value="{{ c.email }}">{{ c.name }}</option>
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="space-y-2">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface">Set Password</label>
+                <div class="relative">
+                    <input type="password" name="password" required minlength="6"
+                           class="w-full h-11 bg-neutral border border-border-hairline text-on-surface px-4 pr-11 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                    <button type="button" onclick="togglePasswordVisibility(this)" tabindex="-1" aria-label="Show password"
+                            class="absolute right-0 top-0 h-11 w-11 flex items-center justify-center text-on-surface-muted hover:text-secondary transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="h-11 px-6 bg-primary text-secondary rounded-full font-bold tracking-[0.1em] uppercase text-xs hover:bg-primary-pressed transition-all">
+                Grant Access
+            </button>
+        </form>
+        <div>
+            <h4 class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted">Current Access</h4>
+            {% if access_grants %}
+            <div class="space-y-2 mt-4">
+                {% for grant in access_grants %}
+                <div class="flex items-center justify-between bg-neutral/60 border border-border-hairline rounded-md p-3">
+                    <span class="text-xs font-semibold text-on-surface">{{ grant.user.email }}</span>
+                    <form method="post" action="{{ url_for('main.revoke_client_access', tenant_id=tenant_id, access_id=grant.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="font-mono text-[9px] uppercase tracking-widest text-error hover:text-error/70">Revoke</button>
+                    </form>
+                </div>
+                {% endfor %}
             </div>
             {% else %}
-            <div class="flex-grow flex flex-col items-center justify-center p-20 text-center">
-                <span class="material-symbols-outlined text-outline-variant text-6xl mb-6">analytics</span>
-                <p class="text-primary font-black uppercase tracking-[0.2em] text-xs">No previous reviews</p>
-                <p class="text-on-surface-variant text-sm mt-2 font-medium">Start a new review to begin building this client's history.</p>
-            </div>
+            <p class="text-on-surface-muted text-xs mt-4">No client logins granted yet.</p>
             {% endif %}
         </div>
     </div>
 </div>
+{% endif %}
 
+{% if can_manage %}
+<!-- Modal: New Plan -->
+<div id="new-plan-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-secondary/30 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-lift w-full max-w-md relative z-10">
+        <div class="p-8 border-b border-border-hairline">
+            <h2 class="text-2xl font-extrabold text-on-surface tracking-tight uppercase">New Plan</h2>
+            <p class="text-on-surface-muted text-sm font-medium mt-1">Give this client a standard, trackable set of steps.</p>
+        </div>
+
+        <form method="post" action="{{ url_for('plan.create_plan', tenant_id=tenant_id) }}" class="p-8 space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <div class="space-y-2">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface">Plan Title</label>
+                <input type="text" name="title" required
+                       class="w-full h-12 bg-neutral border border-border-hairline text-on-surface px-6 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+            </div>
+
+            <div class="space-y-2">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface">Initial Steps (one per line, optional)</label>
+                <textarea name="steps" rows="4"
+                          class="w-full bg-neutral border border-border-hairline text-on-surface px-6 py-3 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold"></textarea>
+            </div>
+
+            {% if history %}
+            <div class="space-y-2">
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface">Link to a Review (optional)</label>
+                <select name="source_review_note_id"
+                        class="w-full h-12 bg-neutral border border-border-hairline text-on-surface px-6 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                    <option value="">— None —</option>
+                    {% for run in history %}
+                    <option value="{{ run.id }}">{{ run.run_id }} ({{ run.created_at.strftime('%Y-%m-%d') }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="pt-2 flex flex-col gap-4">
+                <button type="submit" class="w-full h-12 bg-primary text-secondary rounded-full font-bold tracking-[0.1em] uppercase text-xs hover:bg-primary-pressed transition-all">
+                    Create Plan
+                </button>
+                <button type="button" onclick="document.getElementById('new-plan-modal').classList.add('hidden')" class="w-full py-3 text-on-surface-muted font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-neutral rounded-full transition-all">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if can_manage %}
 <!-- Modal: New Review (year selection) -->
 <div id="new-analysis-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
-    <div class="absolute inset-0 bg-primary/20 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
-    <div class="bg-white border border-outline-variant/30 rounded-sm shadow-2xl w-full max-w-md relative z-10">
-        <div class="p-8 border-b border-outline-variant/10">
-            <h2 class="text-2xl font-extrabold text-primary tracking-tight uppercase">New Review</h2>
-            <p class="text-on-surface-variant text-sm font-medium mt-1">Choose the year ends to compare.</p>
+    <div class="absolute inset-0 bg-secondary/30 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+    <div class="bg-surface border border-border-hairline rounded-lg shadow-lift w-full max-w-md relative z-10">
+        <div class="p-8 border-b border-border-hairline">
+            <h2 class="text-2xl font-extrabold text-on-surface tracking-tight uppercase">New Review</h2>
+            <p class="text-on-surface-muted text-sm font-medium mt-1">Choose the year ends to compare.</p>
         </div>
 
         <form action="{{ url_for('workbench.workbench') }}" method="post" class="p-8 space-y-8">
@@ -116,33 +412,185 @@
             <input type="hidden" name="tenant_id" value="{{ tenant_id }}"/>
 
             <div class="space-y-3">
-                <label for="comparison_year_end" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-outline-variant rounded-full"></span>
+                <label for="comparison_year_end" class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface flex items-center gap-2">
                     Comparison Year End
                 </label>
-                <input type="date" id="comparison_year_end" name="comparison_year_end"
-                       class="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                <select id="comparison_year_end" name="comparison_year_end"
+                       class="year-end-field w-full h-12 bg-neutral border border-border-hairline text-on-surface px-6 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                    <option value="">Loading year ends from Xero…</option>
+                </select>
             </div>
 
             <div class="space-y-3">
-                <label for="current_year_end" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-secondary-container rounded-full"></span>
+                <label for="current_year_end" class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface flex items-center gap-2">
                     Current Year End
                 </label>
-                <input type="date" id="current_year_end" name="current_year_end" required
-                       class="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                <select id="current_year_end" name="current_year_end" required
+                       class="year-end-field w-full h-12 bg-neutral border border-border-hairline text-on-surface px-6 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                    <option value="">Loading year ends from Xero…</option>
+                </select>
             </div>
 
             <div class="pt-4 flex flex-col gap-4">
-                <button type="submit" class="w-full py-5 bg-primary text-white rounded-sm font-extrabold tracking-[0.2em] uppercase text-xs hover:bg-primary-container transition-all flex items-center justify-center gap-4 group">
+                <button type="submit" class="w-full h-12 bg-primary text-secondary rounded-full font-bold tracking-[0.1em] uppercase text-xs hover:bg-primary-pressed transition-all flex items-center justify-center gap-3 group">
                     Open Working Papers
-                    <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </button>
-                <button type="button" onclick="document.getElementById('new-analysis-modal').classList.add('hidden')" class="w-full py-4 text-outline text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-surface-container transition-all">
+                <button type="button" onclick="document.getElementById('new-analysis-modal').classList.add('hidden')" class="w-full py-3 text-on-surface-muted font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-neutral rounded-full transition-all">
                     Cancel
                 </button>
             </div>
         </form>
     </div>
 </div>
+{% endif %}
+
+<script>
+function togglePasswordVisibility(btn) {
+    var input = btn.previousElementSibling;
+    var icon = btn.querySelector("i");
+    var showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    icon.setAttribute("data-lucide", showing ? "eye" : "eye-off");
+    if (window.lucide) lucide.createIcons();
+}
+
+(function () {
+    var loaded = false;
+
+    function formatLabel(iso) {
+        var d = new Date(iso + "T00:00:00");
+        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    function populate(select, yearEnds, placeholder) {
+        select.innerHTML = "";
+        var empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = placeholder;
+        select.appendChild(empty);
+        yearEnds.forEach(function (iso) {
+            var opt = document.createElement("option");
+            opt.value = iso;
+            opt.textContent = formatLabel(iso);
+            select.appendChild(opt);
+        });
+    }
+
+    function fallbackToDateInput(select) {
+        var input = document.createElement("input");
+        input.type = "date";
+        input.id = select.id;
+        input.name = select.name;
+        input.required = select.required;
+        input.className = select.className;
+        select.replaceWith(input);
+    }
+
+    window.openNewReviewModal = function () {
+        document.getElementById("new-analysis-modal").classList.remove("hidden");
+        if (loaded) return;
+        loaded = true;
+
+        var compSelect = document.getElementById("comparison_year_end");
+        var currSelect = document.getElementById("current_year_end");
+
+        fetch("{{ url_for('main.client_year_ends', tenant_id=tenant_id) }}")
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var yearEnds = data.year_ends || [];
+                if (!yearEnds.length) {
+                    fallbackToDateInput(compSelect);
+                    fallbackToDateInput(currSelect);
+                    return;
+                }
+                populate(compSelect, yearEnds, "Select comparison year end");
+                populate(currSelect, yearEnds, "Select current year end");
+                if (yearEnds[1]) compSelect.value = yearEnds[1];
+                if (yearEnds[0]) currSelect.value = yearEnds[0];
+            })
+            .catch(function () {
+                fallbackToDateInput(compSelect);
+                fallbackToDateInput(currSelect);
+            });
+    };
+
+    window.openNewPlanModal = function () {
+        document.getElementById("new-plan-modal").classList.remove("hidden");
+    };
+})();
+
+(function () {
+    var tabs = [
+        { btn: "tab-btn-plan", panel: "tab-plan" },
+        { btn: "tab-btn-timeline", panel: "tab-timeline" },
+        { btn: "tab-btn-history", panel: "tab-history" }
+    ].filter(function (t) { return document.getElementById(t.btn); });
+
+    function activate(name) {
+        tabs.forEach(function (t) {
+            var isActive = t.btn === name;
+            document.getElementById(t.panel).classList.toggle("hidden", !isActive);
+            document.getElementById(t.btn).classList.toggle("bg-primary", isActive);
+            document.getElementById(t.btn).classList.toggle("text-secondary", isActive);
+            document.getElementById(t.btn).classList.toggle("bg-neutral", !isActive);
+            document.getElementById(t.btn).classList.toggle("text-on-surface-muted", !isActive);
+            document.getElementById(t.btn).classList.toggle("border", !isActive);
+            document.getElementById(t.btn).classList.toggle("border-border-hairline", !isActive);
+        });
+        if (window.lucide) lucide.createIcons();
+    }
+
+    tabs.forEach(function (t) {
+        document.getElementById(t.btn).addEventListener("click", function () { activate(t.btn); });
+    });
+
+    // Plan actions (create/generate/complete/etc.) redirect back with #plan so
+    // they land where the user just was, instead of snapping to History.
+    // Staff/partner otherwise default to Review History (existing behavior);
+    // the client role has no history tab, so they land on Plan.
+    var initial = (window.location.hash === "#plan")
+        ? "tab-btn-plan"
+        : (document.getElementById("tab-btn-history") ? "tab-btn-history" : "tab-btn-plan");
+    activate(initial);
+})();
+
+(function () {
+    document.querySelectorAll(".btn-ask-ai").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var wrapper = btn.closest("[data-ai-wrapper]");
+            var instructionInput = wrapper.querySelector(".ai-instruction");
+            var instruction = (instructionInput.value || "").trim();
+            if (!instruction) { instructionInput.focus(); return; }
+
+            var target = document.getElementById(btn.dataset.target);
+            var originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-pulse">Thinking…</span>';
+
+            fetch(btn.dataset.suggestUrl, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token() }}"},
+                body: JSON.stringify({ instruction: instruction })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.status === "Success" && target) {
+                        target.value = data.suggestion;
+                        instructionInput.value = "";
+                        target.focus();
+                    } else {
+                        alert(data.message || "Could not generate a suggestion.");
+                    }
+                })
+                .catch(function () { alert("Network error asking AI for a step."); })
+                .finally(function () {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                    if (window.lucide) lucide.createIcons();
+                });
+        });
+    });
+})();
+</script>
 {% endblock %}

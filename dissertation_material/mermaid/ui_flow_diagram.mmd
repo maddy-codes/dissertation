@@ -1,8 +1,0 @@
-flowchart LR
-    Login["Login"] --> Clients["Client workbench"]
-    Clients --> Period["Choose period"]
-    Period --> Generate["Generate draft"]
-    Generate --> Review["Review and edit"]
-    Review --> Approve["Approve note"]
-    Review -->|Feedback| Generate
-    Approve --> Save["Store approved note"]

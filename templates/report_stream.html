@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}Review Notes | PHM Portal{% endblock %}
+{% block title %}Review Notes | Review Portal{% endblock %}
 
 {% block main %}
 <!-- marked.js parses streamed markdown -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
     /* Editorial markdown styling */
-    .prose-premium h1 { font-family: 'Manrope', sans-serif; font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; color: #003065; margin-bottom: 2rem; }
-    .prose-premium h2 { font-family: 'Manrope', sans-serif; font-size: 1.5rem; font-weight: 700; color: #003065; margin-top: 3rem; margin-bottom: 1.5rem; }
-    .prose-premium h3 { font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; color: #003065; margin-top: 2rem; margin-bottom: 1rem; }
-    .prose-premium p { font-family: 'Work Sans', sans-serif; font-size: 1rem; line-height: 1.8; color: #434750; margin-bottom: 1.5rem; font-weight: 400; }
+    .prose-premium h1 { font-family: 'Manrope', sans-serif; font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; color: #1A2A22; margin-bottom: 2rem; }
+    .prose-premium h2 { font-family: 'Manrope', sans-serif; font-size: 1.5rem; font-weight: 700; color: #1A2A22; margin-top: 3rem; margin-bottom: 1.5rem; }
+    .prose-premium h3 { font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; color: #1A2A22; margin-top: 2rem; margin-bottom: 1rem; }
+    .prose-premium p { font-family: 'Manrope', sans-serif; font-size: 1rem; line-height: 1.8; color: #5A6A60; margin-bottom: 1.5rem; font-weight: 500; }
 
-    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 2rem; border: 1px solid #c3c6d1; border-radius: 4px; }
+    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 2rem; border: 1px solid #DDD7C6; border-radius: 14px; }
     .prose-premium table { width: 100%; text-align: left; border-collapse: collapse; }
-    .prose-premium th { font-family: 'Work Sans', sans-serif; font-weight: 700; color: #003065; text-transform: uppercase; font-size: 10px; letter-spacing: 0.15em; padding: 1.25rem 1.5rem; background-color: #ebeef3; border-bottom: 2px solid #c3c6d1; }
-    .prose-premium td { padding: 1.25rem 1.5rem; color: #434750; font-size: 0.875rem; border-bottom: 1px solid #ebeef3; font-weight: 500; }
-    .prose-premium tr:nth-child(even) td { background-color: #f7f9ff; }
+    .prose-premium th { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #1B342B; text-transform: uppercase; font-size: 10px; letter-spacing: 0.15em; padding: 1.25rem 1.5rem; background-color: #F2EFE6; border-bottom: 2px solid #DDD7C6; }
+    .prose-premium td { padding: 1.25rem 1.5rem; color: #5A6A60; font-size: 0.875rem; border-bottom: 1px solid #F2EFE6; font-weight: 500; }
+    .prose-premium tr:nth-child(even) td { background-color: #FAF9F4; }
     .prose-premium tr:last-child td { border-bottom: none; }
 
     .prose-premium ul { list-style-type: none; padding-left: 0; margin-bottom: 2rem; }
-    .prose-premium ul li { position: relative; padding-left: 2rem; font-size: 1rem; line-height: 1.8; color: #434750; margin-bottom: 1rem; }
-    .prose-premium ul li::before { content: "•"; position: absolute; left: 0.5rem; color: #835400; font-weight: 900; font-size: 1.25rem; }
-    .prose-premium strong { color: #181c20; font-weight: 700; }
+    .prose-premium ul li { position: relative; padding-left: 2rem; font-size: 1rem; line-height: 1.8; color: #5A6A60; margin-bottom: 1rem; }
+    .prose-premium ul li::before { content: "•"; position: absolute; left: 0.5rem; color: #1B342B; font-weight: 900; font-size: 1.25rem; }
+    .prose-premium strong { color: #1A2A22; font-weight: 700; }
 
     .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
@@ -33,13 +33,13 @@
     <!-- LEFT SIDEBAR: Processing Log & Status -->
     <div class="md:col-span-4 self-start sticky top-24">
         <div class="flex items-center gap-4 mb-8">
-            <div id="status-indicator" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary-container loading-pulse"></div>
-            <h2 id="status-text" class="text-primary text-[10px] font-black uppercase tracking-[0.2em]">Starting review…</h2>
+            <div id="status-indicator" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary loading-pulse"></div>
+            <h2 id="status-text" class="text-secondary font-mono text-[10px] uppercase tracking-[0.2em]">Starting review…</h2>
         </div>
 
-        <div class="bg-white border border-outline-variant/30 rounded-sm p-8 min-h-[400px] max-h-[70vh] flex flex-col shadow-sm">
-            <h3 class="text-[10px] uppercase tracking-[0.2em] text-outline font-black mb-6 border-b border-outline-variant/10 pb-4 flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">terminal</span>
+        <div class="bg-surface border border-border-hairline rounded-lg p-8 min-h-[400px] max-h-[70vh] flex flex-col shadow-ambient">
+            <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted mb-6 border-b border-border-hairline pb-4 flex items-center gap-2">
+                <i data-lucide="terminal" class="w-4 h-4"></i>
                 Processing Log
             </h3>
             <div id="activity-stream" class="flex-grow space-y-4 overflow-y-auto pr-2 custom-scrollbar">
@@ -47,38 +47,65 @@
             </div>
         </div>
 
-        <div id="action-area" class="mt-8 hidden bg-white p-8 rounded-sm border border-outline-variant/30 shadow-md">
-            <h3 class="text-primary text-sm font-extrabold uppercase tracking-tight mb-6">Send to Client</h3>
+        <div id="action-area" class="mt-8 hidden bg-surface p-8 rounded-lg border border-border-hairline shadow-lift">
+            {% if tenant_id %}
+            <form action="{{ url_for('plan.generate_plan', tenant_id=tenant_id) }}" method="post" class="mb-8 pb-8 border-b border-border-hairline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="run_id" value="{{ run_id }}"/>
+                <h3 class="text-on-surface text-sm font-extrabold uppercase tracking-tight mb-2">Next Step</h3>
+                <p class="text-on-surface-muted text-xs font-medium mb-6">Have AI draft a follow-up action plan from this review's weakest nominals — you'll review and edit it before activating.</p>
+                <button type="submit" class="w-full h-12 bg-primary text-secondary rounded-full font-bold tracking-[0.2em] uppercase text-xs hover:bg-primary-pressed transition-all flex items-center justify-center gap-3 group">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    Generate Plan
+                </button>
+            </form>
+            {% endif %}
+
+            <h3 class="text-on-surface text-sm font-extrabold uppercase tracking-tight mb-6">Send to Client</h3>
             <form id="send-report-form" class="space-y-6">
                 <div class="space-y-3">
-                    <label for="client_email" class="text-[10px] font-bold uppercase tracking-[0.2em] text-outline ml-1">Recipient Email <span class="text-error">*</span></label>
+                    <label for="client_email" class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted ml-1">Recipient Email <span class="text-error">*</span></label>
                     <input type="email" id="client_email" name="client_email" required placeholder="recipient@client.co.uk"
-                           class="w-full bg-surface-container-low border border-outline-variant/30 text-on-surface py-4 px-6 rounded-sm focus:outline-none focus:border-primary transition-all text-sm font-semibold">
+                           class="w-full h-12 bg-neutral border border-border-hairline text-on-surface px-6 rounded-md focus:outline-none focus:border-primary transition-all text-sm font-semibold">
                 </div>
-                <button type="submit" id="send-report-btn" class="w-full bg-secondary-container text-on-secondary-container py-5 rounded-sm font-black tracking-[0.2em] uppercase text-xs hover:bg-secondary-container/90 hover:shadow-lg transition-all flex items-center justify-center gap-4 group">
-                    <span class="material-symbols-outlined text-base">send</span>
+                <button type="submit" id="send-report-btn" class="w-full h-12 bg-primary text-secondary rounded-full font-bold tracking-[0.2em] uppercase text-xs hover:bg-primary-pressed transition-all flex items-center justify-center gap-3 group">
+                    <i data-lucide="send" class="w-4 h-4"></i>
                     Send to Client
                 </button>
             </form>
 
-            <a href="/" class="inline-flex w-full justify-center items-center gap-4 py-4 mt-6 text-primary border border-outline-variant/30 rounded-sm font-black uppercase tracking-[0.2em] text-[10px] hover:bg-surface-container transition-all">
-                <span class="material-symbols-outlined text-base">dashboard</span>
+            <a href="{{ url_for('report.download_report', run_id=run_id) }}" class="inline-flex w-full justify-center items-center gap-3 py-3 mt-6 text-secondary border border-border-hairline rounded-full font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-neutral transition-all">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Download Report
+            </a>
+
+            <a href="/" class="inline-flex w-full justify-center items-center gap-3 py-3 mt-4 text-secondary border border-border-hairline rounded-full font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-neutral transition-all">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                 Back to Dashboard
             </a>
-            <p id="email-status" class="text-[10px] font-black uppercase tracking-widest text-center mt-6 hidden"></p>
+            <p id="email-status" class="font-mono text-[10px] uppercase tracking-widest text-center mt-6 hidden"></p>
         </div>
     </div>
 
     <!-- RIGHT SECTION: The Report -->
     <div class="md:col-span-8">
         <div class="mb-12">
-            <nav class="flex mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
-                <span class="text-secondary">Review</span>
-                <span class="mx-2 text-outline-variant">/</span>
+            <nav class="flex mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
+                <a href="/" class="text-secondary hover:text-primary-pressed transition-colors">Portal</a>
+                <span class="mx-2 text-border-hairline">/</span>
+                {% if tenant_id %}
+                <a href="{{ url_for('main.client_detail', tenant_id=tenant_id) }}" class="text-secondary hover:text-primary-pressed transition-colors">{{ tenant_name or 'Client' }}</a>
+                <span class="mx-2 text-border-hairline">/</span>
+                {% endif %}
                 <span>In Progress</span>
             </nav>
-            <h1 class="text-4xl font-extrabold text-primary tracking-tight">AI Review Notes</h1>
-            <p class="text-on-surface-variant mt-4 max-w-2xl text-base font-medium leading-relaxed">
+            <div class="flex items-center gap-4 mb-2">
+                <a href="{{ url_for('main.client_detail', tenant_id=tenant_id) if tenant_id else url_for('main.dashboard') }}" class="text-secondary hover:text-primary-pressed transition-colors">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </a>
+                <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">AI Review Notes</h1>
+            </div>
+            <p class="text-on-surface-muted mt-4 max-w-2xl text-base font-medium leading-relaxed">
                 You can safely close this tab and return later. The review continues in the background and progress is saved.
             </p>
         </div>
@@ -93,8 +120,8 @@
 <style>
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d7dadf; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #c3c6d1; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #DDD7C6; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #5A6A60; }
 </style>
 
 <script>
@@ -107,17 +134,19 @@
     const statusText = document.getElementById("status-text");
     const actionArea = document.getElementById("action-area");
 
+    function refreshIcons() { if (window.lucide) lucide.createIcons(); }
+
     function scrollToBottom() {
         activityStream.scrollTop = activityStream.scrollHeight;
     }
 
     function addLog(text, highlight=false) {
         const el = document.createElement("div");
-        el.className = "flex gap-4 text-[11px] font-bold border-l-2 border-transparent pl-2";
-        if (highlight) el.className += " border-secondary bg-surface-container-low/50 py-2";
+        el.className = "flex gap-4 text-[11px] font-bold border-l-2 border-transparent pl-2 font-mono";
+        if (highlight) el.className += " border-secondary bg-neutral/60 py-2";
         el.innerHTML = `
-            <span class="${highlight ? 'text-secondary' : 'text-outline/40'} shrink-0 font-mono">${highlight ? '▶' : '·'}</span>
-            <span class="${highlight ? 'text-primary font-black uppercase tracking-tight' : 'text-on-surface-variant font-semibold'} leading-relaxed">${text}</span>
+            <span class="${highlight ? 'text-secondary' : 'text-on-surface-muted/50'} shrink-0">${highlight ? '▶' : '·'}</span>
+            <span class="${highlight ? 'text-on-surface font-extrabold uppercase tracking-tight' : 'text-on-surface-muted font-semibold'} leading-relaxed">${text}</span>
         `;
         activityStream.appendChild(el);
         scrollToBottom();
@@ -139,17 +168,17 @@
 
                 const block = document.createElement("div");
                 block.id = `block-${data.account.replace(/\s+/g, '-')}`;
-                block.className = "bg-white border border-outline-variant/30 p-10 rounded-sm transition-all duration-500 opacity-50 shadow-sm relative overflow-hidden";
+                block.className = "bg-surface border border-border-hairline p-10 rounded-lg transition-all duration-500 opacity-50 shadow-ambient relative overflow-hidden";
                 block.innerHTML = `
-                    <div class="absolute top-0 left-0 w-1 h-full bg-outline-variant/30"></div>
+                    <div class="absolute top-0 left-0 w-1 h-full bg-border-hairline"></div>
                     <div class="flex items-center gap-4 mb-8">
-                        <div class="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
-                        <h3 class="text-lg font-black text-primary m-0 uppercase tracking-widest">${data.account}</h3>
+                        <div class="w-5 h-5 rounded-full border-2 border-secondary border-t-transparent animate-spin"></div>
+                        <h3 class="text-lg font-extrabold text-on-surface m-0 uppercase tracking-widest">${data.account}</h3>
                     </div>
                     <div class="space-y-4">
-                        <div class="h-4 bg-surface-container-low rounded-sm w-3/4 loading-pulse"></div>
-                        <div class="h-4 bg-surface-container-low rounded-sm w-full loading-pulse"></div>
-                        <div class="h-4 bg-surface-container-low rounded-sm w-5/6 loading-pulse"></div>
+                        <div class="h-4 bg-neutral rounded-md w-3/4 loading-pulse"></div>
+                        <div class="h-4 bg-neutral rounded-md w-full loading-pulse"></div>
+                        <div class="h-4 bg-neutral rounded-md w-5/6 loading-pulse"></div>
                     </div>
                 `;
                 reportContainer.appendChild(block);
@@ -163,14 +192,14 @@
                 if (!block) {
                     block = document.createElement("div");
                     block.id = blockId;
-                    block.className = "bg-white border border-outline-variant/30 p-10 rounded-sm transition-all duration-500 shadow-sm relative overflow-hidden";
+                    block.className = "bg-surface border border-border-hairline p-10 rounded-lg transition-all duration-500 shadow-ambient relative overflow-hidden";
                     reportContainer.appendChild(block);
                 }
 
                 block.classList.remove("opacity-50");
                 block.innerHTML = `
-                    <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
-                    <h3 class="text-xl font-black text-primary mb-8 uppercase tracking-widest border-l-4 border-primary pl-6">${data.account}</h3>
+                    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                    <h3 class="text-xl font-extrabold text-on-surface mb-8 uppercase tracking-widest border-l-4 border-primary pl-6">${data.account}</h3>
                     <div class="prose-premium">
                         ${marked.parse(data.synthesis)}
                     </div>
@@ -185,14 +214,14 @@
                 if (!block) {
                     block = document.createElement("div");
                     block.id = blockId;
-                    block.className = "bg-error-container border border-error/30 p-10 rounded-sm transition-all duration-500 shadow-sm relative overflow-hidden";
+                    block.className = "bg-error/5 border border-error/30 p-10 rounded-lg transition-all duration-500 shadow-ambient relative overflow-hidden";
                     reportContainer.appendChild(block);
                 }
 
                 block.classList.remove("opacity-50");
                 block.innerHTML = `
                     <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
-                    <h3 class="text-xl font-black text-error mb-8 uppercase tracking-widest border-l-4 border-error pl-6">${data.account}</h3>
+                    <h3 class="text-xl font-extrabold text-error mb-8 uppercase tracking-widest border-l-4 border-error pl-6">${data.account}</h3>
                     <div class="prose-premium text-error">
                         <p><strong>Error:</strong> Could not produce review notes for this account.</p>
                         <p class="text-xs text-error/80 mt-4">${data.logic}</p>
@@ -203,16 +232,17 @@
                 addLog(`Error: ${data.logic}`, true);
                 statusIndicator.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-error";
                 statusText.innerText = "Review failed";
-                statusText.className = "text-error text-[10px] font-black uppercase tracking-[0.2em]";
+                statusText.className = "text-error font-mono text-[10px] uppercase tracking-[0.2em]";
                 eventSource.close();
             }
             else if (data.type === "complete") {
                 addLog(data.message, true);
-                statusIndicator.classList.remove("loading-pulse", "bg-secondary-container");
-                statusIndicator.classList.add("bg-green-600");
+                statusIndicator.classList.remove("loading-pulse", "bg-primary");
+                statusIndicator.classList.add("bg-success");
                 statusText.innerText = "Review complete";
-                statusText.className = "text-green-600 text-[10px] font-black uppercase tracking-[0.2em]";
+                statusText.className = "text-success font-mono text-[10px] uppercase tracking-[0.2em]";
                 actionArea.classList.remove("hidden");
+                refreshIcons();
                 eventSource.close();
             }
 
@@ -232,7 +262,7 @@
         const email = document.getElementById("client_email").value;
 
         btn.disabled = true;
-        btn.innerHTML = `<div class="w-4 h-4 border-2 border-on-secondary-container border-t-transparent animate-spin rounded-full"></div> Sending…`;
+        btn.innerHTML = `<div class="w-4 h-4 border-2 border-secondary border-t-transparent animate-spin rounded-full"></div> Sending…`;
 
         try {
             const resp = await fetch(`/api/send_report/${runId}`, {
@@ -244,17 +274,18 @@
             status.textContent = data.message;
             status.classList.remove("hidden");
             if(data.status === "success") {
-                 status.className = "text-[10px] font-black uppercase tracking-widest text-center mt-6 text-green-600";
+                 status.className = "font-mono text-[10px] uppercase tracking-widest text-center mt-6 text-success";
             } else {
-                 status.className = "text-[10px] font-black uppercase tracking-widest text-center mt-6 text-error";
+                 status.className = "font-mono text-[10px] uppercase tracking-widest text-center mt-6 text-error";
             }
         } catch(e) {
             status.textContent = "Could not send the email.";
-            status.className = "text-[10px] font-black uppercase tracking-widest text-center mt-6 text-error";
+            status.className = "font-mono text-[10px] uppercase tracking-widest text-center mt-6 text-error";
             status.classList.remove("hidden");
         } finally {
             btn.disabled = false;
-            btn.innerHTML = `<span class="material-symbols-outlined text-base">send</span> Send to Client`;
+            btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Send to Client`;
+            refreshIcons();
         }
     });
 </script>

@@ -25,6 +25,13 @@ _GLOBAL_TX_CACHE = {}  # key: (tenant_id, start_date, end_date, type)
 _GLOBAL_TX_CACHE_TS = {}
 _TX_LOCK = threading.Lock()
 
+_GLOBAL_CONTACTS_CACHE = {}  # key: tenant_id -> {ContactID: contact dict}
+_GLOBAL_CONTACTS_CACHE_TS = {}
+_CONTACTS_LOCK = threading.Lock()
+
+_GLOBAL_ORG_SHORT_CODE_CACHE = {}  # key: tenant_id -> ShortCode; a tenant's short code never changes
+_ORG_LOCK = threading.Lock()
+
 @dataclass
 class XeroToken:
     access_token: str
@@ -206,6 +213,11 @@ class XeroClient:
             "Accept": "application/json",
         }
 
+    def get_valid_access_token(self) -> str:
+        """A fresh (refreshed if needed) bearer token, for callers that need
+        to hand it to something outside this class (e.g. the Xero MCP subprocess)."""
+        return self._ensure_token().access_token
+
     def list_connections(self) -> list[dict[str, Any]]:
         tok = self._ensure_token()
         resp = self._get(
@@ -232,6 +244,40 @@ class XeroClient:
             _GLOBAL_ACCOUNTS_CACHE[tenant_id] = result
             _GLOBAL_ACCOUNTS_CACHE_TS[tenant_id] = now
             return result
+
+    def get_contacts(self, tenant_id: str, max_pages: int = 50) -> Dict[str, dict]:
+        """
+        Fetch all contacts for a tenant, keyed by ContactID, so callers can
+        look up email addresses for contacts referenced on invoices (invoice
+        payloads only carry ContactID/Name, not the contact's email).
+        """
+        with _CONTACTS_LOCK:
+            now = time.time()
+            if tenant_id in _GLOBAL_CONTACTS_CACHE and (now - _GLOBAL_CONTACTS_CACHE_TS.get(tenant_id, 0)) < 600:
+                return _GLOBAL_CONTACTS_CACHE[tenant_id]
+
+            url = f"{XERO_ACCOUNTING_BASE}/Contacts"
+            by_id: Dict[str, dict] = {}
+            for page in range(1, max_pages + 1):
+                resp = self._get(
+                    url,
+                    headers=self._headers(tenant_id),
+                    params={"page": page},
+                    timeout=60,
+                )
+                if resp.status_code >= 400:
+                    raise RuntimeError(f"Xero contacts failed: {resp.status_code} {resp.text}")
+                items = resp.json().get("Contacts") or []
+                if not items:
+                    break
+                for c in items:
+                    cid = c.get("ContactID")
+                    if cid:
+                        by_id[cid] = c
+
+            _GLOBAL_CONTACTS_CACHE[tenant_id] = by_id
+            _GLOBAL_CONTACTS_CACHE_TS[tenant_id] = now
+            return by_id
 
     def get_bank_transactions(
         self, tenant_id: str, start_date: date = None, end_date: date = None, account_code: str = None, max_pages: int = 50
@@ -294,8 +340,8 @@ class XeroClient:
     def get_invoices(
         self, tenant_id: str, start_date: date = None, end_date: date = None, contact_id: str = None, statuses: list[str] = None, max_pages: int = 50
     ) -> dict[str, Any]:
-        cache_key = (tenant_id, str(start_date), str(end_date), "invoices")
-        
+        cache_key = (tenant_id, str(start_date), str(end_date), "invoices", tuple(sorted(statuses or [])))
+
         # Fast path
         now = time.time()
         if not contact_id and cache_key in _GLOBAL_TX_CACHE and (now - _GLOBAL_TX_CACHE_TS.get(cache_key, 0)) < 600:
@@ -317,16 +363,19 @@ class XeroClient:
                 conditions.append(f"Date < DateTime({end_date.year},{end_date.month},{end_date.day})")
             if contact_id:
                 conditions.append(f'Contact.ContactID == Guid("{contact_id}")')
-            if statuses:
-                status_str = ",".join([f'"{s}"' for s in statuses])
-                conditions.append(f"Status == {status_str}")
 
             where = " && ".join(conditions) if conditions else None
 
             for page in range(1, max_pages + 1):
+                # Xero has a dedicated `Statuses` param for filtering by
+                # multiple statuses; cramming a comma-separated list into the
+                # `where` clause (Status == "A","B") is invalid query syntax
+                # and returns a 400 QueryParseException.
                 params = {"page": page}
                 if where:
                     params["where"] = where
+                if statuses:
+                    params["Statuses"] = ",".join(statuses)
 
                 resp = self._get(
                     url,
@@ -442,6 +491,52 @@ class XeroClient:
         if resp.status_code >= 400:
             raise RuntimeError(f"Xero P&L failed: {resp.status_code} {resp.text}")
         return resp.json()
+
+    def get_organisation(self, tenant_id: str) -> dict[str, Any]:
+        url = f"{XERO_ACCOUNTING_BASE}/Organisation"
+        resp = self._get(url, headers=self._headers(tenant_id), timeout=30)
+        if resp.status_code >= 400:
+            raise RuntimeError(f"Xero organisation failed: {resp.status_code} {resp.text}")
+        return resp.json()
+
+    def get_organisation_short_code(self, tenant_id: str) -> Optional[str]:
+        """The ShortCode used to build 'View in Xero' deep links (see helpers/xero_links.py)."""
+        with _ORG_LOCK:
+            cached = _GLOBAL_ORG_SHORT_CODE_CACHE.get(tenant_id)
+        if cached:
+            return cached
+
+        orgs = self.get_organisation(tenant_id).get("Organisations") or []
+        short_code = orgs[0].get("ShortCode") if orgs else None
+        if short_code:
+            with _ORG_LOCK:
+                _GLOBAL_ORG_SHORT_CODE_CACHE[tenant_id] = short_code
+        return short_code
+
+
+def recent_fiscal_year_ends(
+    fy_end_day: int, fy_end_month: int, count: int = 6, today: Optional[date] = None
+) -> list[date]:
+    """Build a list of the most recent fiscal year-end dates (most recent
+    first) from Xero's Organisation FinancialYearEndDay/Month.
+
+    Xero returns the fiscal year end as a day/month pair (e.g. day=31,
+    month=3 for 31 March); the day is clamped to the last valid day of that
+    month for years where it wouldn't otherwise exist (e.g. day=29, month=2).
+    """
+    import calendar
+
+    today = today or date.today()
+
+    def _clamped(year: int) -> date:
+        last_day = calendar.monthrange(year, fy_end_month)[1]
+        return date(year, fy_end_month, min(fy_end_day, last_day))
+
+    candidate = _clamped(today.year)
+    if candidate > today:
+        candidate = _clamped(today.year - 1)
+
+    return [_clamped(candidate.year - i) for i in range(count)]
 
 
 def parse_year_end_date(val: Any) -> Optional[date]:

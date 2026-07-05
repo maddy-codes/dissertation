@@ -1,3 +1,4 @@
+import mimetypes
 import os
 import base64
 from typing import List
@@ -23,13 +24,16 @@ def send_email(
     """
     try:
         # Create the EmailClient object to send Email messages.
+        endpoint = os.environ.get("AZURE_COMM_SERVICE_ENDPOINT", "https://phmai-email.uk.communication.azure.com/")
         email_client = EmailClient.from_connection_string(
-            f'endpoint=https://phmai-email.uk.communication.azure.com/;accesskey={os.environ.get("AZURE_PHM_COMM_SERVICE_PASS")}'
+            f'endpoint={endpoint};accesskey={os.environ.get("AZURE_COMM_SERVICE_PASS")}'
         )
 
         # Read the file and encode it in base64
         with open(file_path, "rb") as file:
             file_bytes_b64 = base64.b64encode(file.read())
+
+        content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
 
         # Prepare the email message
         message = {
@@ -42,7 +46,7 @@ def send_email(
             "attachments": [
                 {
                     "name": os.path.basename(file_path),
-                    "contentType": "text/csv",
+                    "contentType": content_type,
                     "contentInBase64": file_bytes_b64.decode(),
                 }
             ],
@@ -55,6 +59,40 @@ def send_email(
     except Exception as ex:
         print("Exception:")
         print(ex)
+
+
+def send_plain_email(
+    subject: str,
+    body: str,
+    recipient_list: List[dict],
+    sender_address: str = None,
+):
+    """
+    Send a plain-text email with no attachment (e.g. outreach/follow-up
+    messages). Unlike `send_email`, this raises on failure so callers can
+    surface the error to the user instead of silently reporting success.
+    """
+    endpoint = os.environ.get("AZURE_COMM_SERVICE_ENDPOINT", "https://phmai-email.uk.communication.azure.com/")
+    email_client = EmailClient.from_connection_string(
+        f'endpoint={endpoint};accesskey={os.environ.get("AZURE_COMM_SERVICE_PASS")}'
+    )
+
+    sender_address = sender_address or os.environ.get(
+        "AZURE_COMM_SENDER_ADDRESS",
+        "donotreply@e444ea86-37e7-4a7d-857b-261cf490d7ce.azurecomm.net",
+    )
+
+    message = {
+        "content": {
+            "subject": subject,
+            "plainText": body,
+        },
+        "recipients": {"to": recipient_list},
+        "senderAddress": sender_address,
+    }
+
+    poller = email_client.begin_send(message)
+    return poller.result()
 
 
 if __name__ == "__main__":

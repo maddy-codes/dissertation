@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
-{% block title %} Review Status | PHM Portal {% endblock %}
+{% block title %} Review Status | Review Portal {% endblock %}
 {% block main %}
 
 <div class="flex flex-col items-center justify-center py-24 w-full max-w-2xl mx-auto text-center relative">
 
     <div class="mb-12 relative z-10">
-        <nav class="flex justify-center mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">
+        <nav class="flex justify-center mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted/70">
             <span class="text-secondary">Review</span>
-            <span class="mx-2 text-outline-variant">/</span>
+            <span class="mx-2 text-border-hairline">/</span>
             <span>Status</span>
         </nav>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight mb-4">Review Status</h1>
-        <p class="text-on-surface-variant text-base font-medium leading-relaxed max-w-md mx-auto">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-on-surface tracking-tight leading-tight mb-4">Review Status</h1>
+        <p class="text-on-surface-muted text-base font-medium leading-relaxed max-w-md mx-auto">
             Your review is being prepared. A download link will be sent to your account email when it's ready.
         </p>
     </div>
 
-    <div class="w-full bg-white border border-outline-variant/30 rounded-sm p-12 shadow-sm relative z-10 overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-[4px] bg-secondary-container"></div>
+    <div class="w-full bg-surface border border-border-hairline rounded-lg p-12 shadow-ambient relative z-10 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-[4px] bg-primary"></div>
 
         {% set state_color = '' %}
         {% set state_bg = '' %}
@@ -25,44 +25,44 @@
         {% if state == 'PENDING' %}
             {% set state_color = 'text-secondary' %}
             {% set state_bg = 'bg-secondary/5' %}
-            {% set state_icon = 'sync' %}
+            {% set state_icon = 'loader-circle' %}
         {% elif state == 'SUCCESS' %}
-            {% set state_color = 'text-green-600' %}
-            {% set state_bg = 'bg-green-600/5' %}
-            {% set state_icon = 'task_alt' %}
+            {% set state_color = 'text-success' %}
+            {% set state_bg = 'bg-success/5' %}
+            {% set state_icon = 'circle-check-big' %}
         {% elif state == 'FAILURE' %}
             {% set state_color = 'text-error' %}
             {% set state_bg = 'bg-error/5' %}
-            {% set state_icon = 'error_outline' %}
+            {% set state_icon = 'circle-alert' %}
         {% else %}
-            {% set state_color = 'text-primary' %}
-            {% set state_bg = 'bg-primary/5' %}
+            {% set state_color = 'text-on-surface' %}
+            {% set state_bg = 'bg-neutral' %}
             {% set state_icon = 'info' %}
         {% endif %}
 
         <div data-task-state="{{ state }}" class="flex flex-col items-center">
             <div class="w-20 h-20 rounded-full {{ state_bg }} {{ state_color }} flex items-center justify-center mb-8 border border-current/10">
-                <span class="material-symbols-outlined text-4xl {% if state == 'PENDING' %}animate-spin-slow{% endif %}">{{ state_icon }}</span>
+                <i data-lucide="{{ state_icon }}" class="w-9 h-9 {% if state == 'PENDING' %}animate-spin-slow{% endif %}"></i>
             </div>
 
             <div class="flex items-center gap-4 mb-6">
-                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-outline">Status</span>
-                <span class="px-5 py-2 {{ state_bg }} rounded-sm font-mono text-[11px] {{ state_color }} font-black tracking-[0.2em] border border-current/20">{{ state }}</span>
+                <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-muted">Status</span>
+                <span class="px-5 py-2 {{ state_bg }} rounded-full font-mono text-[11px] {{ state_color }} font-bold tracking-[0.2em] border border-current/20">{{ state }}</span>
             </div>
 
-            <div class="h-[1px] w-12 bg-outline-variant/20 mb-6"></div>
+            <div class="h-[1px] w-12 bg-border-hairline mb-6"></div>
 
-            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-outline mb-2">Latest Update</p>
-            <h3 class="text-xl font-extrabold text-primary tracking-tight max-w-sm">{{ status }}</h3>
+            <p class="font-mono text-[9px] uppercase tracking-[0.3em] text-on-surface-muted mb-2">Latest Update</p>
+            <h3 class="text-xl font-extrabold text-on-surface tracking-tight max-w-sm">{{ status }}</h3>
         </div>
 
         {% if error %}
-        <div class="mt-10 text-left bg-error/5 border border-error/20 rounded-sm p-8 w-full">
+        <div class="mt-10 text-left bg-error/5 border border-error/20 rounded-lg p-8 w-full">
             <div class="flex items-center gap-3 text-error mb-6">
-                <span class="material-symbols-outlined text-xl">warning</span>
-                <h5 class="text-xs font-black uppercase tracking-[0.2em]">Error Details</h5>
+                <i data-lucide="triangle-alert" class="w-5 h-5"></i>
+                <h5 class="font-mono text-xs uppercase tracking-[0.2em]">Error Details</h5>
             </div>
-            <div class="bg-white border border-error/20 p-6 rounded-sm">
+            <div class="bg-surface border border-error/20 p-6 rounded-md">
                 <pre class="whitespace-pre-wrap font-mono text-[10px] text-error leading-relaxed overflow-x-auto font-bold">{{ error }}</pre>
             </div>
         </div>
@@ -70,8 +70,8 @@
     </div>
 
     <div class="mt-12 relative z-10">
-        <a href="/" class="inline-flex items-center gap-4 text-primary text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-colors group">
-            <span class="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+        <a href="/" class="inline-flex items-center gap-3 text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-primary-pressed transition-colors group">
+            <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
             Back to Dashboard
         </a>
     </div>
